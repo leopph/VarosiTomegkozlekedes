@@ -39,15 +39,12 @@ A vezető, a jármű, a vonal, és a megálló egyértelműen leképezhetőek s�
 
 A járat egy gyenge egyed. Egy járat csak egy vonalon megy, illetve egy vonalon 2 féle járat jár, amelyik a vonal A végállomásából a B-be, illetve visszafelé.
 Így egy járatot azonosíthatunk az alapján, hogy melyik vonalon, milyen irányba megy. A vonal azonosítója külső kulcs lesz:  
-- Járat(***vonal_id***, **visszamenet
-**)
+- Járat(***vonal_id***, **visszamenet**)
 
 Jöjjenek a kapcsolatok. Ezek a következőek: a vezetők vezetik a járműveket, a járművek elindulnak járatként bizonyos időpontokban, a járatok pedig megállnak megállóknál bizonyos időpontokban.  
 - Vezeti(***vezetői_szám***, ***rendszám***)
-- Indul(***rendszám***, ***vonal_id***, ***visszamenet
-/***, mikor)
-- Megáll(***vonal_id***, ***visszamenet
-***, ***megálló_id***, induláshoz_képest_mikor)
+- Indul(***rendszám***, ***vonal_id***, ***visszamenet***, mikor)
+- Megáll(***vonal_id***, ***visszamenet***, ***megálló_id***, induláshoz_képest_mikor)
 
 Ezek után végezhetünk összevonást a Vezeti 1:N kapcsolat és a Jármű egyed sémáin:
 - Jármű(**rendszám**, típus, alacsony_padlós, *vezetői_szám*)
@@ -57,12 +54,9 @@ Ezzel a teljes egyed-kapcsolat diagram le van képezve sémákká. A végleges s
 - Jármű(**rendszám**, típus, alacsony_padlós, *vezetői_szám*)
 - Vonal(**id**, megnevezés, hossz)
 - Megálló(**id**, név, hely)
-- Járat(***vonal_id***, **visszamenet
-**)
-- Indul(***rendszám***, ***vonal_id***, ***visszamenet
-/***, mikor)
-- Megáll(***vonal_id***, ***visszamenet
-***, ***megálló_id***, induláshoz_képest_mikor)
+- Járat(***vonal_id***, **visszamenet**)
+- Indul(***rendszám***, ***vonal_id***, ***visszamenet***, mikor)
+- Megáll(***vonal_id***, ***visszamenet***, ***megálló_id***, induláshoz_képest_mikor)
 
 
 ### 5. **A sémák normalizálása**
