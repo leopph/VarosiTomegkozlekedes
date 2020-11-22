@@ -24,7 +24,7 @@ TBD
 
 
 ### 4. **Az diagram sémákká való leképezésének folyamata**
-Jelzések: a sémák kulcsait **félkövéren**, a külső kulcsokat pedig *dőlten* jelzem.
+Jelölések: a sémák kulcsait **félkövéren**, a külső kulcsokat pedig *dőlten* jelölöm.
 
 A diagramon látható egyedek a következőek: Vezető, Jármű, Járat, Vonal, Megálló.
 - Egy jármű jelképez egy konkrét, rendszámmal ellátott fizikai járművet.
