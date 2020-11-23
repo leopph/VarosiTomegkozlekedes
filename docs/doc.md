@@ -26,37 +26,42 @@ TBD
 ### 4. **Az diagram sémákká való leképezésének folyamata**
 Jelölések: a sémák kulcsait **félkövéren**, a külső kulcsokat pedig *dőlten* jelölöm.
 
-A diagramon látható egyedek a következőek: Vezető, Jármű, Járat, Vonal, Megálló.
+A diagramon látható egyedek a következőek: Vezető, Jármű, Járműtípus, Járat, Vonal, Megálló.
 - Egy jármű jelképez egy konkrét, rendszámmal ellátott fizikai járművet.
+- A járműtípusok diktálják a járművek típusának értéktartományát.
 - A vonal jelképezi az útvonalat, amelyen a járművek járnak.
 - A járat reprezentálja a járművek összességét, amelyek az adott vonalon járnak.
+- A megálló egy fizikai megállóhely.
 
 A vezető, a jármű, a vonal, és a megálló egyértelműen leképezhetőek sémákká:  
 - Vezető(**vezetői_szám**, vezetéknév, keresztnév, szül_dátum)
-- Jármű(**rendszám**, típus, alacsony_padlós)
-- Vonal(**id**, megnevezés, hossz)
+- Jármű(**rendszám**, alacsony_padlós)
+- Járműtípus(**név**, elektromos)
+- Vonal(**név**, hossz)
 - Megálló(**id**, név, hely)
 
-A járat egy gyenge egyed. Egy járat csak egy vonalon megy, illetve egy vonalon 2 féle járat jár, amelyik a vonal A végállomásából a B-be, illetve visszafelé.
-Így egy járatot azonosíthatunk az alapján, hogy melyik vonalon, milyen irányba megy. A vonal azonosítója külső kulcs lesz:  
-- Járat(***vonal_id***, **visszamenet**)
+A járat egy gyenge egyed. Egy járat csak egy vonalon megy, illetve egy vonalon 2 féle járat jár: egy a vonal A végállomásából a B-be, és egy visszafelé.
+Így egy járatot azonosíthatunk az alapján, hogy melyik vonalon, milyen irányba megy. A vonal neve külső kulcs lesz:  
+- Járat(***vonal_név***, **visszamenet**)
 
-Jöjjenek a kapcsolatok. Ezek a következőek: a vezetők vezetik a járműveket, a járművek elindulnak járatként bizonyos időpontokban, a járatok pedig megállnak megállóknál bizonyos időpontokban.  
+Jöjjenek a kapcsolatok. Ezek a következőek: a vezetők vezetik a járműveket, a járművek felvesznek egy típust maguknak és elindulnak járatként bizonyos időpontokban, a járatok pedig megállnak megállóknál bizonyos időpontokban.  
 - Vezeti(***vezetői_szám***, ***rendszám***)
-- Indul(***rendszám***, ***vonal_id***, ***visszamenet***, mikor)
-- Megáll(***vonal_id***, ***visszamenet***, ***megálló_id***, induláshoz_képest_mikor)
+- Indul(***rendszám***, ***vonal_név***, ***visszamenet***, mikor)
+- Megáll(***vonal_név***, ***visszamenet***, ***megálló_id***, induláshoz_képest_mikor)
+- Típusa(***rendszám***, ***típus_név***)
 
-Ezek után végezhetünk összevonást a Vezeti 1:N kapcsolat és a Jármű egyed sémáin:
-- Jármű(**rendszám**, típus, alacsony_padlós, *vezetői_szám*)
+Ezek után végezhetünk összevonást a Vezeti és Típusa 1:N kapcsolatokon:
+- Jármű(**rendszám**, alacsony_padlós, *típus_név*, *vezetői_szám*)
 
 Ezzel a teljes egyed-kapcsolat diagram le van képezve sémákká. A végleges sémák:
 - Vezető(**vezetői_szám**, vezetéknév, keresztnév, szül_dátum)
-- Jármű(**rendszám**, típus, alacsony_padlós, *vezetői_szám*)
-- Vonal(**id**, megnevezés, hossz)
+- Járműtípus(**név**, elektromos)
+- Jármű(**rendszám**, alacsony_padlós, *típus_név*, *vezetői_szám*)
+- Vonal(**név**, hossz)
 - Megálló(**id**, név, hely)
-- Járat(***vonal_id***, **visszamenet**)
-- Indul(***rendszám***, ***vonal_id***, ***visszamenet***, mikor)
-- Megáll(***vonal_id***, ***visszamenet***, ***megálló_id***, induláshoz_képest_mikor)
+- Járat(***vonal_név***, **visszamenet**)
+- Indul(***rendszám***, ***vonal_név***, ***visszamenet***, mikor)
+- Megáll(***vonal_név***, ***visszamenet***, ***megálló_id***, induláshoz_képest_mikor)
 
 
 ### 5. **A sémák normalizálása**
@@ -68,5 +73,5 @@ Az egyedek sémái (a járatot leszámítva) mind egyelemű kulcsokkal rendelkez
 Az Indul mikor attribútuma teljesen függ a kulcstól, hiszen más rendszámú, más vonalon induló, más irányú járművek indulási időpontjai sem összefüggőek. Végezetül a Megáll induláshoz_képest_mikor attribútuma is teljesen függ a séma kulcsától, hiszen más vonanalon közlekedő járművek más megállóknál állnak meg, a vonal iránya pedig befolyásolja, hogy az adott megállóhoz induláshoz képest hányadik percben ér. Így tehát az összes séma megfelel a 2. normálformának.
 
 #### 3NF
-Több másodlagos attribútummal csak a Vezető, Jármű, Vonal, és Megálló sémák rendelkeznek. A vezető esetében a neve és a születési dátuma között semmilyen összefüggés nincs. Ugyanez igaz a jármű típusára, padlószintjére, és vezetői számára. A vonalak neve és hossza, illetve a megálló neve és helyszíne között sincsen kapcsolat. Ezek így 3. normálformában vannak, ahogy a Járat, Indul, és Megáll sémák is, hiszen azokban
+Több másodlagos attribútummal csak a Vezető, Jármű, és Megálló sémák rendelkeznek. A vezető esetében a neve és a születési dátuma között semmilyen összefüggés nincs. Ugyanez igaz a jármű típusára, padlószintjére, és vezetői számára. Egy megálló neve és helyszíne között sincsen kapcsolat. Ezek így 3. normálformában vannak, ahogy a Járműtípus, Járat, Indul, Vonal, és Megáll sémák is, hiszen azokban
 nincs egynél több másodlagos attribútum, így nincs amik közt függés alakulhatna ki.
