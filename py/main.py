@@ -233,7 +233,7 @@ class Header(tkinter.Frame):
                     where megallo_nev = %s
                     and menetrend.vonal in (select DISTINCT vonal from menetrend where megallo_nev = %s)
                     and alkerdes1.mikor < alkerdes2.mikor) as alkerdes3 on alkerdes3.vonal = indul.vonal_nev and alkerdes3.visszamenet = indul.visszamenet
-                    order by indul.mikor, alkerdes3.mikor'''
+                    order by addtime(indul.mikor, alkerdes3.mikor)'''
 
             cursor.execute(operation = monster_sql, params = (from_stop, to_stop, from_stop, to_stop))
             rows = cursor.fetchall()
