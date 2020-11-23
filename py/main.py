@@ -51,16 +51,16 @@ class SearchResults(ContentPage):
         self.rowconfigure(0, weight = 1)
         self.rowconfigure(1, weight = 9)
 
-        title_frame = tkinter.Frame(master = self)
+        title_frame = tkinter.Frame(master = self, bg = self["bg"])
         title_frame.grid(row = 0, sticky = "NESW")
 
         title_frame.rowconfigure(0, weight = 1)
         title_frame.columnconfigure(0, weight = 1)
 
-        tkinter.Label(master = title_frame, text = data["from"] + " - " + data["to"], font = ("", 24)).grid(row = 0, column = 0, sticky = "NESW")
+        tkinter.Label(master = title_frame, text = data["from"] + " - " + data["to"], font = (None, 24), bg = self["bg"]).grid(row = 0, column = 0, sticky = "NESW")
     
 
-        result_frame = tkinter.Frame(master = self)
+        result_frame = tkinter.Frame(master = self, bg = self["bg"])
         result_frame.grid(row = 1, sticky = "NESW")
 
         result_frame.columnconfigure(0, weight = 4)
@@ -73,13 +73,13 @@ class SearchResults(ContentPage):
         grid_row_count = 0
         for route_id, datalist in data["results"].items():
             for data in datalist:
-                route = Route(route_id, data[0], data[3], data[1] + data[2])
+                route = Route(route_id, data[0], data[3], data[1])
                 self.routes.append(route)
 
-                tkinter.Label(result_frame, text = route.name, font = ("", 12)).grid(row = grid_row_count, column = 0, sticky = "NESW")
-                tkinter.Label(result_frame, text = route.departure, font = ("", 12)).grid(row = grid_row_count, column = 1, sticky = "NESW")
-                tkinter.Label(result_frame, text = route.type, font = ("", 12)).grid(row = grid_row_count, column = 1, sticky = "NESW")
-                tkinter.Button(result_frame, text = "Részletek", command = lambda index = grid_row_count: self.route_details(index)).grid(row = grid_row_count, column = 3, sticky = "NESW")
+                tkinter.Label(result_frame, text = route.name, font = (None, 12), bg = "LightSkyBlue2").grid(row = grid_row_count, column = 0, sticky = "NESW")
+                tkinter.Label(result_frame, text = route.type, font = (None, 12), bg = "LightSkyBlue2").grid(row = grid_row_count, column = 1, sticky = "NESW")
+                tkinter.Label(result_frame, text = route.departure + data[2], font = (None, 12), bg = "LightSkyBlue2").grid(row = grid_row_count, column = 2, sticky = "NESW")
+                tkinter.Button(result_frame, text = "Részletek", command = lambda index = grid_row_count: self.route_details(index), bg = "dark slate blue", fg = "snow").grid(row = grid_row_count, column = 3, sticky = "NESW")
 
                 grid_row_count += 1
 
@@ -117,26 +117,26 @@ class Header(tkinter.Frame):
         self.columnconfigure(6, weight = 1)
 
 
-        self._backbutton = tkinter.Button(self, text = "Vissza", command = self.master.load_previous_page)
+        self._backbutton = tkinter.Button(self, text = "Vissza", command = self.master.load_previous_page, bg = "DarkOliveGreen3")
         self._backbutton.grid(row = 0, column = 0, sticky = "NESW")
 
-        self._nextbutton = tkinter.Button(self, text = "Előre", command = self.master.load_next_page)
+        self._nextbutton = tkinter.Button(self, text = "Előre", command = self.master.load_next_page, bg = "DarkOliveGreen3")
         self._nextbutton.grid(row = 0, column = 1, sticky = "NESW")
 
-        self.from_stop_label = tkinter.Label(self, text = "Honnan:", bg = self["bg"])
+        self.from_stop_label = tkinter.Label(self, text = "Honnan:", bg = self["bg"], fg = "snow", font = (None, 10))
         self.from_stop_label.grid(row = 0, column = 2, sticky = "E")
 
         self.from_stop = tkinter.Entry(self)
         self.from_stop.grid(row = 0, column = 3, sticky = "W")
 
-        self.to_stop_label = tkinter.Label(self, text = "Hová:", bg = self["bg"])
+        self.to_stop_label = tkinter.Label(self, text = "Hová:", bg = self["bg"], fg = "snow", font = (None, 10))
         self.to_stop_label.grid(row = 0, column = 4, sticky = "E")
 
         self.to_stop = tkinter.Entry(self)
         self.to_stop.grid(row = 0, column = 5, sticky = "W")
 
-        self.send_button = tkinter.Button(self, text = "Keresés", command = self.search)
-        self.send_button.grid(row = 0, column = 6)
+        self.search_button = tkinter.Button(self, text = "Keresés", command = self.search, bg = "thistle3")
+        self.search_button.grid(row = 0, column = 6)
 
     
     @property
@@ -203,7 +203,7 @@ class App(tkinter.Tk):
         self.rowconfigure(0, weight = 2)
         self.rowconfigure(1, weight = 98)
 
-        self.header = Header(self, bg = "grey")
+        self.header = Header(self, bg = "slate blue")
         self.header.grid(row = 0, sticky = "NESW")
 
         self.content_pages = ["Home", "SearchResults", "RouteResults"]
@@ -221,7 +221,7 @@ class App(tkinter.Tk):
             if self.current_page is not None and self.loaded_pages.index(self.current_page) != len(self.loaded_pages) - 1:
                 del self.loaded_pages[self.loaded_pages.index(self.current_page) + 1:]
 
-            self.current_page = globals()[page](data, self)
+            self.current_page = globals()[page](data, self, bg = "snow")
             self.current_page.grid(row = 1, sticky = "NESW")
             self.loaded_pages.append(self.current_page)
 
