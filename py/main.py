@@ -5,16 +5,40 @@ import mysql.connector
 
 
 
+class ContentPage(tkinter.Frame):
+    def __init__(self, data, *args, **kwargs):
+        tkinter.Frame.__init__(self, *args, **kwargs)
+        self.data = data
+
+
+
+
+class Home(ContentPage):
+    def __init__(self, data, *args, **kwargs):
+        ContentPage.__init__(self, data, *args, **kwargs)
+        self["bg"] = "pink"
+
+
+
+
+class SearchResults(ContentPage):
+    def __init__(self, data, *args, **kwargs):
+        ContentPage.__init__(self, data, *args, **kwargs)
+        self["bg"] = "red"
+
+
+
+
 class Header(tkinter.Frame):
     def __init__(self, *args, **kwargs):
         tkinter.Frame.__init__(self, *args, **kwargs)
 
         self.columnconfigure(0, weight = 1)
-        self.columnconfigure(1, weight = 2)
-        self.columnconfigure(2, weight = 1)
-        self.columnconfigure(3, weight = 2)
-        self.columnconfigure(4, weight = 1)
-        self.columnconfigure(5, weight = 1)
+        self.columnconfigure(1, weight = 1)
+        self.columnconfigure(2, weight = 2)
+        self.columnconfigure(3, weight = 4)
+        self.columnconfigure(4, weight = 2)
+        self.columnconfigure(5, weight = 4)
         self.columnconfigure(6, weight = 1)
 
 
@@ -59,29 +83,6 @@ class Header(tkinter.Frame):
 
 
 
-class ContentPage(tkinter.Frame):
-    def __init__(self, data, *args, **kwargs):
-        tkinter.Frame.__init__(self, *args, **kwargs)
-        self.data = data
-
-
-
-class Home(ContentPage):
-    def __init__(self, data, *args, **kwargs):
-        ContentPage.__init__(self, data, *args, **kwargs)
-        self["bg"] = "pink"
-
-
-
-
-class SearchResults(ContentPage):
-    def __init__(self, data, *args, **kwargs):
-        ContentPage.__init__(self, data, *args, **kwargs)
-        self["bg"] = "red"
-
-
-
-
 class App(tkinter.Tk):
     def __init__(self, *args, **kwargs):
         tkinter.Tk.__init__(self, *args, **kwargs)
@@ -89,8 +90,8 @@ class App(tkinter.Tk):
         self.title("Városi Tömegközlekedés")
 
         self.columnconfigure(0, weight = 1)
-        self.rowconfigure(0, weight = 1)
-        self.rowconfigure(1, weight = 9)
+        self.rowconfigure(0, weight = 2)
+        self.rowconfigure(1, weight = 98)
 
         self.header = Header(self, bg = "grey")
         self.header.grid(row = 0, sticky = "NESW")
