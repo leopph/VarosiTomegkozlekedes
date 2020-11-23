@@ -16,7 +16,8 @@ class ContentPage(tkinter.Frame):
 class Home(ContentPage):
     def __init__(self, data, *args, **kwargs):
         ContentPage.__init__(self, data, *args, **kwargs)
-        self["bg"] = "pink"
+        self.label = tkinter.Label(self, text = "home")
+        self.label.pack()
 
 
 
@@ -24,7 +25,32 @@ class Home(ContentPage):
 class SearchResults(ContentPage):
     def __init__(self, data, *args, **kwargs):
         ContentPage.__init__(self, data, *args, **kwargs)
-        self["bg"] = "red"
+
+        self.look_for_transport()
+
+
+    def look_for_transport(self):
+        connection = mysql.connector.connect(host = dbhost, database = dbname, user = dbuser, password = dbpwd)
+        cursor = connection.cursor()
+        sql = '''select indul.vonal_nev, ADDTIME(indul.mikor, alkerdes3.mikor) from indul
+                    inner join (select menetrend.vonal, menetrend.visszamenet, menetrend.mikor from menetrend
+                    inner join (select vonal, visszamenet, mikor from menetrend where megallo_nev = %s) as alkerdes1 on alkerdes1.vonal = menetrend.vonal and menetrend.visszamenet = alkerdes1.visszamenet
+                    inner join (select vonal, visszamenet, mikor from menetrend where megallo_nev = %s) as alkerdes2 on alkerdes2.vonal = menetrend.vonal and menetrend.visszamenet = alkerdes2.visszamenet
+                    where megallo_nev = %s
+                    and menetrend.vonal in (select DISTINCT vonal from menetrend where megallo_nev = %s)
+                    and alkerdes1.mikor < alkerdes2.mikor) as alkerdes3 on alkerdes3.vonal = indul.vonal_nev and alkerdes3.visszamenet = indul.visszamenet'''
+        cursor.execute(operation = sql, params = (self.data["from"], self.data["to"], self.data["from"], self.data["to"]))
+
+        rows = cursor.fetchall()
+
+        if not rows:
+            tkinter.messagebox.showerror("f")
+
+        for row in rows:
+            label = tkinter.Label(self, text = str(row[0]) + " " + str(row[1]))
+            label.pack()
+
+        connection.close()
 
 
 
@@ -74,11 +100,15 @@ class Header(tkinter.Frame):
 
 
     def search(self):
-        data = {"from", self.from_stop.get(), "to", self.to_stop.get()}
-        self.master.load_new_page("SearchResults", data)
+        if self.from_stop.get() == "" or self.to_stop.get() == "":
+            tkinter.messagebox.showwarning(title = "Figyelem!", message = "Kérem adja meg az indulási- és célállomását!")
 
-        self.from_stop.delete(0, "end")
-        self.to_stop.delete(0, "end")
+        else:
+            data = {"from": self.from_stop.get(), "to": self.to_stop.get()}
+            self.master.load_new_page("SearchResults", data)
+
+            self.from_stop.delete(0, "end")
+            self.to_stop.delete(0, "end")
 
 
 
@@ -141,4 +171,9 @@ class App(tkinter.Tk):
 
 
 if __name__ == "__main__":
+    dbhost = "localhost"
+    dbname = "varosi_tomegkozlekedes"
+    dbuser = "root"
+    dbpwd = ""
+
     App().mainloop()
