@@ -5,9 +5,10 @@ import mysql.connector
 
 
 class Route:
-    def __init__(self, name: str, is_returning: bool, dep_time = None):
+    def __init__(self, name: str, is_returning: bool, type: str, dep_time = None):
         self._name = name
         self._is_returning = is_returning
+        self.type = type
         self._dep_time = dep_time
 
     
@@ -64,18 +65,21 @@ class SearchResults(ContentPage):
 
         result_frame.columnconfigure(0, weight = 4)
         result_frame.columnconfigure(1, weight = 4)
-        result_frame.columnconfigure(2, weight = 1)
+        result_frame.columnconfigure(2, weight = 4)
+        result_frame.columnconfigure(3, weight = 1)
 
         self.routes = list()
 
         grid_row_count = 0
-        for route, datalist in data["results"].items():
+        for route_id, datalist in data["results"].items():
             for data in datalist:
-                self.routes.append(Route(route, data[0], data[1] + data[2]))
+                route = Route(route_id, data[0], data[3], data[1] + data[2])
+                self.routes.append(route)
 
-                tkinter.Label(result_frame, text = route, font = ("", 12)).grid(row = grid_row_count, column = 0, sticky = "NESW")
-                tkinter.Label(result_frame, text = str(data[1] + data[2]), font = ("", 12)).grid(row = grid_row_count, column = 1, sticky = "NESW")
-                tkinter.Button(result_frame, text = "Részletek", command = lambda index = grid_row_count: self.route_details(index)).grid(row = grid_row_count, column = 2, sticky = "NESW")
+                tkinter.Label(result_frame, text = route.name, font = ("", 12)).grid(row = grid_row_count, column = 0, sticky = "NESW")
+                tkinter.Label(result_frame, text = route.departure, font = ("", 12)).grid(row = grid_row_count, column = 1, sticky = "NESW")
+                tkinter.Label(result_frame, text = route.type, font = ("", 12)).grid(row = grid_row_count, column = 1, sticky = "NESW")
+                tkinter.Button(result_frame, text = "Részletek", command = lambda index = grid_row_count: self.route_details(index)).grid(row = grid_row_count, column = 3, sticky = "NESW")
 
                 grid_row_count += 1
 
@@ -155,7 +159,8 @@ class Header(tkinter.Frame):
             connection = mysql.connector.connect(host = dbhost, database = dbname, user = dbuser, password = dbpwd)
             cursor = connection.cursor()
 
-            monster_sql = '''select indul.vonal_nev, indul.visszamenet, indul.mikor, alkerdes3.mikor from indul
+            monster_sql = '''select indul.vonal_nev, indul.visszamenet, indul.mikor, alkerdes3.mikor, jarmu.tipus_nev from indul
+                    inner join jarmu on jarmu.rendszam = indul.rendszam
                     inner join (select menetrend.vonal, menetrend.visszamenet, menetrend.mikor from menetrend
                     inner join (select vonal, visszamenet, mikor from menetrend where megallo_nev = %s) as alkerdes1 on alkerdes1.vonal = menetrend.vonal and menetrend.visszamenet = alkerdes1.visszamenet
                     inner join (select vonal, visszamenet, mikor from menetrend where megallo_nev = %s) as alkerdes2 on alkerdes2.vonal = menetrend.vonal and menetrend.visszamenet = alkerdes2.visszamenet
@@ -176,7 +181,7 @@ class Header(tkinter.Frame):
                 for row in rows:
                     if row[0] not in data["results"]:
                         data["results"][row[0]] = list()
-                    data["results"][row[0]].append((row[1], row[2], row[3]))
+                    data["results"][row[0]].append((row[1], row[2], row[3], row[4]))
 
                 self.master.load_new_page("SearchResults", data)
 
