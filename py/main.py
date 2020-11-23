@@ -18,11 +18,11 @@ class Header(tkinter.Frame):
         self.columnconfigure(6, weight = 1)
 
 
-        self.backbutton = tkinter.Button(self, text = "Vissza", command = self.master.load_previous_page)
-        self.backbutton.grid(row = 0, column = 0, sticky = "NESW")
+        self._backbutton = tkinter.Button(self, text = "Vissza", command = self.master.load_previous_page)
+        self._backbutton.grid(row = 0, column = 0, sticky = "NESW")
 
-        self.nextbutton = tkinter.Button(self, text = "Előre", command = self.master.load_next_page)
-        self.nextbutton.grid(row = 0, column = 1, sticky = "NESW")
+        self._nextbutton = tkinter.Button(self, text = "Előre", command = self.master.load_next_page)
+        self._nextbutton.grid(row = 0, column = 1, sticky = "NESW")
 
         self.from_stop_label = tkinter.Label(self, text = "Honnan:", bg = self["bg"])
         self.from_stop_label.grid(row = 0, column = 2, sticky = "E")
@@ -40,6 +40,15 @@ class Header(tkinter.Frame):
         self.send_button.grid(row = 0, column = 6)
 
     
+    @property
+    def backbutton(self):
+        return self._backbutton
+
+    @property
+    def nextbutton(self):
+        return self._nextbutton
+
+
     def search(self):
         data = {"from", self.from_stop.get(), "to", self.to_stop.get()}
         self.master.load_new_page("SearchResults", data)
@@ -92,12 +101,18 @@ class App(tkinter.Tk):
         self.current_page = None
         self.load_new_page("Home", dict())
 
+        self.header.backbutton["state"] = "disabled"
+        self.header.nextbutton["state"] = "disabled"
+
         
     def load_new_page(self, page: str, data: dict):
         if page in self.content_pages:
             self.current_page = globals()[page](data, self)
             self.current_page.grid(row = 1, sticky = "NESW")
             self.loaded_pages.append(self.current_page)
+
+            self.header.backbutton["state"] = "normal"
+            self.header.nextbutton["state"] = "disabled"
 
     
     def load_previous_page(self):
@@ -107,6 +122,9 @@ class App(tkinter.Tk):
             self.current_page = self.loaded_pages[current_index - 1]
             self.current_page.tkraise()
 
+            self.header.backbutton["state"] = "disabled" if current_index - 1 == 0 else "normal"
+            self.header.nextbutton["state"] = "normal"
+
 
     def load_next_page(self):
         current_index = self.loaded_pages.index(self.current_page)
@@ -114,6 +132,9 @@ class App(tkinter.Tk):
         if current_index + 1 < len(self.loaded_pages):
             self.current_page = self.loaded_pages[current_index + 1]
             self.current_page.tkraise()
+
+            self.header.backbutton["state"] = "normal"
+            self.header.nextbutton["state"] = "disabled" if current_index + 1 == len(self.loaded_pages) -1 else "normal"
 
 
 
