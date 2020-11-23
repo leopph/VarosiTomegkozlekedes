@@ -26,6 +26,24 @@ class Route:
 
 
 
+
+class Stop:
+    def __init__(self, name: str, location: str):
+        self._name = name
+        self._location = location
+
+    
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def location(self):
+        return self._location
+
+
+
+
 class ContentPage(tkinter.Frame):
     def __init__(self, data, *args, **kwargs):
         tkinter.Frame.__init__(self, *args, **kwargs)
@@ -68,30 +86,39 @@ class SearchResults(ContentPage):
         result_frame.columnconfigure(2, weight = 4)
         result_frame.columnconfigure(3, weight = 1)
 
-        self.routes = list()
-
         grid_row_count = 0
         for route_id, datalist in data["results"].items():
             for data in datalist:
                 route = Route(route_id, data[0], data[3], data[1])
-                self.routes.append(route)
 
                 tkinter.Label(result_frame, text = route.name, font = (None, 12), bg = "LightSkyBlue2").grid(row = grid_row_count, column = 0, sticky = "NESW")
                 tkinter.Label(result_frame, text = route.type, font = (None, 12), bg = "LightSkyBlue2").grid(row = grid_row_count, column = 1, sticky = "NESW")
                 tkinter.Label(result_frame, text = route.departure + data[2], font = (None, 12), bg = "LightSkyBlue2").grid(row = grid_row_count, column = 2, sticky = "NESW")
-                tkinter.Button(result_frame, text = "Részletek", command = lambda index = grid_row_count: self.route_details(index), bg = "dark slate blue", fg = "snow").grid(row = grid_row_count, column = 3, sticky = "NESW")
+                tkinter.Button(result_frame, text = "Részletek", command = lambda route = route: self.route_details(route), bg = "dark slate blue", fg = "snow").grid(row = grid_row_count, column = 3, sticky = "NESW")
 
                 grid_row_count += 1
 
     
-    def route_details(self, index):
-        print(index)
+    def route_details(self, route: Route):
         connection = mysql.connector.connect(host = dbhost, database = dbname, user = dbuser, password = dbpwd)
         cursor = connection.cursor()
 
+        sql = '''select megallo.nev, megallo.hely, addtime(megall.mikor, indul.mikor) from megall
+                inner join megallo on megall.megallo_id = megallo.id
+                inner join indul on megall.visszamenet = indul.visszamenet and megall.vonal_nev = indul.vonal_nev
+                where megall.vonal_nev = %s and megall.visszamenet = %s and indul.mikor = %s
+                order by addtime(indul.mikor, megall.mikor)'''
+
+        cursor.execute(operation = sql, params = (route.name, route.is_returning, route.departure))
+
+        data = {"route": route, "stops": list()}
+
+        for row in cursor.fetchall():
+            data["stops"].append((Stop(row[0], row[1]), row[2]))
+
         connection.close()
 
-        self.master.load_new_page("RouteResults", None)
+        self.master.load_new_page("RouteResults", data)
 
 
 
@@ -99,7 +126,46 @@ class SearchResults(ContentPage):
 class RouteResults(ContentPage):
     def __init__(self, data, *args, **kwargs):
         ContentPage.__init__(self, data, *args, **kwargs)
-        tkinter.Label(self, text = "RouteResults").pack()
+
+        self.columnconfigure(0, weight = 1)
+        self.rowconfigure(0, weight = 1)
+        self.rowconfigure(0, weight = 9)
+
+
+        title_frame = tkinter.Frame(self, bg = self["bg"])
+        title_frame.grid(row = 0, column = 0, sticky = "NESW")
+
+        title_frame.rowconfigure(0, weight = 1)
+        title_frame.columnconfigure(0, weight = 1)
+
+        tkinter.Label(title_frame, text = data["route"].name + " jelzésű " + data["route"].type, font = (None, 24), bg = self["bg"]).grid(row = 0, column = 0, sticky = "NESW")
+
+        result_frame = tkinter.Frame(self, bg = self["bg"])
+        result_frame.grid(row = 1, column = 0)
+
+        result_frame.columnconfigure(0, weight = 1)
+        result_frame.columnconfigure(1, weight = 1)
+        result_frame.columnconfigure(2, weight = 1)
+        result_frame.columnconfigure(3, weight = 1)
+
+        grid_row_count = 0
+        for stop, time in data["stops"]:
+            tkinter.Label(result_frame, text = time, font = (None, 12)).grid(row = grid_row_count, column = 0, sticky = "NESW")
+            tkinter.Label(result_frame, text = stop.name, font = (None, 12)).grid(row = grid_row_count, column = 1, sticky = "NESW")
+            tkinter.Label(result_frame, text = stop.location, font = (None, 12)).grid(row = grid_row_count, column = 2, sticky = "NESW")
+            tkinter.Button(result_frame, text = "Részletek", font = (None, 12), command = lambda stop = stop: self.stop_details(stop)).grid(row = grid_row_count, column = 3, sticky = "NESW")
+
+            grid_row_count += 1
+
+
+    def stop_details(self, stop: Stop):
+        print(stop.name)
+
+
+
+
+class StopDetails:
+    pass
           
 
 
@@ -248,7 +314,7 @@ class App(tkinter.Tk):
             self.current_page.tkraise()
 
             self.header.backbutton["state"] = "normal"
-            self.header.nextbutton["state"] = "disabled" if current_index + 1 == len(self.loaded_pages) -1 else "normal"
+            self.header.nextbutton["state"] = "disabled" if current_index + 1 == len(self.loaded_pages) - 1 else "normal"
 
 
 
