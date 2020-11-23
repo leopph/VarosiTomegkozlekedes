@@ -4,6 +4,26 @@ import mysql.connector
 
 
 
+class Route:
+    def __init__(self, name: str, is_returning: bool, dep_time = None):
+        self._name = name
+        self._is_returning = is_returning
+        self._dep_time = dep_time
+
+    
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def is_returning(self):
+        return self._is_returning
+
+    @property
+    def departure(self):
+        return self._dep_time
+
+
 
 class ContentPage(tkinter.Frame):
     def __init__(self, data, *args, **kwargs):
@@ -30,40 +50,44 @@ class SearchResults(ContentPage):
         self.rowconfigure(0, weight = 1)
         self.rowconfigure(1, weight = 9)
 
-        self.title_frame = tkinter.Frame(master = self)
-        self.title_frame.grid(row = 0, sticky = "NESW")
+        title_frame = tkinter.Frame(master = self)
+        title_frame.grid(row = 0, sticky = "NESW")
 
-        self.title_frame.rowconfigure(0, weight = 1)
-        self.title_frame.columnconfigure(0, weight = 1)
+        title_frame.rowconfigure(0, weight = 1)
+        title_frame.columnconfigure(0, weight = 1)
 
-        tkinter.Label(master = self.title_frame, text = data["from"] + " - " + data["to"], font = ("", 24)).grid(row = 0, column = 0, sticky = "NESW")
+        tkinter.Label(master = title_frame, text = data["from"] + " - " + data["to"], font = ("", 24)).grid(row = 0, column = 0, sticky = "NESW")
     
 
-        self.result_frame = tkinter.Frame(master = self)
-        self.result_frame.grid(row = 1, sticky = "NESW")
+        result_frame = tkinter.Frame(master = self)
+        result_frame.grid(row = 1, sticky = "NESW")
 
-        self.result_frame.listbox = tkinter.Listbox(self.result_frame, font = ("", 12), selectmode = "SINGLE")
-        self.result_frame.listbox.pack()
+        result_frame.columnconfigure(0, weight = 4)
+        result_frame.columnconfigure(1, weight = 4)
+        result_frame.columnconfigure(2, weight = 1)
 
+        self.routes = list()
+
+        grid_row_count = 0
         for route, datalist in data["results"].items():
             for data in datalist:
-                self.result_frame.listbox.insert(self.result_frame.listbox.size(), str(route) + " " + str(data[1] + data[2]))
+                self.routes.append(Route(route, data[0], data[1] + data[2]))
 
-        self.result_frame.button = tkinter.Button(self.result_frame, text = "Részletek", command = self.route_details)
-        self.result_frame.button.pack()
+                tkinter.Label(result_frame, text = route, font = ("", 12)).grid(row = grid_row_count, column = 0, sticky = "NESW")
+                tkinter.Label(result_frame, text = str(data[1] + data[2]), font = ("", 12)).grid(row = grid_row_count, column = 1, sticky = "NESW")
+                tkinter.Button(result_frame, text = "Részletek", command = lambda index = grid_row_count: self.route_details(index)).grid(row = grid_row_count, column = 2, sticky = "NESW")
+
+                grid_row_count += 1
 
     
-    def route_details(self):
-        if not self.result_frame.listbox.curselection():
-            tkinter.messagebox.showerror("Hiba", "Kérem válasszon ki egy járatot!")
+    def route_details(self, index):
+        print(index)
+        connection = mysql.connector.connect(host = dbhost, database = dbname, user = dbuser, password = dbpwd)
+        cursor = connection.cursor()
 
-        else:
-            connection = mysql.connector.connect(host = dbhost, database = dbname, user = dbuser, password = dbpwd)
-            cursor = connection.cursor()
+        connection.close()
 
-            connection.close()
-
-            self.master.load_new_page("RouteResults", None)
+        self.master.load_new_page("RouteResults", None)
 
 
 
@@ -121,7 +145,10 @@ class Header(tkinter.Frame):
 
 
     def search(self):
-        if self.from_stop.get() == "" or self.to_stop.get() == "":
+        from_stop = self.from_stop.get().strip()
+        to_stop = self.to_stop.get().strip()
+
+        if from_stop == "" or to_stop == "":
             tkinter.messagebox.showwarning(title = "Figyelem!", message = "Kérem adja meg az indulási- és célállomását!")
 
         else:
@@ -137,14 +164,14 @@ class Header(tkinter.Frame):
                     and alkerdes1.mikor < alkerdes2.mikor) as alkerdes3 on alkerdes3.vonal = indul.vonal_nev and alkerdes3.visszamenet = indul.visszamenet
                     order by indul.mikor, alkerdes3.mikor'''
 
-            cursor.execute(operation = monster_sql, params = (self.from_stop.get(), self.to_stop.get(), self.from_stop.get(), self.to_stop.get()))
+            cursor.execute(operation = monster_sql, params = (from_stop, to_stop, from_stop, to_stop))
             rows = cursor.fetchall()
 
             if not rows:
                 tkinter.messagebox.showerror(title = "Hiba", message = "Ezen az útvonalon nem jár egy járat sem!")
 
             else:
-                data = {"from": self.from_stop.get(), "to": self.to_stop.get(), "results": dict()}
+                data = {"from": from_stop, "to": to_stop, "results": dict()}
 
                 for row in rows:
                     if row[0] not in data["results"]:
@@ -186,6 +213,9 @@ class App(tkinter.Tk):
         
     def load_new_page(self, page: str, data: dict):
         if page in self.content_pages:
+            if self.current_page is not None and self.loaded_pages.index(self.current_page) != len(self.loaded_pages) - 1:
+                del self.loaded_pages[self.loaded_pages.index(self.current_page) + 1:]
+
             self.current_page = globals()[page](data, self)
             self.current_page.grid(row = 1, sticky = "NESW")
             self.loaded_pages.append(self.current_page)
