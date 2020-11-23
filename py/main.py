@@ -129,7 +129,7 @@ class RouteResults(ContentPage):
 
         self.columnconfigure(0, weight = 1)
         self.rowconfigure(0, weight = 1)
-        self.rowconfigure(0, weight = 9)
+        self.rowconfigure(1, weight = 9)
 
 
         title_frame = tkinter.Frame(self, bg = self["bg"])
@@ -138,14 +138,14 @@ class RouteResults(ContentPage):
         title_frame.rowconfigure(0, weight = 1)
         title_frame.columnconfigure(0, weight = 1)
 
-        tkinter.Label(title_frame, text = data["route"].name + " jelzésű " + data["route"].type, font = (None, 24), bg = self["bg"]).grid(row = 0, column = 0, sticky = "NESW")
+        tkinter.Label(title_frame, text = data["route"].name + " jelzésű " + data["route"].type, font = (None, 24), bg = self["bg"]).grid(row = 0, sticky = "NESW")
 
         result_frame = tkinter.Frame(self, bg = self["bg"])
-        result_frame.grid(row = 1, column = 0)
+        result_frame.grid(row = 1, sticky = "NESW")
 
-        result_frame.columnconfigure(0, weight = 1)
-        result_frame.columnconfigure(1, weight = 1)
-        result_frame.columnconfigure(2, weight = 1)
+        result_frame.columnconfigure(0, weight = 4)
+        result_frame.columnconfigure(1, weight = 4)
+        result_frame.columnconfigure(2, weight = 4)
         result_frame.columnconfigure(3, weight = 1)
 
         grid_row_count = 0
