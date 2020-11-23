@@ -26,13 +26,36 @@ class SearchResults(ContentPage):
     def __init__(self, data, *args, **kwargs):
         ContentPage.__init__(self, data, *args, **kwargs)
 
-        self.label = tkinter.Label(self, text = data["from"] + " - " + data["to"], font = ("", 32))
-        self.label.pack(side = "top")
+        self.columnconfigure(0, weight = 1)
+        self.rowconfigure(0, weight = 1)
+        self.rowconfigure(1, weight = 9)
 
-        for route, timestamps in data["results"].items():
-            for timestamp in timestamps:
-                label = tkinter.Label(self, text = str(route) + " " + str(timestamp))
-                label.pack()
+        self.title_frame = tkinter.Frame(master = self)
+        self.title_frame.grid(row = 0, sticky = "NESW")
+
+        self.title_frame.rowconfigure(0, weight = 1)
+        self.title_frame.columnconfigure(0, weight = 1)
+
+        tkinter.Label(master = self.title_frame, text = data["from"] + " - " + data["to"], font = ("", 24)).grid(row = 0, column = 0, sticky = "NESW")
+    
+
+        self.result_frame = tkinter.Frame(master = self)
+        self.result_frame.grid(row = 1, sticky = "NESW")
+
+        self.result_frame.listbox = tkinter.Listbox(self.result_frame, font = ("", 12), selectmode = "SINGLE")
+        self.result_frame.listbox.pack()
+
+        for route, datalist in data["results"].items():
+            for data in datalist:
+                self.result_frame.listbox.insert(self.result_frame.listbox.size(), str(route) + " " + str(data[1]))
+
+        self.result_frame.button = tkinter.Button(self.result_frame, text = "Részletek", command = self.route_details)
+        self.result_frame.button.pack()
+
+    
+    def route_details(self):
+        if not self.result_frame.listbox.curselection():
+            tkinter.messagebox.showerror("Hiba", "Kérem válasszon ki egy járatot!")
 
 
 
@@ -89,13 +112,14 @@ class Header(tkinter.Frame):
             connection = mysql.connector.connect(host = dbhost, database = dbname, user = dbuser, password = dbpwd)
             cursor = connection.cursor()
 
-            monster_sql = '''select indul.vonal_nev, ADDTIME(indul.mikor, alkerdes3.mikor) from indul
+            monster_sql = '''select indul.vonal_nev, indul.visszamenet, ADDTIME(indul.mikor, alkerdes3.mikor) from indul
                     inner join (select menetrend.vonal, menetrend.visszamenet, menetrend.mikor from menetrend
                     inner join (select vonal, visszamenet, mikor from menetrend where megallo_nev = %s) as alkerdes1 on alkerdes1.vonal = menetrend.vonal and menetrend.visszamenet = alkerdes1.visszamenet
                     inner join (select vonal, visszamenet, mikor from menetrend where megallo_nev = %s) as alkerdes2 on alkerdes2.vonal = menetrend.vonal and menetrend.visszamenet = alkerdes2.visszamenet
                     where megallo_nev = %s
                     and menetrend.vonal in (select DISTINCT vonal from menetrend where megallo_nev = %s)
-                    and alkerdes1.mikor < alkerdes2.mikor) as alkerdes3 on alkerdes3.vonal = indul.vonal_nev and alkerdes3.visszamenet = indul.visszamenet'''
+                    and alkerdes1.mikor < alkerdes2.mikor) as alkerdes3 on alkerdes3.vonal = indul.vonal_nev and alkerdes3.visszamenet = indul.visszamenet
+                    order by ADDTIME(indul.mikor, alkerdes3.mikor)'''
 
             cursor.execute(operation = monster_sql, params = (self.from_stop.get(), self.to_stop.get(), self.from_stop.get(), self.to_stop.get()))
             rows = cursor.fetchall()
@@ -109,7 +133,7 @@ class Header(tkinter.Frame):
                 for row in rows:
                     if row[0] not in data["results"]:
                         data["results"][row[0]] = list()
-                    data["results"][row[0]].append(row[1]) 
+                    data["results"][row[0]].append((row[1], row[2]))
 
                 self.master.load_new_page("SearchResults", data)
 
