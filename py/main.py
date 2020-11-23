@@ -47,7 +47,7 @@ class SearchResults(ContentPage):
 
         for route, datalist in data["results"].items():
             for data in datalist:
-                self.result_frame.listbox.insert(self.result_frame.listbox.size(), str(route) + " " + str(data[1]))
+                self.result_frame.listbox.insert(self.result_frame.listbox.size(), str(route) + " " + str(data[1] + data[2]))
 
         self.result_frame.button = tkinter.Button(self.result_frame, text = "Részletek", command = self.route_details)
         self.result_frame.button.pack()
@@ -57,6 +57,22 @@ class SearchResults(ContentPage):
         if not self.result_frame.listbox.curselection():
             tkinter.messagebox.showerror("Hiba", "Kérem válasszon ki egy járatot!")
 
+        else:
+            connection = mysql.connector.connect(host = dbhost, database = dbname, user = dbuser, password = dbpwd)
+            cursor = connection.cursor()
+
+            connection.close()
+
+            self.master.load_new_page("RouteResults", None)
+
+
+
+
+class RouteResults(ContentPage):
+    def __init__(self, data, *args, **kwargs):
+        ContentPage.__init__(self, data, *args, **kwargs)
+        tkinter.Label(self, text = "RouteResults").pack()
+          
 
 
 
@@ -112,14 +128,14 @@ class Header(tkinter.Frame):
             connection = mysql.connector.connect(host = dbhost, database = dbname, user = dbuser, password = dbpwd)
             cursor = connection.cursor()
 
-            monster_sql = '''select indul.vonal_nev, indul.visszamenet, ADDTIME(indul.mikor, alkerdes3.mikor) from indul
+            monster_sql = '''select indul.vonal_nev, indul.visszamenet, indul.mikor, alkerdes3.mikor from indul
                     inner join (select menetrend.vonal, menetrend.visszamenet, menetrend.mikor from menetrend
                     inner join (select vonal, visszamenet, mikor from menetrend where megallo_nev = %s) as alkerdes1 on alkerdes1.vonal = menetrend.vonal and menetrend.visszamenet = alkerdes1.visszamenet
                     inner join (select vonal, visszamenet, mikor from menetrend where megallo_nev = %s) as alkerdes2 on alkerdes2.vonal = menetrend.vonal and menetrend.visszamenet = alkerdes2.visszamenet
                     where megallo_nev = %s
                     and menetrend.vonal in (select DISTINCT vonal from menetrend where megallo_nev = %s)
                     and alkerdes1.mikor < alkerdes2.mikor) as alkerdes3 on alkerdes3.vonal = indul.vonal_nev and alkerdes3.visszamenet = indul.visszamenet
-                    order by ADDTIME(indul.mikor, alkerdes3.mikor)'''
+                    order by indul.mikor, alkerdes3.mikor'''
 
             cursor.execute(operation = monster_sql, params = (self.from_stop.get(), self.to_stop.get(), self.from_stop.get(), self.to_stop.get()))
             rows = cursor.fetchall()
@@ -133,7 +149,7 @@ class Header(tkinter.Frame):
                 for row in rows:
                     if row[0] not in data["results"]:
                         data["results"][row[0]] = list()
-                    data["results"][row[0]].append((row[1], row[2]))
+                    data["results"][row[0]].append((row[1], row[2], row[3]))
 
                 self.master.load_new_page("SearchResults", data)
 
@@ -158,7 +174,7 @@ class App(tkinter.Tk):
         self.header = Header(self, bg = "grey")
         self.header.grid(row = 0, sticky = "NESW")
 
-        self.content_pages = ["Home", "SearchResults"]
+        self.content_pages = ["Home", "SearchResults", "RouteResults"]
         self.loaded_pages = list()
 
         self.current_page = None
