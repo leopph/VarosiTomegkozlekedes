@@ -10,25 +10,34 @@ class Header(tkinter.Frame):
         tkinter.Frame.__init__(self, *args, **kwargs)
 
         self.columnconfigure(0, weight = 1)
-        self.columnconfigure(1, weight = 1)
+        self.columnconfigure(1, weight = 2)
         self.columnconfigure(2, weight = 1)
-        self.columnconfigure(3, weight = 1)
+        self.columnconfigure(3, weight = 2)
         self.columnconfigure(4, weight = 1)
+        self.columnconfigure(5, weight = 1)
+        self.columnconfigure(6, weight = 1)
+
+
+        self.backbutton = tkinter.Button(self, text = "Vissza", command = self.master.load_previous_page)
+        self.backbutton.grid(row = 0, column = 0, sticky = "NESW")
+
+        self.nextbutton = tkinter.Button(self, text = "Előre", command = self.master.load_next_page)
+        self.nextbutton.grid(row = 0, column = 1, sticky = "NESW")
 
         self.from_stop_label = tkinter.Label(self, text = "Honnan:", bg = self["bg"])
-        self.from_stop_label.grid(row = 0, column = 0, sticky = "E")
+        self.from_stop_label.grid(row = 0, column = 2, sticky = "E")
 
         self.from_stop = tkinter.Entry(self)
-        self.from_stop.grid(row = 0, column = 1, sticky = "W")
+        self.from_stop.grid(row = 0, column = 3, sticky = "W")
 
         self.to_stop_label = tkinter.Label(self, text = "Hová:", bg = self["bg"])
-        self.to_stop_label.grid(row = 0, column = 2, sticky = "E")
+        self.to_stop_label.grid(row = 0, column = 4, sticky = "E")
 
         self.to_stop = tkinter.Entry(self)
-        self.to_stop.grid(row = 0, column = 3, sticky = "W")
+        self.to_stop.grid(row = 0, column = 5, sticky = "W")
 
-        self.send_button = tkinter.Button(self, text = "Search", command = self.search)
-        self.send_button.grid(row = 0, column = 4)
+        self.send_button = tkinter.Button(self, text = "Keresés", command = self.search)
+        self.send_button.grid(row = 0, column = 6)
 
     
     def search(self):
@@ -64,8 +73,6 @@ class SearchResults(ContentPage):
 
 
 
-
-
 class App(tkinter.Tk):
     def __init__(self, *args, **kwargs):
         tkinter.Tk.__init__(self, *args, **kwargs)
@@ -92,6 +99,21 @@ class App(tkinter.Tk):
             self.current_page.grid(row = 1, sticky = "NESW")
             self.loaded_pages.append(self.current_page)
 
+    
+    def load_previous_page(self):
+        current_index = self.loaded_pages.index(self.current_page)
+
+        if current_index - 1 >= 0:
+            self.current_page = self.loaded_pages[current_index - 1]
+            self.current_page.tkraise()
+
+
+    def load_next_page(self):
+        current_index = self.loaded_pages.index(self.current_page)
+
+        if current_index + 1 < len(self.loaded_pages):
+            self.current_page = self.loaded_pages[current_index + 1]
+            self.current_page.tkraise()
 
 
 
