@@ -1,7 +1,6 @@
 import tkinter
 import tkinter.messagebox
 import mysql.connector
-from mysql.connector import connect
 
 
 
@@ -174,7 +173,7 @@ class DataInsertPage(ContentPage):
             tkinter.Label(self.content_frame, text = "Válassza ki a felvinni kívánt adatot!", bg = self["bg"], font = (None, 16)).grid(row = 0, column = 0, sticky = "NESW")
 
             tkinter.Button(self.content_frame, text = "Új járat", bg = self["bg"], font = (None, 12), command = self.new_route).grid(row = 1, column = 0)
-            tkinter.Button(self.content_frame, text = "Új jármű", bg = self["bg"], font = (None, 12)).grid(row = 2, column = 0)
+            tkinter.Button(self.content_frame, text = "Új jármű", bg = self["bg"], font = (None, 12), command = self.new_vehicle).grid(row = 2, column = 0)
             tkinter.Button(self.content_frame, text = "Új járműtípus", bg = self["bg"], font = (None, 12)).grid(row = 3, column = 0)
             tkinter.Button(self.content_frame, text = "Új vonal", bg = self["bg"], font = (None, 12)).grid(row = 4, column = 0)
             tkinter.Button(self.content_frame, text = "Új megálló", bg = self["bg"], font = (None, 12)).grid(row = 5, column = 0)
@@ -186,7 +185,49 @@ class DataInsertPage(ContentPage):
             connection = mysql.connector.connect(host = dbhost, database = dbname, user = dbuser, password = dbpwd)
             cursor = connection.cursor()
 
-            connection.close()
+            try:
+                sql = "INSERT INTO jarmu(rendszam, alacsony_padlos, tipus_nev, vezetoi_szam) VALUES(%s, %s, %s, %s)"
+                data = (self.content_frame.form_frame.license_entry.get().strip(), self.content_frame.form_frame.disabled_friendly_entry.get().strip(), self.content_frame.form_frame.tipus_entry.get().strip(), self.content_frame.form_frame.driver_entry.get().strip())
+
+                cursor.execute(sql, params = data)
+
+                connection.commit()
+
+            except mysql.connector.Error as error:
+                connection.rollback()
+                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a beírt adatokat!\n" + str(error))
+
+            finally:
+                connection.close()
+
+
+        self.content_frame.form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
+        self.content_frame.form_frame.grid(row = 6, column = 0, sticky = "NESW")
+
+        self.content_frame.form_frame.columnconfigure(0, weight = 1)
+        self.content_frame.form_frame.columnconfigure(1, weight = 9)
+        self.content_frame.form_frame.rowconfigure(0, weight = 1)
+        self.content_frame.form_frame.rowconfigure(1, weight = 1)
+        self.content_frame.form_frame.rowconfigure(2, weight = 1)
+        self.content_frame.form_frame.rowconfigure(3, weight = 1)
+        self.content_frame.form_frame.rowconfigure(4, weight = 1)
+
+        self.content_frame.form_frame.license_entry = tkinter.Entry(self.content_frame.form_frame)
+        self.content_frame.form_frame.disabled_friendly_entry = tkinter.Entry(self.content_frame.form_frame)
+        self.content_frame.form_frame.tipus_entry = tkinter.Entry(self.content_frame.form_frame)
+        self.content_frame.form_frame.driver_entry = tkinter.Entry(self.content_frame.form_frame)
+
+        self.content_frame.form_frame.license_entry.grid(column = 1, row = 0, sticky="WE")
+        self.content_frame.form_frame.disabled_friendly_entry.grid(column = 1, row = 1, sticky="WE")
+        self.content_frame.form_frame.tipus_entry.grid(column = 1, row = 2, sticky="WE")
+        self.content_frame.form_frame.driver_entry.grid(column = 1, row = 3, sticky="WE")
+
+        tkinter.Label(self.content_frame.form_frame, text = "Rendszám:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
+        tkinter.Label(self.content_frame.form_frame, text = "Alacsony padlós-e:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
+        tkinter.Label(self.content_frame.form_frame, text = "Jármű típus:", bg = self["bg"]).grid(row = 2, column = 0, sticky = "E")
+        tkinter.Label(self.content_frame.form_frame, text = "Sofőr száma:", bg = self["bg"]).grid(row = 3, column = 0, sticky = "E")
+
+        tkinter.Button(self.content_frame.form_frame, text = "Felvitel", bg = self["bg"], command = process_new_vehicle).grid(row = 4, column = 0, columnspan = 2)
 
         
 
@@ -216,9 +257,9 @@ class DataInsertPage(ContentPage):
 
                 connection.commit()
 
-            except mysql.connector.Error:
+            except mysql.connector.Error as error:
                 connection.rollback()
-                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a beírt adatokat!")
+                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a beírt adatokat!\n" + str(error))
 
             finally:
                 connection.close()
@@ -251,11 +292,6 @@ class DataInsertPage(ContentPage):
         
 
         
-
-
-
-        
-
 class SearchResults(ContentPage):
     def __init__(self, data, *args, **kwargs):
         ContentPage.__init__(self, data, *args, **kwargs)
