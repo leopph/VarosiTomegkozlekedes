@@ -5,7 +5,7 @@ import mysql.connector
 
 
 class Route:
-    def __init__(self, name: str, is_returning: bool, type: str, dep_time = None):
+    def __init__(self, name: str, is_returning: bool, type: str, dep_time):
         self._name = name
         self._is_returning = is_returning
         self.type = type
@@ -75,7 +75,7 @@ class SearchResults(ContentPage):
         title_frame.rowconfigure(0, weight = 1)
         title_frame.columnconfigure(0, weight = 1)
 
-        tkinter.Label(master = title_frame, text = data["from"] + " - " + data["to"], font = (None, 24), bg = self["bg"]).grid(row = 0, column = 0, sticky = "NESW")
+        tkinter.Label(master = title_frame, text = data["from"].capitalize() + " - " + data["to"].capitalize(), font = (None, 24), bg = self["bg"]).grid(row = 0, column = 0, sticky = "NESW")
     
 
         result_frame = tkinter.Frame(master = self, bg = self["bg"])
@@ -159,14 +159,91 @@ class RouteResults(ContentPage):
 
 
     def stop_details(self, stop: Stop):
-        print(stop.name)
+        connection = mysql.connector.connect(host = dbhost, database = dbname, user = dbuser, password = dbpwd)
+        cursor = connection.cursor()
+
+        giga_sql = '''select alkerdes2.vonal, alkerdes2.visszamenet, tipus_nev, indul.mikor, alkerdes2.erkezik_vizsgalt_megallohoz, alkerdes2.megallo_nev from
+                    (select alkerdes.vonal, alkerdes.visszamenet, alkerdes.mikor as erkezik_vizsgalt_megallohoz, menetrend.mikor as erkezik_megallohoz, menetrend.megallo_nev from
+                    (select menetrend.vonal, menetrend.visszamenet, menetrend.mikor from menetrend
+                    where lower(menetrend.megallo_nev) = %s) as alkerdes
+                    inner join menetrend on alkerdes.vonal = menetrend.vonal and alkerdes.visszamenet = menetrend.visszamenet) as alkerdes2
+                    inner join indul on alkerdes2.vonal = indul.vonal_nev and alkerdes2.visszamenet = indul.visszamenet
+                    inner join jarmu on jarmu.rendszam = indul.rendszam
+                    where alkerdes2.erkezik_megallohoz = (select max(menetrend2.mikor) from menetrend as menetrend2 where menetrend2.vonal = alkerdes2.vonal)
+                    order by addtime(alkerdes2.erkezik_vizsgalt_megallohoz, indul.mikor)'''
+
+        cursor.execute(operation = giga_sql, params = (stop.name,))
+
+        data = {"stop": stop, "routes": list()}
+
+        for row in cursor.fetchall():
+            data["routes"].append({"route": Route(row[0], row[1], row[2], row[3]), "misc": (row[4], row[5])})
+
+        connection.close()
+
+        self.master.load_new_page("StopDetails", data)
 
 
 
 
-class StopDetails:
-    pass
-          
+class StopDetails(ContentPage):
+    def __init__(self, data, *args, **kwargs):
+        ContentPage.__init__(self, data, *args, **kwargs)
+
+        self.columnconfigure(0, weight = 1)
+        self.rowconfigure(0, weight = 1)
+        self.rowconfigure(1, weight = 9)
+
+        title_frame = tkinter.Frame(self, bg = self["bg"])
+        title_frame.grid(row = 0, column = 0, sticky = "NESW")
+
+        title_frame.rowconfigure(0, weight = 3)
+        title_frame.rowconfigure(1, weight = 1)
+        title_frame.columnconfigure(0, weight = 1)
+
+        tkinter.Label(title_frame, text = data["stop"].name, font = (None, 24), bg = self["bg"]).grid(row = 0, sticky = "NESW")
+        tkinter.Label(title_frame, text = data["stop"].location, font = (None, 20), bg = self["bg"]).grid(row = 1, sticky = "NESW")
+
+        results_frame = tkinter.Frame(self, bg = self["bg"])
+        results_frame.grid(row = 1, sticky = "NESW")
+
+        results_frame.columnconfigure(0, weight = 1)
+        results_frame.columnconfigure(1, weight = 1)
+        results_frame.columnconfigure(2, weight = 1)
+        results_frame.columnconfigure(3, weight = 1)
+
+
+        grid_row_count = 0
+        for elem in data["routes"]:
+           tkinter.Label(results_frame, text = elem["route"].name + " jelzésű " + elem["route"].type, font = (None, 12)).grid(row = grid_row_count, column = 0, sticky = "NESW")
+           tkinter.Label(results_frame, text = elem["misc"][1].capitalize() + " felé", font = (None, 12)).grid(row = grid_row_count, column = 1, sticky = "NESW")
+           tkinter.Label(results_frame, text = elem["route"].departure + elem["misc"][0], font = (None, 12)).grid(row = grid_row_count, column = 2, sticky = "NESW")
+           tkinter.Button(results_frame, text = "Részletek", font = (None, 12), command = lambda route = elem["route"]: self.route_details(route)).grid(row = grid_row_count, column = 3, sticky = "NESW")
+
+           grid_row_count += 1
+
+
+    def route_details(self, route):
+        connection = mysql.connector.connect(host = dbhost, database = dbname, user = dbuser, password = dbpwd)
+        cursor = connection.cursor()
+
+        sql = '''select megallo.nev, megallo.hely, addtime(megall.mikor, indul.mikor) from megall
+                inner join megallo on megall.megallo_id = megallo.id
+                inner join indul on megall.visszamenet = indul.visszamenet and megall.vonal_nev = indul.vonal_nev
+                where megall.vonal_nev = %s and megall.visszamenet = %s and indul.mikor = %s
+                order by addtime(indul.mikor, megall.mikor)'''
+
+        cursor.execute(operation = sql, params = (route.name, route.is_returning, route.departure))
+
+        data = {"route": route, "stops": list()}
+
+        for row in cursor.fetchall():
+            data["stops"].append((Stop(row[0], row[1]), row[2]))
+
+        connection.close()
+
+        self.master.load_new_page("RouteResults", data)
+
 
 
 
@@ -272,7 +349,7 @@ class App(tkinter.Tk):
         self.header = Header(self, bg = "slate blue")
         self.header.grid(row = 0, sticky = "NESW")
 
-        self.content_pages = ["Home", "SearchResults", "RouteResults"]
+        self.content_pages = ["Home", "SearchResults", "RouteResults", "StopDetails"]
         self.loaded_pages = list()
 
         self.current_page = None
