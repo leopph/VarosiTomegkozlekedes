@@ -240,6 +240,10 @@ class DataInsertPage(ContentPage):
 
                 cursor.execute(sql, params = data)
 
+                sql = "INSERT INTO jarat VALUES(%s, %s), (%s, %s)"
+
+                cursor.execute(sql, params = (self.content_frame.form_frame.line_name_entry.get().strip(), 0, self.content_frame.form_frame.line_name_entry.get().strip(), 1))
+
                 connection.commit()
 
                 self.content_frame.form_frame.line_name_entry.delete(0, "end")
