@@ -175,8 +175,104 @@ class DataInsertPage(ContentPage):
             tkinter.Button(self.content_frame, text = "Új járat", bg = self["bg"], font = (None, 12), command = self.new_route).grid(row = 1, column = 0)
             tkinter.Button(self.content_frame, text = "Új jármű", bg = self["bg"], font = (None, 12), command = self.new_vehicle).grid(row = 2, column = 0)
             tkinter.Button(self.content_frame, text = "Új járműtípus", bg = self["bg"], font = (None, 12), command = self.new_vehicle_type).grid(row = 3, column = 0)
-            tkinter.Button(self.content_frame, text = "Új vonal", bg = self["bg"], font = (None, 12)).grid(row = 4, column = 0)
-            tkinter.Button(self.content_frame, text = "Új megálló", bg = self["bg"], font = (None, 12)).grid(row = 5, column = 0)
+            tkinter.Button(self.content_frame, text = "Új vonal", bg = self["bg"], font = (None, 12), command = self.new_line).grid(row = 4, column = 0)
+            tkinter.Button(self.content_frame, text = "Új megálló", bg = self["bg"], font = (None, 12), command = self.new_stop).grid(row = 5, column = 0)
+
+
+
+    def new_stop(self):
+        def process_new_stop():
+            connection = mysql.connector.connect(host = dbhost, database = dbname, user = dbuser, password = dbpwd)
+            cursor = connection.cursor()
+
+            try:
+                sql = "INSERT INTO megallo(nev, hely) VALUES(%s, %s)"
+
+                data = (self.content_frame.form_frame.stop_name_entry.get().strip(), self.content_frame.form_frame.location_entry.get().strip())
+
+                cursor.execute(sql, params = data)
+
+                connection.commit()
+
+                self.content_frame.form_frame.stop_name_entry.delete(0, "end")
+                self.content_frame.form_frame.location_entry.delete(0, "end")
+
+                tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
+
+            except mysql.connector.Error as error:
+                connection.rollback()
+                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a beírt adatokat!\n" + str(error))
+
+            finally:
+                connection.close()
+
+
+        self.content_frame.form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
+        self.content_frame.form_frame.grid(row = 6, column = 0, sticky = "NESW")
+
+        self.content_frame.form_frame.columnconfigure(0, weight = 1)
+        self.content_frame.form_frame.columnconfigure(1, weight = 9)
+        self.content_frame.form_frame.rowconfigure(0, weight = 1)
+        self.content_frame.form_frame.rowconfigure(1, weight = 1)
+
+        self.content_frame.form_frame.stop_name_entry = tkinter.Entry(self.content_frame.form_frame)
+        self.content_frame.form_frame.location_entry = tkinter.Entry(self.content_frame.form_frame)
+
+        self.content_frame.form_frame.stop_name_entry.grid(column = 1, row = 0, sticky="WE")
+        self.content_frame.form_frame.location_entry.grid(column = 1, row = 1, sticky="WE")
+
+        tkinter.Label(self.content_frame.form_frame, text = "Név:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
+        tkinter.Label(self.content_frame.form_frame, text = "Hely:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
+
+        tkinter.Button(self.content_frame.form_frame, text = "Felvitel", bg = self["bg"], command = process_new_stop).grid(row = 4, column = 0, columnspan = 2)
+
+
+
+    def new_line(self):
+        def process_new_line():
+            connection = mysql.connector.connect(host = dbhost, database = dbname, user = dbuser, password = dbpwd)
+            cursor = connection.cursor()
+
+            try:
+                sql = "INSERT INTO vonal VALUES(%s, %s)"
+
+                data = (self.content_frame.form_frame.line_name_entry.get().strip(), self.content_frame.form_frame.length_entry.get().strip())
+
+                cursor.execute(sql, params = data)
+
+                connection.commit()
+
+                self.content_frame.form_frame.line_name_entry.delete(0, "end")
+                self.content_frame.form_frame.length_entry.delete(0, "end")
+
+                tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
+
+            except mysql.connector.Error as error:
+                connection.rollback()
+                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a beírt adatokat!\n" + str(error))
+
+            finally:
+                connection.close()
+
+
+        self.content_frame.form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
+        self.content_frame.form_frame.grid(row = 6, column = 0, sticky = "NESW")
+
+        self.content_frame.form_frame.columnconfigure(0, weight = 1)
+        self.content_frame.form_frame.columnconfigure(1, weight = 9)
+        self.content_frame.form_frame.rowconfigure(0, weight = 1)
+        self.content_frame.form_frame.rowconfigure(1, weight = 1)
+
+        self.content_frame.form_frame.line_name_entry = tkinter.Entry(self.content_frame.form_frame)
+        self.content_frame.form_frame.length_entry = tkinter.Entry(self.content_frame.form_frame)
+
+        self.content_frame.form_frame.line_name_entry.grid(column = 1, row = 0, sticky="WE")
+        self.content_frame.form_frame.length_entry.grid(column = 1, row = 1, sticky="WE")
+
+        tkinter.Label(self.content_frame.form_frame, text = "Vonalnév:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
+        tkinter.Label(self.content_frame.form_frame, text = "Hossz:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
+
+        tkinter.Button(self.content_frame.form_frame, text = "Felvitel", bg = self["bg"], command = process_new_line).grid(row = 4, column = 0, columnspan = 2)
 
 
 
