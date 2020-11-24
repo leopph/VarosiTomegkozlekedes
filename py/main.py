@@ -1,6 +1,25 @@
 import tkinter
 import tkinter.messagebox
 import mysql.connector
+from mysql.connector import connect
+
+
+
+
+class User:
+    def __init__(self, name: str, is_admin: bool):
+        self._name = name
+        self._is_admin = is_admin
+
+    
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def is_admin(self):
+        return self._is_admin
+
 
 
 
@@ -56,29 +75,186 @@ class Home(ContentPage):
     def __init__(self, data, *args, **kwargs):
         ContentPage.__init__(self, data, *args, **kwargs)
 
+        self.title_frame = None
+        self.content_frame = None
+
+        self.refresh()
+
+
+    def refresh(self):
+        if self.title_frame is not None and self.content_frame is not None:
+            self.title_frame.destroy()
+            self.content_frame.destroy()
+
         self.rowconfigure(0, weight = 1)
         self.rowconfigure(1, weight = 3)
         self.columnconfigure(0, weight = 1)
 
-        title_frame = tkinter.Frame(self, bg = self["bg"])
-        title_frame.grid(row = 0, column = 0, sticky = "NESW")
+        self.title_frame = tkinter.Frame(self, bg = self["bg"])
+        self.title_frame.grid(row = 0, column = 0, sticky = "NESW")
 
-        title_frame.columnconfigure(0, weight = 1)
+        self.title_frame.columnconfigure(0, weight = 1)
 
-        tkinter.Label(title_frame, text = "Üdvözöljük!", font = (None, 24), bg = self["bg"]).grid(row = 0, column = 0, sticky = "NESW")
+        self.content_frame = tkinter.Frame(self, bg = self["bg"])
+        self.content_frame.grid(row = 1, column = 0, sticky = "NESW")
 
-        content_frame = tkinter.Frame(self, bg = self["bg"])
-        content_frame.grid(row = 1, column = 0, sticky = "NESW")
 
-        content_frame.rowconfigure(0, weight = 1)
-        content_frame.rowconfigure(1, weight = 2)
-        content_frame.columnconfigure(0, weight = 1)
+        if self.master.user is None:
+            tkinter.Label(self.title_frame, text = "Üdvözöljük!", font = (None, 24), bg = self["bg"]).grid(row = 0, column = 0, sticky = "NESW")
 
-        tkinter.Button(content_frame, text = "Bejelentkezés", font = (None, 12), bg = self["bg"], command = lambda: self.master.load_new_page("LoginPage", None)).grid(row = 0, column = 0, sticky = "S")
-        tkinter.Button(content_frame, text = "Regisztráció", font = (None, 12), bg = self["bg"], command = lambda: self.master.load_new_page("RegisterPage", None)).grid(row = 1, column = 0, sticky = "N")
+            self.content_frame.rowconfigure(0, weight = 1)
+            self.content_frame.rowconfigure(1, weight = 2)
+            self.content_frame.columnconfigure(0, weight = 1)
+
+            tkinter.Button(self.content_frame, text = "Bejelentkezés", font = (None, 12), bg = self["bg"], command = lambda: self.master.load_new_page("LoginPage", None)).grid(row = 0, column = 0, sticky = "S")
+            tkinter.Button(self.content_frame, text = "Regisztráció", font = (None, 12), bg = self["bg"], command = lambda: self.master.load_new_page("RegisterPage", None)).grid(row = 1, column = 0, sticky = "N")
+
+        else:
+            tkinter.Label(self.title_frame, text = "Üdvözöljük, " + self.master.user.name + "!", font = (None, 24), bg = self["bg"]).grid(row = 0, column = 0, sticky = "NESW")
+
+            tkinter.Button(self.title_frame, text = "Kijelentkezés", font = (None, 12), bg = self["bg"], command = self.logout).grid(row = 1, column = 0)
+
+            if self.master.user.is_admin:
+                self.content_frame.columnconfigure(0, weight = 1)
+                self.content_frame.rowconfigure(0, weight = 1)
+                self.content_frame.rowconfigure(1, weight = 1)
+
+                tkinter.Button(self.content_frame, text = "Adatok felvitele", font = (None, 12), bg = self["bg"], command = lambda: self.master.load_new_page("DataInsertPage", None)).grid(row = 0, column = 0)
+                tkinter.Button(self.content_frame, text = "Adatok módosítása", font = (None, 12), bg = self["bg"], command = lambda: self.master.load_new_page("DataUpdatePage", None)).grid(row = 1, column = 0)
+
+
+    def logout(self):
+        self.master.user = None
+        self.master.reload_existing_pages()
+
+    
+
+class DataInsertPage(ContentPage):
+    def __init__(self, data, *args, **kwargs):
+        ContentPage.__init__(self, data, *args, **kwargs)
+
+        self.title_frame = None
+        self.content_frame = None
+
+        self.refresh()
+
+
+    def refresh(self):
+        self.rowconfigure(0, weight = 1)
+        self.rowconfigure(1, weight = 9)
+        self.columnconfigure(0, weight = 1)
+
+        self.title_frame = tkinter.Frame(self, bg = self["bg"])
+        self.title_frame.grid(column = 0, row = 0, sticky = "NESW")
+
+        if self.master.user is None or not self.master.user.is_admin:
+            self.title_frame.rowconfigure(0, weight = 1)
+            self.title_frame.columnconfigure(0, weight = 1)
+
+            tkinter.Label(self.title_frame, text = "Ez az oldal csak adminisztrátorok számára érhető el!", bg = self["bg"], font = (None, 24)).grid(row = 0, column = 0, sticky = "NESW")
+
+        else:
+            self.title_frame.rowconfigure(0, weight = 1)
+            self.title_frame.columnconfigure(0, weight = 1)
+
+            tkinter.Label(self.title_frame, text = "Új adatok felvitele", bg = self["bg"], font = (None, 24)).grid(row = 0, column = 0, sticky = "NESW")
+
+            self.content_frame = tkinter.Frame(self, bg = self["bg"])
+            self.content_frame.grid(row = 1, column = 0, sticky = "NESW")
+
+            self.content_frame.columnconfigure(0, weight = 1)
+            self.content_frame.rowconfigure(0, weight = 1)
+            self.content_frame.rowconfigure(1, weight = 1)
+            self.content_frame.rowconfigure(2, weight = 1)
+            self.content_frame.rowconfigure(3, weight = 1)
+            self.content_frame.rowconfigure(4, weight = 1)
+            self.content_frame.rowconfigure(5, weight = 1)
+            self.content_frame.rowconfigure(6, weight = 20)
+
+            tkinter.Label(self.content_frame, text = "Válassza ki a felvinni kívánt adatot!", bg = self["bg"], font = (None, 16)).grid(row = 0, column = 0, sticky = "NESW")
+
+            tkinter.Button(self.content_frame, text = "Új járat", bg = self["bg"], font = (None, 12), command = self.new_route).grid(row = 1, column = 0)
+            tkinter.Button(self.content_frame, text = "Új jármű", bg = self["bg"], font = (None, 12)).grid(row = 2, column = 0)
+            tkinter.Button(self.content_frame, text = "Új járműtípus", bg = self["bg"], font = (None, 12)).grid(row = 3, column = 0)
+            tkinter.Button(self.content_frame, text = "Új vonal", bg = self["bg"], font = (None, 12)).grid(row = 4, column = 0)
+            tkinter.Button(self.content_frame, text = "Új megálló", bg = self["bg"], font = (None, 12)).grid(row = 5, column = 0)
+
+
+
+    def new_vehicle(self):
+        def process_new_vehicle():
+            connection = mysql.connector.connect(host = dbhost, database = dbname, user = dbuser, password = dbpwd)
+            cursor = connection.cursor()
+
+            connection.close()
+
+        
+
+    def new_route(self):
+        def process_new_route():
+            connection = mysql.connector.connect(host = dbhost, database = dbname, user = dbuser, password = dbpwd)
+            cursor = connection.cursor()
+
+            line = self.content_frame.form_frame.line_entry.get()
+
+            try:
+                sql = "INSERT INTO indul(rendszam, vonal_nev, visszamenet, mikor) VALUES"
+
+                for start in self.content_frame.form_frame.starts_entry.get().split(";"):
+                    start = start.split(",")
+                    sql += "(\"{}\", \"{}\", {}, \"{}\"),".format(start[1].strip(), line.strip(), start[2].strip(), start[0].strip())
+
+                cursor.execute(sql[:-1])
+
+                sql2 = "INSERT INTO megall(vonal_nev, visszamenet, megallo_id, mikor) VALUES"
+
+                for stop in self.content_frame.form_frame.stops_entry.get().split(";"):
+                    stop = stop.split(",")
+                    sql2 += "(\"{}\", {}, {}, \"{}\"),".format(line.strip(), stop[2].strip(), stop[1].strip(), stop[0].strip())
+
+                cursor.execute(sql2[:-1])
+
+                connection.commit()
+
+            except mysql.connector.Error:
+                connection.rollback()
+                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a beírt adatokat!")
+
+            finally:
+                connection.close()
+
+
+        self.content_frame.form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
+        self.content_frame.form_frame.grid(row = 6, column = 0, sticky = "NESW")
+
+        self.content_frame.form_frame.columnconfigure(0, weight = 1)
+        self.content_frame.form_frame.columnconfigure(1, weight = 9)
+        self.content_frame.form_frame.rowconfigure(0, weight = 1)
+        self.content_frame.form_frame.rowconfigure(1, weight = 1)
+        self.content_frame.form_frame.rowconfigure(2, weight = 1)
+        self.content_frame.form_frame.rowconfigure(3, weight = 1)
+
+        self.content_frame.form_frame.line_entry = tkinter.Entry(self.content_frame.form_frame)
+        self.content_frame.form_frame.starts_entry = tkinter.Entry(self.content_frame.form_frame)
+        self.content_frame.form_frame.stops_entry = tkinter.Entry(self.content_frame.form_frame)
+
+        self.content_frame.form_frame.line_entry.grid(column = 1, row = 0, sticky="WE")
+        self.content_frame.form_frame.starts_entry.grid(column = 1, row = 1, sticky="WE")
+        self.content_frame.form_frame.stops_entry.grid(column = 1, row = 2, sticky="WE")
+
+        tkinter.Label(self.content_frame.form_frame, text = "Vonal száma:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
+        tkinter.Label(self.content_frame.form_frame, text = "Indulások (a kívánt formátum: ÓÓ:PP:MM,Rendszám,Visszamenet-e;):", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
+        tkinter.Label(self.content_frame.form_frame, text = "Megállások (a kívánt formátum: ÓÓ:PP::MM,MegállóID,Visszamenet-e;):", bg = self["bg"]).grid(row = 2, column = 0, sticky = "E")
+
+        tkinter.Button(self.content_frame.form_frame, text = "Felvitel", bg = self["bg"], command = process_new_route).grid(row = 3, column = 0, columnspan = 2)
+
+        
+
         
 
 
+
+        
 
 class SearchResults(ContentPage):
     def __init__(self, data, *args, **kwargs):
@@ -138,6 +314,10 @@ class SearchResults(ContentPage):
         connection.close()
 
         self.master.load_new_page("RouteResults", data)
+
+    
+    def refresh(self):
+        pass
 
 
 
@@ -202,6 +382,10 @@ class RouteResults(ContentPage):
 
         self.master.load_new_page("StopDetails", data)
 
+    
+    def refresh(self):
+        pass
+
 
 
 
@@ -264,6 +448,10 @@ class StopDetails(ContentPage):
         self.master.load_new_page("RouteResults", data)
 
 
+    def refresh(self):
+        pass
+
+
 
 
 
@@ -285,8 +473,8 @@ class RegisterPage(ContentPage):
         self.title_text.grid(row = 0, column = 0, columnspan = 2)
         
         self.username_entry = tkinter.Entry(self, bg = self["bg"])
-        self.password_entry = tkinter.Entry(self, bg = self["bg"])
-        self.password_confirm_entry = tkinter.Entry(self, bg = self["bg"])
+        self.password_entry = tkinter.Entry(self, bg = self["bg"], show = "*")
+        self.password_confirm_entry = tkinter.Entry(self, bg = self["bg"], show = "*")
         self.email_entry = tkinter.Entry(self, bg = self["bg"])
 
         self.username_entry.grid(row = 1, column = 1, sticky = "W")
@@ -309,6 +497,33 @@ class RegisterPage(ContentPage):
 
 
     def register(self):
+        connection = mysql.connector.connect(host = dbhost, database = dbname, user = dbuser, password = dbpwd)
+        cursor = connection.cursor()
+
+        cursor.execute("select * from user where username = %s", params = (self.username_entry.get(),))
+
+        if cursor.fetchall():
+            tkinter.messagebox.showerror("Hiba", "A felhasználónév már foglalt!")
+        elif self.password_entry.get() != self.password_confirm_entry.get():
+            tkinter.messagebox.showerror("Hiba", "A megadott jelszavak nem egyeznek!")
+
+        else:
+            cursor.execute("INSERT INTO user(username, password, email) VALUES(%s, %s, %s)", params = (self.username_entry.get(), self.password_entry.get(), self.email_entry.get()))
+            connection.commit()
+
+            self.master.user = User(self.username_entry.get(), False)
+
+            self.username_entry.delete(0, "end")
+            self.password_entry.delete(0, "end")
+            self.password_confirm_entry.delete(0, "end")
+            self.email_entry.delete(0, "end")
+
+            tkinter.messagebox.showinfo("Siker", "Sikeres regisztráció!")
+
+        connection.close()
+
+    
+    def refresh(self):
         pass
         
 
@@ -330,7 +545,7 @@ class LoginPage(ContentPage):
         self.title_text.grid(row = 0, column = 0, columnspan = 2)
 
         self.username_entry = tkinter.Entry(self, bg = self["bg"])
-        self.password_entry = tkinter.Entry(self, bg = self["bg"])
+        self.password_entry = tkinter.Entry(self, bg = self["bg"], show = "*")
 
         self.username_entry.grid(row = 1, column = 1, sticky = "SW")
         self.password_entry.grid(row = 2, column = 1, sticky = "NW")
@@ -346,6 +561,36 @@ class LoginPage(ContentPage):
 
 
     def login(self):
+        if self.username_entry.get() == "" or self.password_entry == "":
+            tkinter.messagebox.showwarning("Figyelem", "Kérem adja meg a felhasználónevét és jelszavát is!")
+
+        else:
+            connection = mysql.connector.connect(host = dbhost, database = dbname, user = dbuser, password = dbpwd)
+            cursor = connection.cursor()
+
+            cursor.execute("select username, password, admin from user where username = %s", params = (self.username_entry.get(),))
+
+            user = cursor.fetchone()
+
+            if user is None:
+                tkinter.messagebox.showerror("Hiba", "Hibás felhasználónév!")
+            elif user[1] != self.password_entry.get():
+                tkinter.messagebox.showerror("Hiba", "Hibás jelszó!")
+            else:
+                self.master.user = User(user[0], user[2])
+
+                self.username_entry.delete(0, "end")
+                self.password_entry.delete(0, "end")
+
+                self.master.reload_existing_pages()
+                self.master.load_new_page("Home", None)
+
+                tkinter.messagebox.showinfo("Siker", "Sikeres bejelentkezés!")
+
+            connection.close()
+
+
+    def refresh(self):
         pass
 
 
@@ -362,6 +607,7 @@ class Header(tkinter.Frame):
         self.columnconfigure(4, weight = 2)
         self.columnconfigure(5, weight = 4)
         self.columnconfigure(6, weight = 1)
+        self.columnconfigure(7, weight = 1)
 
 
         self._backbutton = tkinter.Button(self, text = "Vissza", command = self.master.load_previous_page, bg = "DarkOliveGreen3")
@@ -384,6 +630,9 @@ class Header(tkinter.Frame):
 
         self.search_button = tkinter.Button(self, text = "Keresés", command = self.search, bg = "thistle3")
         self.search_button.grid(row = 0, column = 6)
+
+        self.home_button = tkinter.Button(self, text = "Főoldal", command = lambda: self.master.load_new_page("Home", None), bg = "DarkOliveGreen3")
+        self.home_button.grid(row = 0, column = 7)
 
     
     @property
@@ -450,10 +699,12 @@ class App(tkinter.Tk):
         self.rowconfigure(0, weight = 2)
         self.rowconfigure(1, weight = 98)
 
+        self.user = None
+
         self.header = Header(self, bg = "slate blue")
         self.header.grid(row = 0, sticky = "NESW")
 
-        self.content_pages = ["Home", "LoginPage", "RegisterPage", "SearchResults", "RouteResults", "StopDetails"]
+        self.content_pages = ["Home", "LoginPage", "RegisterPage", "SearchResults", "RouteResults", "StopDetails", "DataInsertPage", "DataUpdatePage"]
         self.loaded_pages = list()
 
         self.current_page = None
@@ -496,6 +747,11 @@ class App(tkinter.Tk):
 
             self.header.backbutton["state"] = "normal"
             self.header.nextbutton["state"] = "disabled" if current_index + 1 == len(self.loaded_pages) - 1 else "normal"
+
+
+    def reload_existing_pages(self):
+        for page in self.loaded_pages:
+            page.refresh()
 
 
 
