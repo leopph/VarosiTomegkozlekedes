@@ -55,9 +55,28 @@ class ContentPage(tkinter.Frame):
 class Home(ContentPage):
     def __init__(self, data, *args, **kwargs):
         ContentPage.__init__(self, data, *args, **kwargs)
-        self.label = tkinter.Label(self, text = "home")
-        self.label.pack()
 
+        self.rowconfigure(0, weight = 1)
+        self.rowconfigure(1, weight = 3)
+        self.columnconfigure(0, weight = 1)
+
+        title_frame = tkinter.Frame(self, bg = self["bg"])
+        title_frame.grid(row = 0, column = 0, sticky = "NESW")
+
+        title_frame.columnconfigure(0, weight = 1)
+
+        tkinter.Label(title_frame, text = "Üdvözöljük!", font = (None, 24), bg = self["bg"]).grid(row = 0, column = 0, sticky = "NESW")
+
+        content_frame = tkinter.Frame(self, bg = self["bg"])
+        content_frame.grid(row = 1, column = 0, sticky = "NESW")
+
+        content_frame.rowconfigure(0, weight = 1)
+        content_frame.rowconfigure(1, weight = 2)
+        content_frame.columnconfigure(0, weight = 1)
+
+        tkinter.Button(content_frame, text = "Bejelentkezés", font = (None, 12), bg = self["bg"], command = lambda: self.master.load_new_page("LoginPage", None)).grid(row = 0, column = 0, sticky = "S")
+        tkinter.Button(content_frame, text = "Regisztráció", font = (None, 12), bg = self["bg"], command = lambda: self.master.load_new_page("RegisterPage", None)).grid(row = 1, column = 0, sticky = "N")
+        
 
 
 
@@ -247,6 +266,91 @@ class StopDetails(ContentPage):
 
 
 
+
+class RegisterPage(ContentPage):
+    def __init__(self, data, *args, **kwargs):
+        ContentPage.__init__(self, data, *args, **kwargs)
+
+        self.rowconfigure(0, weight = 1)
+        self.rowconfigure(1, weight = 1)
+        self.rowconfigure(2, weight = 1)
+        self.rowconfigure(3, weight = 1)
+        self.rowconfigure(4, weight = 1)
+        self.rowconfigure(5, weight = 1)
+
+        self.columnconfigure(0, weight = 1)
+        self.columnconfigure(1, weight = 1)
+
+        self.title_text = tkinter.Label(self, text = "Regisztráció", font = (None, 24), bg = self["bg"])
+        self.title_text.grid(row = 0, column = 0, columnspan = 2)
+        
+        self.username_entry = tkinter.Entry(self, bg = self["bg"])
+        self.password_entry = tkinter.Entry(self, bg = self["bg"])
+        self.password_confirm_entry = tkinter.Entry(self, bg = self["bg"])
+        self.email_entry = tkinter.Entry(self, bg = self["bg"])
+
+        self.username_entry.grid(row = 1, column = 1, sticky = "W")
+        self.password_entry.grid(row = 2, column = 1, sticky = "W")
+        self.password_confirm_entry.grid(row = 3, column = 1, sticky = "W")
+        self.email_entry.grid(row = 4, column = 1, sticky = "W")
+
+        self.username_label = tkinter.Label(self, text = "Felhasználónév:", bg = self["bg"])
+        self.password_label = tkinter.Label(self, text = "Jelszó:", bg = self["bg"])
+        self.password_confirm_label = tkinter.Label(self, text = "Jelszó még egyszer:", bg = self["bg"])
+        self.email_label = tkinter.Label(self, text = "E-mail cím:", bg = self["bg"])
+
+        self.username_label.grid(row = 1, column = 0, sticky = "E")
+        self.password_label.grid(row = 2, column = 0, sticky = "E")
+        self.password_confirm_label.grid(row = 3, column = 0, sticky = "E")
+        self.email_label.grid(row = 4, column = 0, sticky = "E")
+
+        self.register_button = tkinter.Button(self, text = "Regisztráció", command = self.register, bg = self["bg"])
+        self.register_button.grid(row = 5, column = 0, columnspan = 2)
+
+
+    def register(self):
+        pass
+        
+
+
+
+class LoginPage(ContentPage):
+    def __init__(self, data, *args, **kwargs):
+        ContentPage.__init__(self, data, *args, **kwargs)
+
+        self.rowconfigure(0, weight = 1)
+        self.rowconfigure(1, weight = 1)
+        self.rowconfigure(2, weight = 1)
+        self.rowconfigure(3, weight = 1)
+
+        self.columnconfigure(0, weight = 1)
+        self.columnconfigure(1, weight = 1)
+
+        self.title_text = tkinter.Label(self, text = "Bejelentkezés", font = (None, 24), bg = self["bg"])
+        self.title_text.grid(row = 0, column = 0, columnspan = 2)
+
+        self.username_entry = tkinter.Entry(self, bg = self["bg"])
+        self.password_entry = tkinter.Entry(self, bg = self["bg"])
+
+        self.username_entry.grid(row = 1, column = 1, sticky = "SW")
+        self.password_entry.grid(row = 2, column = 1, sticky = "NW")
+
+        self.username_label = tkinter.Label(self, text = "Felhasználónév:", bg = self["bg"])
+        self.password_label = tkinter.Label(self, text = "Jelszó:", bg = self["bg"])
+
+        self.username_label.grid(row = 1, column = 0, sticky = "SE")
+        self.password_label.grid(row = 2, column = 0, sticky = "NE")
+
+        self.login_button = tkinter.Button(self, text = "Bejelentkezés", command = self.login, bg = self["bg"])
+        self.login_button.grid(row = 3, column = 0, columnspan = 2)
+
+
+    def login(self):
+        pass
+
+
+
+
 class Header(tkinter.Frame):
     def __init__(self, *args, **kwargs):
         tkinter.Frame.__init__(self, *args, **kwargs)
@@ -349,11 +453,11 @@ class App(tkinter.Tk):
         self.header = Header(self, bg = "slate blue")
         self.header.grid(row = 0, sticky = "NESW")
 
-        self.content_pages = ["Home", "SearchResults", "RouteResults", "StopDetails"]
+        self.content_pages = ["Home", "LoginPage", "RegisterPage", "SearchResults", "RouteResults", "StopDetails"]
         self.loaded_pages = list()
 
         self.current_page = None
-        self.load_new_page("Home", dict())
+        self.load_new_page("Home", None)
 
         self.header.backbutton["state"] = "disabled"
         self.header.nextbutton["state"] = "disabled"
