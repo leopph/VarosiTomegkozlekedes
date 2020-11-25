@@ -43,7 +43,7 @@ class DataDeletePage(ContentPage.ContentPage):
 
             tkinter.Label(self.content_frame, text = "Válassza ki a felvinni kívánt adatot!", bg = self["bg"], font = (None, 16)).grid(row = 0, column = 0, sticky = "NESW")
 
-            tkinter.Button(self.content_frame, text = "Járat törlése", bg = self["bg"], font = (None, 12)).grid(row = 1, column = 0)
+            tkinter.Button(self.content_frame, text = "Járat törlése", bg = self["bg"], font = (None, 12), command = self.delete_route).grid(row = 1, column = 0)
             tkinter.Button(self.content_frame, text = "Jármű törlése", bg = self["bg"], font = (None, 12), command = self.delete_vehicle).grid(row = 2, column = 0)
             tkinter.Button(self.content_frame, text = "Járműtípus törlése", bg = self["bg"], font = (None, 12), command = self.delete_vehicle_type).grid(row = 3, column = 0)
             tkinter.Button(self.content_frame, text = "Vonal törlése", bg = self["bg"], font = (None, 12), command = self.delete_line).grid(row = 4, column = 0)
@@ -250,3 +250,63 @@ class DataDeletePage(ContentPage.ContentPage):
 
         tkinter.Label(self.form_frame, text = "Megálló id:").grid(row = 0, column = 0)
         tkinter.Button(self.form_frame, text = "Törlés", command = process_transaction).grid(row = 1, column = 0, columnspan = 2)
+
+
+    def delete_route(self):
+        def process_transaction():
+            connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
+            cursor = connection.cursor()
+
+            try:
+                sql = "DELETE FROM jarat WHERE vonal_nev = %s and visszamenet = %s"
+                cursor.execute(sql, (route.get(), direction.get()))
+                connection.commit()
+
+                if cursor.rowcount != 0:
+                    route_drop_down["menu"].delete(routes.index(route.get()))
+                    routes.remove(route.get())
+                    route.set(routes[0])
+                    direction.set(False)
+
+                    tkinter.messagebox.showinfo("Siker", "Sikeres törlés!")
+
+                else:
+                    tkinter.messagebox.showerror("Hiba", "Ilyen járat már nincs az adatbázisban!")
+
+            except mysql.connector.Error as error:
+                connection.rollback()
+                tkinter.messagebox.showerror("Hiba", "Hiba történt az adattörlés során.\n" + str(error))
+
+            finally:
+                connection.close()
+
+        def get_foreign_key_entries():
+            connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
+            cursor = connection.cursor()
+
+            sql = "SELECT vonal_nev FROM jarat"
+            cursor.execute(sql)
+
+            ret = [route[0] for route in cursor.fetchall()]
+            
+            connection.close()
+
+            return ret
+
+        for child in self.form_frame.winfo_children():
+            child.destroy()
+
+        routes = get_foreign_key_entries()
+        route = tkinter.StringVar(self.form_frame)
+        route.set(routes[0])
+        route_drop_down = tkinter.OptionMenu(self.form_frame, route, *routes)
+        route_drop_down.grid(row = 0, column = 1)
+
+        direction = tkinter.BooleanVar(self.form_frame)
+        direction.set(False)
+        direction_drop_down = tkinter.OptionMenu(self.form_frame, direction, *[False, True])
+        direction_drop_down.grid(row = 1, column = 1)
+
+        tkinter.Label(self.form_frame, text = "Vonal név:").grid(row = 0, column = 0)
+        tkinter.Label(self.form_frame, text = "Visszamenet-e:").grid(row = 1, column = 0)
+        tkinter.Button(self.form_frame, text = "Törlés", command = process_transaction).grid(row = 2, column = 0, columnspan = 2)
