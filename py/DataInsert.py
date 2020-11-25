@@ -60,44 +60,40 @@ class DataInsertPage(ContentPage.ContentPage):
 
             try:
                 sql = "INSERT INTO megallo(nev, hely) VALUES(%s, %s)"
-
-                data = (self.form_frame.stop_name_entry.get().strip(), self.form_frame.location_entry.get().strip())
-
-                cursor.execute(sql, params = data)
-
+                cursor.execute(sql, params = (stop_name_entry.get().strip(), location_entry.get().strip()))
                 connection.commit()
 
-                self.form_frame.stop_name_entry.delete(0, "end")
-                self.form_frame.location_entry.delete(0, "end")
+                stop_name_entry.delete(0, "end")
+                location_entry.delete(0, "end")
 
                 tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
 
             except mysql.connector.Error as error:
                 connection.rollback()
-                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a beírt adatokat!\n" + str(error))
+                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a megadott adatokat!\n" + str(error))
 
             finally:
                 connection.close()
 
 
-        self.form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
-        self.form_frame.grid(row = 6, column = 0, sticky = "NESW")
+        form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
+        form_frame.grid(row = 6, column = 0, sticky = "NESW")
 
-        self.form_frame.columnconfigure(0, weight = 1)
-        self.form_frame.columnconfigure(1, weight = 9)
-        self.form_frame.rowconfigure(0, weight = 1)
-        self.form_frame.rowconfigure(1, weight = 1)
+        form_frame.columnconfigure(0, weight = 1)
+        form_frame.columnconfigure(1, weight = 9)
+        form_frame.rowconfigure(0, weight = 1)
+        form_frame.rowconfigure(1, weight = 1)
 
-        self.form_frame.stop_name_entry = tkinter.Entry(self.form_frame)
-        self.form_frame.location_entry = tkinter.Entry(self.form_frame)
+        stop_name_entry = tkinter.Entry(form_frame)
+        location_entry = tkinter.Entry(form_frame)
 
-        self.form_frame.stop_name_entry.grid(column = 1, row = 0, sticky="WE")
-        self.form_frame.location_entry.grid(column = 1, row = 1, sticky="WE")
+        stop_name_entry.grid(column = 1, row = 0, sticky="WE")
+        location_entry.grid(column = 1, row = 1, sticky="WE")
 
-        tkinter.Label(self.form_frame, text = "Név:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
-        tkinter.Label(self.form_frame, text = "Hely:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Név:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Hely:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
 
-        tkinter.Button(self.form_frame, text = "Felvitel", bg = self["bg"], command = process_new_stop).grid(row = 4, column = 0, columnspan = 2)
+        tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_stop).grid(row = 4, column = 0, columnspan = 2)
 
 
 
@@ -108,48 +104,44 @@ class DataInsertPage(ContentPage.ContentPage):
 
             try:
                 sql = "INSERT INTO vonal VALUES(%s, %s)"
-
-                data = (self.content_frame.form_frame.line_name_entry.get().strip(), self.content_frame.form_frame.length_entry.get().strip())
-
-                cursor.execute(sql, params = data)
+                cursor.execute(sql, params = (line_name_entry.get().strip(), length_entry.get().strip()))
 
                 sql = "INSERT INTO jarat VALUES(%s, %s), (%s, %s)"
-
-                cursor.execute(sql, params = (self.content_frame.form_frame.line_name_entry.get().strip(), 0, self.content_frame.form_frame.line_name_entry.get().strip(), 1))
+                cursor.execute(sql, params = (line_name_entry.get().strip(), 0, line_name_entry.get().strip(), 1))
 
                 connection.commit()
 
-                self.content_frame.form_frame.line_name_entry.delete(0, "end")
-                self.content_frame.form_frame.length_entry.delete(0, "end")
+                line_name_entry.delete(0, "end")
+                length_entry.delete(0, "end")
 
                 tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
 
             except mysql.connector.Error as error:
                 connection.rollback()
-                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a beírt adatokat!\n" + str(error))
+                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a megadott adatokat!\n" + str(error))
 
             finally:
                 connection.close()
 
 
-        self.content_frame.form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
-        self.content_frame.form_frame.grid(row = 6, column = 0, sticky = "NESW")
+        form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
+        form_frame.grid(row = 6, column = 0, sticky = "NESW")
 
-        self.content_frame.form_frame.columnconfigure(0, weight = 1)
-        self.content_frame.form_frame.columnconfigure(1, weight = 9)
-        self.content_frame.form_frame.rowconfigure(0, weight = 1)
-        self.content_frame.form_frame.rowconfigure(1, weight = 1)
+        form_frame.columnconfigure(0, weight = 1)
+        form_frame.columnconfigure(1, weight = 9)
+        form_frame.rowconfigure(0, weight = 1)
+        form_frame.rowconfigure(1, weight = 1)
 
-        self.content_frame.form_frame.line_name_entry = tkinter.Entry(self.content_frame.form_frame)
-        self.content_frame.form_frame.length_entry = tkinter.Entry(self.content_frame.form_frame)
+        line_name_entry = tkinter.Entry(form_frame)
+        length_entry = tkinter.Entry(form_frame)
 
-        self.content_frame.form_frame.line_name_entry.grid(column = 1, row = 0, sticky="WE")
-        self.content_frame.form_frame.length_entry.grid(column = 1, row = 1, sticky="WE")
+        line_name_entry.grid(column = 1, row = 0, sticky="WE")
+        length_entry.grid(column = 1, row = 1, sticky="WE")
 
-        tkinter.Label(self.content_frame.form_frame, text = "Vonalnév:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
-        tkinter.Label(self.content_frame.form_frame, text = "Hossz:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Vonalnév:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Hossz:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
 
-        tkinter.Button(self.content_frame.form_frame, text = "Felvitel", bg = self["bg"], command = process_new_line).grid(row = 4, column = 0, columnspan = 2)
+        tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_line).grid(row = 4, column = 0, columnspan = 2)
 
 
 
@@ -160,44 +152,39 @@ class DataInsertPage(ContentPage.ContentPage):
 
             try:
                 sql = "INSERT INTO jarmutipus(nev, elektromos) VALUES(%s, %s)"
-
-                data = (self.content_frame.form_frame.name_entry.get().strip(), self.content_frame.form_frame.electric_entry.get().strip())
-
-                cursor.execute(sql, params = data)
-
+                cursor.execute(sql, params = (name_entry.get().strip(), is_electric.get()))
                 connection.commit()
 
-                self.content_frame.form_frame.name_entry.delete(0, "end")
-                self.content_frame.form_frame.electric_entry.delete(0, "end")
+                name_entry.delete(0, "end")
+                is_electric.set(False)
 
                 tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
 
             except mysql.connector.Error as error:
                 connection.rollback()
-                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a beírt adatokat!\n" + str(error))
+                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a megadott adatokat!\n" + str(error))
 
             finally:
                 connection.close()
 
-        
-        self.content_frame.form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
-        self.content_frame.form_frame.grid(row = 6, column = 0, sticky = "NESW")
+        form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
+        form_frame.grid(row = 6, column = 0, sticky = "NESW")
 
-        self.content_frame.form_frame.columnconfigure(0, weight = 1)
-        self.content_frame.form_frame.columnconfigure(1, weight = 9)
-        self.content_frame.form_frame.rowconfigure(0, weight = 1)
-        self.content_frame.form_frame.rowconfigure(1, weight = 1)
+        form_frame.columnconfigure(0, weight = 1)
+        form_frame.columnconfigure(1, weight = 9)
+        form_frame.rowconfigure(0, weight = 1)
+        form_frame.rowconfigure(1, weight = 1)
 
-        self.content_frame.form_frame.name_entry = tkinter.Entry(self.content_frame.form_frame)
-        self.content_frame.form_frame.electric_entry = tkinter.Entry(self.content_frame.form_frame)
+        name_entry = tkinter.Entry(form_frame)
+        name_entry.grid(column = 1, row = 0, sticky="WE")
 
-        self.content_frame.form_frame.name_entry.grid(column = 1, row = 0, sticky="WE")
-        self.content_frame.form_frame.electric_entry.grid(column = 1, row = 1, sticky="WE")
+        is_electric = tkinter.BooleanVar(form_frame)
+        tkinter.OptionMenu(form_frame, is_electric, *[True, False]).grid(row = 1, column = 1)
 
-        tkinter.Label(self.content_frame.form_frame, text = "Típusnév:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
-        tkinter.Label(self.content_frame.form_frame, text = "Elektromos-e:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Típusnév:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Elektromos-e:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
 
-        tkinter.Button(self.content_frame.form_frame, text = "Felvitel", bg = self["bg"], command = process_new_vehicle_type).grid(row = 4, column = 0, columnspan = 2)
+        tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_vehicle_type).grid(row = 4, column = 0, columnspan = 2)
 
 
 
@@ -208,8 +195,7 @@ class DataInsertPage(ContentPage.ContentPage):
 
             try:
                 sql = "INSERT INTO jarmu(rendszam, alacsony_padlos, tipus_nev, vezetoi_szam) VALUES(%s, %s, %s, %s)"
-                data = (self.form_frame.license_entry.get().strip(), floor.get(), type_.get(), driver.get())
-                cursor.execute(sql, params = data)
+                cursor.execute(sql, params = (license_entry.get().strip(), floor.get(), type_.get(), driver.get()))
                 connection.commit()
 
                 self.form_frame.license_entry.delete(0, "end")
@@ -221,7 +207,7 @@ class DataInsertPage(ContentPage.ContentPage):
 
             except mysql.connector.Error as error:
                 connection.rollback()
-                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a beírt adatokat!\n" + str(error))
+                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a megadott adatokat!\n" + str(error))
 
             finally:
                 connection.close()
@@ -241,40 +227,40 @@ class DataInsertPage(ContentPage.ContentPage):
             return drivers, types
 
 
-        self.form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
-        self.form_frame.grid(row = 6, column = 0, sticky = "NESW")
+        form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
+        form_frame.grid(row = 6, column = 0, sticky = "NESW")
 
-        self.form_frame.columnconfigure(0, weight = 1)
-        self.form_frame.columnconfigure(1, weight = 9)
-        self.form_frame.rowconfigure(0, weight = 1)
-        self.form_frame.rowconfigure(1, weight = 1)
-        self.form_frame.rowconfigure(2, weight = 1)
-        self.form_frame.rowconfigure(3, weight = 1)
-        self.form_frame.rowconfigure(4, weight = 1)
+        form_frame.columnconfigure(0, weight = 1)
+        form_frame.columnconfigure(1, weight = 9)
+        form_frame.rowconfigure(0, weight = 1)
+        form_frame.rowconfigure(1, weight = 1)
+        form_frame.rowconfigure(2, weight = 1)
+        form_frame.rowconfigure(3, weight = 1)
+        form_frame.rowconfigure(4, weight = 1)
 
         driver_id_entries, type_name_entries = get_foreign_key_entries()
 
-        self.form_frame.license_entry = tkinter.Entry(self.form_frame)
-        self.form_frame.license_entry.grid(column = 1, row = 0, sticky="WE")
+        license_entry = tkinter.Entry(form_frame)
+        license_entry.grid(column = 1, row = 0, sticky="WE")
 
-        floor = tkinter.BooleanVar(self.form_frame)
+        floor = tkinter.BooleanVar(form_frame)
         floor.set(False)
-        tkinter.OptionMenu(self.form_frame, floor, *[False, True]).grid(row = 1, column = 1)
+        tkinter.OptionMenu(form_frame, floor, *[False, True]).grid(row = 1, column = 1)
 
-        type_ = tkinter.StringVar(self.form_frame)
+        type_ = tkinter.StringVar(form_frame)
         type_.set(type_name_entries[0])
-        tkinter.OptionMenu(self.form_frame, type_, *type_name_entries).grid(row = 2, column = 1)
+        tkinter.OptionMenu(form_frame, type_, *type_name_entries).grid(row = 2, column = 1)
 
-        driver = tkinter.StringVar(self.form_frame)
+        driver = tkinter.StringVar(form_frame)
         driver.set(driver_id_entries[0])
-        tkinter.OptionMenu(self.form_frame, driver, *driver_id_entries).grid(row = 3, column = 1)
+        tkinter.OptionMenu(form_frame, driver, *driver_id_entries).grid(row = 3, column = 1)
 
-        tkinter.Label(self.form_frame, text = "Rendszám:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
-        tkinter.Label(self.form_frame, text = "Alacsony padlós-e:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
-        tkinter.Label(self.form_frame, text = "Jármű típus:", bg = self["bg"]).grid(row = 2, column = 0, sticky = "E")
-        tkinter.Label(self.form_frame, text = "Vezető száma:", bg = self["bg"]).grid(row = 3, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Rendszám:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Alacsony padlós-e:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Jármű típus:", bg = self["bg"]).grid(row = 2, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Vezető száma:", bg = self["bg"]).grid(row = 3, column = 0, sticky = "E")
 
-        tkinter.Button(self.form_frame, text = "Felvitel", bg = self["bg"], command = process_new_vehicle).grid(row = 4, column = 0, columnspan = 2)
+        tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_vehicle).grid(row = 4, column = 0, columnspan = 2)
 
         
 
@@ -284,18 +270,10 @@ class DataInsertPage(ContentPage.ContentPage):
             cursor = connection.cursor()
 
             try:
-                sql = "INSERT INTO indul(rendszam, vonal_nev, visszamenet, mikor) VALUES"
-
-                for start in starts:
-                    sql += "(\"{}\", \"{}\", {}, \"{}\"),".format(start[1].get(), line.get(), start[2].get(), start[0].get().strip())
-
+                sql = "INSERT INTO indul(rendszam, vonal_nev, visszamenet, mikor) VALUES" + ["(\"{}\", \"{}\", {}, \"{}\"),".format(start[1].get(), line.get(), start[2].get(), start[0].get().strip()) for start in starts]
                 cursor.execute(sql[:-1])
 
-                sql2 = "INSERT INTO megall(vonal_nev, visszamenet, megallo_id, mikor) VALUES"
-
-                for stop in stops:
-                    sql2 += "(\"{}\", {}, {}, \"{}\"),".format(line.get(), stop[2].get(), stop[1].get(), stop[0].get().strip())
-
+                sql2 = "INSERT INTO megall(vonal_nev, visszamenet, megallo_id, mikor) VALUES" + ["(\"{}\", {}, {}, \"{}\"),".format(line.get(), stop[2].get(), stop[1].get(), stop[0].get().strip()) for stop in stops]
                 cursor.execute(sql2[:-1])
 
                 connection.commit()
