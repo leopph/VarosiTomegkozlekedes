@@ -3,6 +3,8 @@ import tkinter
 import Login
 import Register
 import DataInsert
+import DataUpdate
+import DataDelete
 
 
 
@@ -53,11 +55,10 @@ class Home(ContentPage.ContentPage):
 
             if self.master.user.is_admin:
                 self.content_frame.columnconfigure(0, weight = 1)
-                self.content_frame.rowconfigure(0, weight = 1)
-                self.content_frame.rowconfigure(1, weight = 1)
 
                 tkinter.Button(self.content_frame, text = "Adatok felvitele", font = (None, 12), bg = self["bg"], command = lambda: self.master.load_new_page(DataInsert.DataInsertPage, None)).grid(row = 0, column = 0)
-                tkinter.Button(self.content_frame, text = "Adatok módosítása", font = (None, 12), bg = self["bg"]).grid(row = 1, column = 0)
+                tkinter.Button(self.content_frame, text = "Adatok módosítása", font = (None, 12), bg = self["bg"], command = lambda: self.master.load_new_page(DataUpdate.DataUpdatePage, None)).grid(row = 1, column = 0)
+                tkinter.Button(self.content_frame, text = "Adatok törlése", font = (None, 12), bg = self["bg"], command = lambda: self.master.load_new_page(DataDelete.DataDeletePage, None)).grid(row = 2, column = 0)
 
 
 

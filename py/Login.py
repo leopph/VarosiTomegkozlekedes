@@ -64,8 +64,6 @@ class LoginPage(ContentPage.ContentPage):
                 self.master.reload_existing_pages()
                 self.master.load_new_page(Home.Home, None)
 
-                tkinter.messagebox.showinfo("Siker", "Sikeres bejelentkezés!")
-
             connection.close()
 
 

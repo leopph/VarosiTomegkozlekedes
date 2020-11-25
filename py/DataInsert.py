@@ -198,7 +198,7 @@ class DataInsertPage(ContentPage.ContentPage):
                 cursor.execute(sql, params = (license_entry.get().strip(), floor.get(), type_.get(), driver.get()))
                 connection.commit()
 
-                self.form_frame.license_entry.delete(0, "end")
+                license_entry.delete(0, "end")
                 floor.set(False)
                 type_.set(type_name_entries[0])
                 driver.set(driver_id_entries[0])

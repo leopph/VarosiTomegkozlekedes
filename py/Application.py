@@ -7,6 +7,8 @@ import Register
 import RouteResults
 import Search
 import StopDetails
+import DataUpdate
+import DataDelete
 
 
 class App(tkinter.Tk):
@@ -36,7 +38,9 @@ class App(tkinter.Tk):
                                 Search.SearchResults,
                                 RouteResults.RouteResults,
                                 StopDetails.StopDetails,
-                                DataInsert.DataInsertPage
+                                DataInsert.DataInsertPage,
+                                DataUpdate.DataUpdatePage,
+                                DataDelete.DataDeletePage
                             }
 
         self.loaded_pages = list()
