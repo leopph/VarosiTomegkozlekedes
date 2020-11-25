@@ -41,12 +41,6 @@ class DataInsertPage(ContentPage.ContentPage):
             self.content_frame.grid(row = 1, column = 0, sticky = "NESW")
 
             self.content_frame.columnconfigure(0, weight = 1)
-            self.content_frame.rowconfigure(0, weight = 1)
-            self.content_frame.rowconfigure(1, weight = 1)
-            self.content_frame.rowconfigure(2, weight = 1)
-            self.content_frame.rowconfigure(3, weight = 1)
-            self.content_frame.rowconfigure(4, weight = 1)
-            self.content_frame.rowconfigure(5, weight = 1)
             self.content_frame.rowconfigure(6, weight = 20)
 
             tkinter.Label(self.content_frame, text = "Válassza ki a felvinni kívánt adatot!", bg = self["bg"], font = (None, 16)).grid(row = 0, column = 0, sticky = "NESW")
@@ -214,16 +208,14 @@ class DataInsertPage(ContentPage.ContentPage):
 
             try:
                 sql = "INSERT INTO jarmu(rendszam, alacsony_padlos, tipus_nev, vezetoi_szam) VALUES(%s, %s, %s, %s)"
-                data = (self.content_frame.form_frame.license_entry.get().strip(), self.content_frame.form_frame.disabled_friendly_entry.get().strip(), self.content_frame.form_frame.tipus_entry.get().strip(), self.content_frame.form_frame.driver_entry.get().strip())
-
+                data = (self.form_frame.license_entry.get().strip(), floor.get(), type_.get(), driver.get())
                 cursor.execute(sql, params = data)
-
                 connection.commit()
 
-                self.content_frame.form_frame.license_entry.delete(0, "end")
-                self.content_frame.form_frame.disabled_friendly_entry.delete(0, "end")
-                self.content_frame.form_frame.tipus_entry.delete(0, "end")
-                self.content_frame.form_frame.driver_entry.delete(0, "end")
+                self.form_frame.license_entry.delete(0, "end")
+                floor.set(False)
+                type_.set(type_name_entries[0])
+                driver.set(driver_id_entries[0])
 
                 tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
 
@@ -234,34 +226,55 @@ class DataInsertPage(ContentPage.ContentPage):
             finally:
                 connection.close()
 
+        def get_foreign_key_entries():
+            connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
+            cursor = connection.cursor()
 
-        self.content_frame.form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
-        self.content_frame.form_frame.grid(row = 6, column = 0, sticky = "NESW")
+            sql = "SELECT vezetoi_szam FROM vezeto"
+            cursor.execute(sql)
+            drivers = [driver_id[0] for driver_id in cursor.fetchall()]
 
-        self.content_frame.form_frame.columnconfigure(0, weight = 1)
-        self.content_frame.form_frame.columnconfigure(1, weight = 9)
-        self.content_frame.form_frame.rowconfigure(0, weight = 1)
-        self.content_frame.form_frame.rowconfigure(1, weight = 1)
-        self.content_frame.form_frame.rowconfigure(2, weight = 1)
-        self.content_frame.form_frame.rowconfigure(3, weight = 1)
-        self.content_frame.form_frame.rowconfigure(4, weight = 1)
+            sql = "SELECT nev FROM jarmutipus"
+            cursor.execute(sql)
+            types = [type[0] for type in cursor.fetchall()]
 
-        self.content_frame.form_frame.license_entry = tkinter.Entry(self.content_frame.form_frame)
-        self.content_frame.form_frame.disabled_friendly_entry = tkinter.Entry(self.content_frame.form_frame)
-        self.content_frame.form_frame.tipus_entry = tkinter.Entry(self.content_frame.form_frame)
-        self.content_frame.form_frame.driver_entry = tkinter.Entry(self.content_frame.form_frame)
+            return drivers, types
 
-        self.content_frame.form_frame.license_entry.grid(column = 1, row = 0, sticky="WE")
-        self.content_frame.form_frame.disabled_friendly_entry.grid(column = 1, row = 1, sticky="WE")
-        self.content_frame.form_frame.tipus_entry.grid(column = 1, row = 2, sticky="WE")
-        self.content_frame.form_frame.driver_entry.grid(column = 1, row = 3, sticky="WE")
 
-        tkinter.Label(self.content_frame.form_frame, text = "Rendszám:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
-        tkinter.Label(self.content_frame.form_frame, text = "Alacsony padlós-e:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
-        tkinter.Label(self.content_frame.form_frame, text = "Jármű típus:", bg = self["bg"]).grid(row = 2, column = 0, sticky = "E")
-        tkinter.Label(self.content_frame.form_frame, text = "Sofőr száma:", bg = self["bg"]).grid(row = 3, column = 0, sticky = "E")
+        self.form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
+        self.form_frame.grid(row = 6, column = 0, sticky = "NESW")
 
-        tkinter.Button(self.content_frame.form_frame, text = "Felvitel", bg = self["bg"], command = process_new_vehicle).grid(row = 4, column = 0, columnspan = 2)
+        self.form_frame.columnconfigure(0, weight = 1)
+        self.form_frame.columnconfigure(1, weight = 9)
+        self.form_frame.rowconfigure(0, weight = 1)
+        self.form_frame.rowconfigure(1, weight = 1)
+        self.form_frame.rowconfigure(2, weight = 1)
+        self.form_frame.rowconfigure(3, weight = 1)
+        self.form_frame.rowconfigure(4, weight = 1)
+
+        driver_id_entries, type_name_entries = get_foreign_key_entries()
+
+        self.form_frame.license_entry = tkinter.Entry(self.form_frame)
+        self.form_frame.license_entry.grid(column = 1, row = 0, sticky="WE")
+
+        floor = tkinter.BooleanVar(self.form_frame)
+        floor.set(False)
+        tkinter.OptionMenu(self.form_frame, floor, *[False, True]).grid(row = 1, column = 1)
+
+        type_ = tkinter.StringVar(self.form_frame)
+        type_.set(type_name_entries[0])
+        tkinter.OptionMenu(self.form_frame, type_, *type_name_entries).grid(row = 2, column = 1)
+
+        driver = tkinter.StringVar(self.form_frame)
+        driver.set(driver_id_entries[0])
+        tkinter.OptionMenu(self.form_frame, driver, *driver_id_entries).grid(row = 3, column = 1)
+
+        tkinter.Label(self.form_frame, text = "Rendszám:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
+        tkinter.Label(self.form_frame, text = "Alacsony padlós-e:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
+        tkinter.Label(self.form_frame, text = "Jármű típus:", bg = self["bg"]).grid(row = 2, column = 0, sticky = "E")
+        tkinter.Label(self.form_frame, text = "Vezető száma:", bg = self["bg"]).grid(row = 3, column = 0, sticky = "E")
+
+        tkinter.Button(self.form_frame, text = "Felvitel", bg = self["bg"], command = process_new_vehicle).grid(row = 4, column = 0, columnspan = 2)
 
         
 
@@ -276,17 +289,28 @@ class DataInsertPage(ContentPage.ContentPage):
                 for start in starts:
                     sql += "(\"{}\", \"{}\", {}, \"{}\"),".format(start[1].get(), line.get(), start[2].get(), start[0].get().strip())
 
-                #cursor.execute(sql[:-1])
+                cursor.execute(sql[:-1])
 
                 sql2 = "INSERT INTO megall(vonal_nev, visszamenet, megallo_id, mikor) VALUES"
 
                 for stop in stops:
                     sql2 += "(\"{}\", {}, {}, \"{}\"),".format(line.get(), stop[2].get(), stop[1].get(), stop[0].get().strip())
 
-                #cursor.execute(sql2[:-1])
-                print(sql)
-                print(sql2)
-                #connection.commit()
+                cursor.execute(sql2[:-1])
+
+                connection.commit()
+
+                line.set[line_entries[0]]
+                
+                for start in starts:
+                    start[0].delete(0, "end")
+                    start[1].set(license_entries[0])
+                    start[2].set(False)
+
+                for stop in stops:
+                    stop[0].delete(0, "end")
+                    stop[1].set(stop_id_entries[0])
+                    stop[2].set(False)
 
                 tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
 
@@ -357,23 +381,19 @@ class DataInsertPage(ContentPage.ContentPage):
 
         form_frame.columnconfigure(0, weight = 1)
         form_frame.columnconfigure(1, weight = 1)
-        form_frame.rowconfigure(0, weight = 1)
-        form_frame.rowconfigure(1, weight = 1)
-        form_frame.rowconfigure(2, weight = 1)
-        form_frame.rowconfigure(3, weight = 1)
 
-        tkinter.Label(form_frame, text = "Vonal száma:", bg = self["bg"]).grid(row = 0, column = 0)
-        tkinter.Label(form_frame, text = "Indulások (mikor, rendszám, visszamenet-e):", bg = self["bg"]).grid(row = 1, column = 0)
-        tkinter.Label(form_frame, text = "Megállások (mikor, megálló id, visszamenet-e;):", bg = self["bg"]).grid(row = 2, column = 0)
+        tkinter.Label(form_frame, text = "Vonal száma:").grid(row = 0, column = 0, sticky = "NSEW")
+        tkinter.Label(form_frame, text = "Indulások (mikor, rendszám, visszamenet-e):").grid(row = 1, column = 0, sticky = "NSEW")
+        tkinter.Label(form_frame, text = "Megállások (mikor, megálló id, visszamenet-e;):").grid(row = 2, column = 0, sticky = "NSEW")
 
-        lines_entries, license_entries, stop_id_entries = get_foreign_key_entries()
+        line_entries, license_entries, stop_id_entries = get_foreign_key_entries()
 
         line = tkinter.StringVar(form_frame)
-        line.set(lines_entries[0])
-        tkinter.OptionMenu(form_frame, line, *lines_entries).grid(row = 0, column = 1)
+        line.set(line_entries[0])
+        tkinter.OptionMenu(form_frame, line, *line_entries).grid(row = 0, column = 1)
 
         starts = list()
-        starts_frame = tkinter.Frame(form_frame, bg = self["bg"])
+        starts_frame = tkinter.Frame(form_frame)
         starts_frame.grid(row = 1, column = 1, sticky = "EW")
 
         starts_frame.columnconfigure(0, weight = 1)
@@ -386,7 +406,7 @@ class DataInsertPage(ContentPage.ContentPage):
         new_start_button.grid(row = 0, column = 0, columnspan = 3)
 
         stops = list()
-        stops_frame = tkinter.Frame(form_frame, bg = self["bg"])
+        stops_frame = tkinter.Frame(form_frame)
         stops_frame.grid(row = 2, column = 1, sticky = "EW")
 
         stops_frame.columnconfigure(0, weight = 1)
