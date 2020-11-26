@@ -29,28 +29,76 @@ class DataInsertPage(ContentPage.ContentPage):
             self.title_frame.rowconfigure(0, weight = 1)
             self.title_frame.columnconfigure(0, weight = 1)
 
-            tkinter.Label(self.title_frame, text = "Ez az oldal csak adminisztrátorok számára érhető el!", bg = self["bg"], font = (None, 24)).grid(row = 0, column = 0, sticky = "NESW")
+            tkinter.Label(self.title_frame, text = "Ez az oldal csak adminisztrátorok számára érhető el!", bg = self["bg"], font = ("", 24)).grid(row = 0, column = 0, sticky = "NESW")
 
         else:
-            self.title_frame.rowconfigure(0, weight = 1)
             self.title_frame.columnconfigure(0, weight = 1)
-
-            tkinter.Label(self.title_frame, text = "Új adatok felvitele", bg = self["bg"], font = (None, 24)).grid(row = 0, column = 0, sticky = "NESW")
 
             self.content_frame = tkinter.Frame(self, bg = self["bg"])
             self.content_frame.grid(row = 1, column = 0, sticky = "NESW")
 
             self.content_frame.columnconfigure(0, weight = 1)
-            self.content_frame.rowconfigure(6, weight = 20)
+            self.content_frame.columnconfigure(5, weight = 1)
 
-            tkinter.Label(self.content_frame, text = "Válassza ki a felvinni kívánt adatot!", bg = self["bg"], font = (None, 16)).grid(row = 0, column = 0, sticky = "NESW")
+            tkinter.Label(self.title_frame, text = "Új adatok felvitele", bg = self["bg"], font = ("", 26)).grid(row = 0, column = 0, sticky = "NESW")
+            tkinter.Label(self.title_frame, text = "Válassza ki a felvinni kívánt adatot!", bg = self["bg"], font = ("", 22)).grid(row = 1, column = 0, sticky = "NESW")
 
-            tkinter.Button(self.content_frame, text = "Új járat", bg = self["bg"], font = (None, 12), command = self.new_route).grid(row = 1, column = 0)
-            tkinter.Button(self.content_frame, text = "Új jármű", bg = self["bg"], font = (None, 12), command = self.new_vehicle).grid(row = 2, column = 0)
-            tkinter.Button(self.content_frame, text = "Új járműtípus", bg = self["bg"], font = (None, 12), command = self.new_vehicle_type).grid(row = 3, column = 0)
-            tkinter.Button(self.content_frame, text = "Új vonal", bg = self["bg"], font = (None, 12), command = self.new_line).grid(row = 4, column = 0)
-            tkinter.Button(self.content_frame, text = "Új megálló", bg = self["bg"], font = (None, 12), command = self.new_stop).grid(row = 5, column = 0)
+            tkinter.Button(self.content_frame, text = "Új vonal", bg = self["bg"], font = ("", 12), command = self.new_line).grid(row = 0, column = 0, sticky="E")
+            tkinter.Button(self.content_frame, text = "Új megálló", bg = self["bg"], font = ("", 12), command = self.new_stop).grid(row = 0, column = 1)
+            tkinter.Button(self.content_frame, text = "Új vezető", bg = self["bg"], font = ("", 12), command = self.new_driver).grid(row = 0, column = 2)
+            tkinter.Button(self.content_frame, text = "Új járműtípus", bg = self["bg"], font = ("", 12), command = self.new_vehicle_type).grid(row = 0, column = 3)
+            tkinter.Button(self.content_frame, text = "Új jármű", bg = self["bg"], font = ("", 12), command = self.new_vehicle).grid(row = 0, column = 4)
+            tkinter.Button(self.content_frame, text = "Új járat", bg = self["bg"], font = ("", 12), command = self.new_route).grid(row = 0, column = 5, sticky="W")
 
+
+
+    def new_driver(self) -> None:
+        def process_new_driver() -> None:
+            connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
+            cursor = connection.cursor()
+            sql = "INSERT INTO vezeto(vezetoi_szam, vezeteknev, keresztnev, szul_datum) VALUES(%s, %s, %s, %s)"
+
+            try:
+                cursor.execute(sql, (driver_number_entry.get(), last_name_entry.get(), first_name_entry.get(), birth_date_entry.get()))
+                connection.commit()
+
+                driver_number_entry.delete(0, "end")
+                last_name_entry.delete(0, "end")
+                first_name_entry.delete(0, "end")
+                birth_date_entry.delete(0, "end")
+
+                tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
+                
+            except mysql.connector.Error as error:
+                connection.rollback()
+                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a megadott adatokat!\n" + str(error))
+
+            finally:
+                connection.close()
+
+
+        form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
+        form_frame.grid(row = 1, column = 0, columnspan=6, sticky = "NESW")
+
+        form_frame.columnconfigure(0, weight = 1)
+        form_frame.columnconfigure(1, weight = 1)
+
+        driver_number_entry = tkinter.Entry(master=form_frame)
+        last_name_entry = tkinter.Entry(master=form_frame)
+        first_name_entry = tkinter.Entry(master=form_frame)
+        birth_date_entry = tkinter.Entry(master=form_frame)
+
+        driver_number_entry.grid(column=1, row=0, sticky="W")
+        last_name_entry.grid(column=1, row=1, sticky="W")
+        first_name_entry.grid(column=1, row=2, sticky="W")
+        birth_date_entry.grid(column=1, row=3, sticky="W")
+
+        tkinter.Label(master=form_frame, text="Vezetői szám:", bg=self["bg"]).grid(column=0, row=0, sticky="E")
+        tkinter.Label(master=form_frame, text="Vezetéknév:", bg=self["bg"]).grid(column=0, row=1, sticky="E")
+        tkinter.Label(master=form_frame, text="Keresztnév", bg=self["bg"]).grid(column=0, row=2, sticky="E")
+        tkinter.Label(master=form_frame, text="Születési dátum:", bg=self["bg"]).grid(column=0, row=3, sticky="E")
+        
+        tkinter.Button(master=form_frame, text="Felvitel", command=process_new_driver).grid(column=0, row=4, columnspan=2)
 
 
     def new_stop(self) -> None:
@@ -77,23 +125,21 @@ class DataInsertPage(ContentPage.ContentPage):
 
 
         form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
-        form_frame.grid(row = 6, column = 0, sticky = "NESW")
+        form_frame.grid(row = 1, column = 0, columnspan=6, sticky = "NESW")
 
         form_frame.columnconfigure(0, weight = 1)
-        form_frame.columnconfigure(1, weight = 9)
-        form_frame.rowconfigure(0, weight = 1)
-        form_frame.rowconfigure(1, weight = 1)
+        form_frame.columnconfigure(1, weight = 1)
 
         stop_name_entry = tkinter.Entry(form_frame)
         location_entry = tkinter.Entry(form_frame)
 
-        stop_name_entry.grid(column = 1, row = 0, sticky="WE")
-        location_entry.grid(column = 1, row = 1, sticky="WE")
+        stop_name_entry.grid(column = 1, row = 0, sticky="W")
+        location_entry.grid(column = 1, row = 1, sticky="W")
 
         tkinter.Label(form_frame, text = "Név:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
         tkinter.Label(form_frame, text = "Hely:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
 
-        tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_stop).grid(row = 4, column = 0, columnspan = 2)
+        tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_stop).grid(row = 2, column = 0, columnspan = 2)
 
 
 
@@ -125,23 +171,21 @@ class DataInsertPage(ContentPage.ContentPage):
 
 
         form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
-        form_frame.grid(row = 6, column = 0, sticky = "NESW")
+        form_frame.grid(row = 1, column = 0, columnspan=6, sticky = "NESW")
 
         form_frame.columnconfigure(0, weight = 1)
-        form_frame.columnconfigure(1, weight = 9)
-        form_frame.rowconfigure(0, weight = 1)
-        form_frame.rowconfigure(1, weight = 1)
+        form_frame.columnconfigure(1, weight = 1)
 
         line_name_entry = tkinter.Entry(form_frame)
         length_entry = tkinter.Entry(form_frame)
 
-        line_name_entry.grid(column = 1, row = 0, sticky="WE")
-        length_entry.grid(column = 1, row = 1, sticky="WE")
+        line_name_entry.grid(column = 1, row = 0, sticky="W")
+        length_entry.grid(column = 1, row = 1, sticky="W")
 
         tkinter.Label(form_frame, text = "Vonalnév:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
         tkinter.Label(form_frame, text = "Hossz:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
 
-        tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_line).grid(row = 4, column = 0, columnspan = 2)
+        tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_line).grid(row = 2, column = 0, columnspan = 2)
 
 
 
@@ -168,23 +212,21 @@ class DataInsertPage(ContentPage.ContentPage):
                 connection.close()
 
         form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
-        form_frame.grid(row = 6, column = 0, sticky = "NESW")
+        form_frame.grid(row = 1, column = 0, columnspan=6, sticky = "NESW")
 
         form_frame.columnconfigure(0, weight = 1)
-        form_frame.columnconfigure(1, weight = 9)
-        form_frame.rowconfigure(0, weight = 1)
-        form_frame.rowconfigure(1, weight = 1)
+        form_frame.columnconfigure(1, weight = 1)
 
         name_entry = tkinter.Entry(form_frame)
-        name_entry.grid(column = 1, row = 0, sticky="WE")
+        name_entry.grid(column = 1, row = 0, sticky="W")
 
         is_electric = tkinter.BooleanVar(form_frame)
-        tkinter.OptionMenu(form_frame, is_electric, *[True, False]).grid(row = 1, column = 1)
+        tkinter.OptionMenu(form_frame, is_electric, *[True, False]).grid(row = 1, column = 1, sticky="W")
 
         tkinter.Label(form_frame, text = "Típusnév:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
         tkinter.Label(form_frame, text = "Elektromos-e:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
 
-        tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_vehicle_type).grid(row = 4, column = 0, columnspan = 2)
+        tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_vehicle_type).grid(row = 2, column = 0, columnspan = 2)
 
 
 
@@ -230,32 +272,27 @@ class DataInsertPage(ContentPage.ContentPage):
 
 
         form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
-        form_frame.grid(row = 6, column = 0, sticky = "NESW")
+        form_frame.grid(row = 1, column = 0, columnspan=6, sticky = "NESW")
 
         form_frame.columnconfigure(0, weight = 1)
-        form_frame.columnconfigure(1, weight = 9)
-        form_frame.rowconfigure(0, weight = 1)
-        form_frame.rowconfigure(1, weight = 1)
-        form_frame.rowconfigure(2, weight = 1)
-        form_frame.rowconfigure(3, weight = 1)
-        form_frame.rowconfigure(4, weight = 1)
+        form_frame.columnconfigure(1, weight = 1)
 
         driver_id_entries, type_name_entries = get_foreign_key_entries()
 
         license_entry = tkinter.Entry(form_frame)
-        license_entry.grid(column = 1, row = 0, sticky="WE")
+        license_entry.grid(column = 1, row = 0, sticky="W")
 
         floor = tkinter.BooleanVar(form_frame)
         floor.set(False)
-        tkinter.OptionMenu(form_frame, floor, *[False, True]).grid(row = 1, column = 1)
+        tkinter.OptionMenu(form_frame, floor, *[False, True]).grid(row = 1, column = 1, sticky="W")
 
         type_ = tkinter.StringVar(form_frame)
         type_.set(type_name_entries[0])
-        tkinter.OptionMenu(form_frame, type_, *type_name_entries).grid(row = 2, column = 1)
+        tkinter.OptionMenu(form_frame, type_, *type_name_entries).grid(row = 2, column = 1, sticky="W")
 
         driver = tkinter.StringVar(form_frame)
         driver.set(driver_id_entries[0])
-        tkinter.OptionMenu(form_frame, driver, *driver_id_entries).grid(row = 3, column = 1)
+        tkinter.OptionMenu(form_frame, driver, *driver_id_entries).grid(row = 3, column = 1, sticky="W")
 
         tkinter.Label(form_frame, text = "Rendszám:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
         tkinter.Label(form_frame, text = "Alacsony padlós-e:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
@@ -327,8 +364,7 @@ class DataInsertPage(ContentPage.ContentPage):
             return lines, licenses, stop_ids
 
         def expand_starts_menu() -> None:
-            starts_frame.rowconfigure(len(starts) + 1, weight = 1)
-            new_start_button.grid(row = len(starts) + 1, column = 0, columnspan = 3)
+            new_start_button.grid(row = len(starts) + 1, column = 0, columnspan=3)
 
             time_entry = tkinter.Entry(starts_frame)
             time_entry.grid(row = len(starts), column = 0)
@@ -345,8 +381,7 @@ class DataInsertPage(ContentPage.ContentPage):
 
 
         def expand_stops_menu() -> None:
-            stops_frame.rowconfigure(len(stops) + 1, weight = 1)
-            new_stop_button.grid(row = len(stops) + 1, column = 0, columnspan = 3)
+            new_stop_button.grid(row = len(stops) + 1, column = 0, columnspan=3)
 
             time_entry = tkinter.Entry(stops_frame)
             time_entry.grid(row = len(stops), column = 0)
@@ -363,7 +398,7 @@ class DataInsertPage(ContentPage.ContentPage):
 
 
         form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
-        form_frame.grid(row = 6, column = 0, sticky = "NESW")
+        form_frame.grid(row = 1, column = 0, columnspan=6, sticky = "NESW")
 
         form_frame.columnconfigure(0, weight = 1)
         form_frame.columnconfigure(1, weight = 1)
@@ -381,27 +416,23 @@ class DataInsertPage(ContentPage.ContentPage):
         starts = list()
         starts_frame = tkinter.Frame(form_frame)
         starts_frame.grid(row = 1, column = 1, sticky = "EW")
-
-        starts_frame.columnconfigure(0, weight = 1)
-        starts_frame.columnconfigure(1, weight = 1)
-        starts_frame.columnconfigure(2, weight = 1)
-        starts_frame.rowconfigure(0, weight = 1)
+        starts_frame.columnconfigure(index=0, weight=1)
+        starts_frame.columnconfigure(index=1, weight=1)
+        starts_frame.columnconfigure(index=2, weight=1)
 
         new_start_button = tkinter.Button(starts_frame, text = "Új indulás")
         new_start_button.configure(command = expand_starts_menu)
-        new_start_button.grid(row = 0, column = 0, columnspan = 3)
+        new_start_button.grid(row = 0, column = 0, columnspan=3)
 
         stops = list()
         stops_frame = tkinter.Frame(form_frame)
         stops_frame.grid(row = 2, column = 1, sticky = "EW")
-
-        stops_frame.columnconfigure(0, weight = 1)
-        stops_frame.columnconfigure(1, weight = 1)
-        stops_frame.columnconfigure(2, weight = 1)
-        stops_frame.rowconfigure(0, weight = 1)
+        stops_frame.columnconfigure(index=0, weight=1)
+        stops_frame.columnconfigure(index=1, weight=1)
+        stops_frame.columnconfigure(index=2, weight=1)
 
         new_stop_button = tkinter.Button(stops_frame, text = "Új megállás")
         new_stop_button.configure(command = expand_stops_menu)
-        new_stop_button.grid(row = 0, column = 0, columnspan = 3)
+        new_stop_button.grid(row = 0, column = 0, columnspan=3)
 
         tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_route).grid(row = 3, column = 0, columnspan = 2)

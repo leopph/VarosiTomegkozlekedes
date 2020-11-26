@@ -27,30 +27,33 @@ class DataDeletePage(ContentPage.ContentPage):
             self.title_frame.rowconfigure(0, weight = 1)
             self.title_frame.columnconfigure(0, weight = 1)
 
-            tkinter.Label(self.title_frame, text = "Ez az oldal csak adminisztrátorok számára érhető el!", bg = self["bg"], font = (None, 24)).grid(row = 0, column = 0, sticky = "NESW")
+            tkinter.Label(self.title_frame, text = "Ez az oldal csak adminisztrátorok számára érhető el!", bg = self["bg"], font = ("", 24)).grid(row = 0, column = 0, sticky = "NESW")
 
         else:
-            self.title_frame.rowconfigure(0, weight = 1)
             self.title_frame.columnconfigure(0, weight = 1)
-
-            tkinter.Label(self.title_frame, text = "Új adatok felvitele", bg = self["bg"], font = (None, 24)).grid(row = 0, column = 0, sticky = "NESW")
 
             self.content_frame = tkinter.Frame(self, bg = self["bg"])
             self.content_frame.grid(row = 1, column = 0, sticky = "NESW")
 
             self.content_frame.columnconfigure(0, weight = 1)
-            self.content_frame.rowconfigure(6, weight = 20)
+            self.content_frame.columnconfigure(5, weight = 1)
 
-            tkinter.Label(self.content_frame, text = "Válassza ki a felvinni kívánt adatot!", bg = self["bg"], font = (None, 16)).grid(row = 0, column = 0, sticky = "NESW")
+            tkinter.Label(self.title_frame, text="Adatok törlése", bg=self["bg"], font=("", 26)).grid(column=0, row=0, sticky="NESW")
+            tkinter.Label(self.title_frame, text="Válassza ki a törölni kívánt adatot", bg=self["bg"], font=("", 22)).grid(column=0, row=1, sticky="NESW")
 
-            tkinter.Button(self.content_frame, text = "Járat törlése", bg = self["bg"], font = (None, 12), command = self.delete_route).grid(row = 1, column = 0)
-            tkinter.Button(self.content_frame, text = "Jármű törlése", bg = self["bg"], font = (None, 12), command = self.delete_vehicle).grid(row = 2, column = 0)
-            tkinter.Button(self.content_frame, text = "Járműtípus törlése", bg = self["bg"], font = (None, 12), command = self.delete_vehicle_type).grid(row = 3, column = 0)
-            tkinter.Button(self.content_frame, text = "Vonal törlése", bg = self["bg"], font = (None, 12), command = self.delete_line).grid(row = 4, column = 0)
-            tkinter.Button(self.content_frame, text = "Megálló törlése", bg = self["bg"], font = (None, 12), command = self.delete_stop).grid(row = 5, column = 0)
+            tkinter.Button(self.content_frame, text = "Vonal törlése", bg = self["bg"], font = ("", 12), command = self.delete_line).grid(row = 0, column = 0, sticky="E")
+            tkinter.Button(self.content_frame, text = "Megálló törlése", bg = self["bg"], font = ("", 12), command = self.delete_stop).grid(row = 0, column = 1)
+            tkinter.Button(self.content_frame, text = "Vezető törlése", bg = self["bg"], font = ("", 12), command = self.delete_driver).grid(row = 0, column = 2)
+            tkinter.Button(self.content_frame, text = "Járműtípus törlése", bg = self["bg"], font = ("", 12), command = self.delete_vehicle_type).grid(row = 0, column = 3)
+            tkinter.Button(self.content_frame, text = "Jármű törlése", bg = self["bg"], font = ("", 12), command = self.delete_vehicle).grid(row = 0, column = 4)
+            tkinter.Button(self.content_frame, text = "Járat törlése", bg = self["bg"], font = ("", 12), command = self.delete_route).grid(row = 0, column = 5, sticky="W")
 
             self.form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
-            self.form_frame.grid(row = 6, column = 0, sticky = "NESW")
+            self.form_frame.grid(row = 1, column = 0, columnspan=6, sticky = "NESW")
+
+
+    def delete_driver(self):
+        pass
 
 
     def delete_vehicle(self):
