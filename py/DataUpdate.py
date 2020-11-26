@@ -57,7 +57,7 @@ class DataUpdatePage(ContentPage.ContentPage):
             tkinter.Button(master=self.content_frame, text="Vezető módosítása", command=self.modify_driver).grid(column=2, row=0)
             tkinter.Button(master=self.content_frame, text="Járműtípus módosítása", command=self.modify_type).grid(column=3, row=0)
             tkinter.Button(master=self.content_frame, text="Jármű módosítása", command=self.modify_vehicle).grid(column=4, row=0)
-            tkinter.Button(master=self.content_frame, text="Járat módosítása", command=self.modify_stop).grid(column=5, row=0, sticky="W")
+            tkinter.Button(master=self.content_frame, text="Járat módosítása", command=self.modify_route).grid(column=5, row=0, sticky="W")
 
             self.form_frame = tkinter.Frame(self.content_frame, bg=self["bg"])
             self.form_frame.grid(column=0, row=1, columnspan=6, sticky="NESW")

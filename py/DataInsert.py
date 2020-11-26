@@ -18,30 +18,39 @@ class DataInsertPage(ContentPage.ContentPage):
 
 
     def refresh(self) -> None:
-        self.rowconfigure(0, weight = 1)
-        self.rowconfigure(1, weight = 9)
-        self.columnconfigure(0, weight = 1)
+        if self.title_frame is not None:
+            for child in self.title_frame.winfo_children():
+                child.destroy()
 
-        self.title_frame = tkinter.Frame(self, bg = self["bg"])
-        self.title_frame.grid(column = 0, row = 0, sticky = "NESW")
+        if self.content_frame is not None:
+            for child in self.content_frame.winfo_children():
+                child.destroy()
 
         if self.master.user is None or not self.master.user.is_admin:
-            self.title_frame.rowconfigure(0, weight = 1)
-            self.title_frame.columnconfigure(0, weight = 1)
+            self.title_frame = tkinter.Frame(master=self, bg=self["bg"])
+            self.title_frame.grid(column=0, row=0, sticky="NESW")
+            self.title_frame.columnconfigure(index=0, weight=1)
+            tkinter.Label(master=self.title_frame, text="Ez az oldal csak adminisztrátorok számára érhető el!", bg=self["bg"], font=("", 26)).grid(column=0, row=0, sticky="NESW")
 
-            tkinter.Label(self.title_frame, text = "Ez az oldal csak adminisztrátorok számára érhető el!", bg = self["bg"], font = ("", 24)).grid(row = 0, column = 0, sticky = "NESW")
 
         else:
+            self.rowconfigure(0, weight = 1)
+            self.rowconfigure(1, weight = 9)
+            self.columnconfigure(0, weight = 1)
+
+            self.title_frame = tkinter.Frame(master=self, bg=self["bg"])
+            self.title_frame.grid(column=0, row=0, sticky="NESW")
+
             self.title_frame.columnconfigure(0, weight = 1)
+
+            tkinter.Label(self.title_frame, text = "Új adatok felvitele", bg = self["bg"], font = ("", 26)).grid(row = 0, column = 0, sticky = "NESW")
+            tkinter.Label(self.title_frame, text = "Válassza ki a felvinni kívánt adatot!", bg = self["bg"], font = ("", 22)).grid(row = 1, column = 0, sticky = "NESW")
 
             self.content_frame = tkinter.Frame(self, bg = self["bg"])
             self.content_frame.grid(row = 1, column = 0, sticky = "NESW")
 
             self.content_frame.columnconfigure(0, weight = 1)
             self.content_frame.columnconfigure(5, weight = 1)
-
-            tkinter.Label(self.title_frame, text = "Új adatok felvitele", bg = self["bg"], font = ("", 26)).grid(row = 0, column = 0, sticky = "NESW")
-            tkinter.Label(self.title_frame, text = "Válassza ki a felvinni kívánt adatot!", bg = self["bg"], font = ("", 22)).grid(row = 1, column = 0, sticky = "NESW")
 
             tkinter.Button(self.content_frame, text = "Új vonal", bg = self["bg"], font = ("", 12), command = self.new_line).grid(row = 0, column = 0, sticky="E")
             tkinter.Button(self.content_frame, text = "Új megálló", bg = self["bg"], font = ("", 12), command = self.new_stop).grid(row = 0, column = 1)
