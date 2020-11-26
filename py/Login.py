@@ -1,45 +1,59 @@
-import ContentPage
 import tkinter
 import tkinter.messagebox
 import mysql.connector
-import Entity
+import ContentPage
 import Home
+import Entity
 
 
 
 
 class LoginPage(ContentPage.ContentPage):
-    def __init__(self, data, *args, **kwargs):
+    def __init__(self, data, *args, **kwargs) -> None:
         ContentPage.ContentPage.__init__(self, data, *args, **kwargs)
 
-        self.rowconfigure(0, weight = 1)
-        self.rowconfigure(1, weight = 1)
-        self.rowconfigure(2, weight = 1)
-        self.rowconfigure(3, weight = 1)
+        self.columnconfigure(index=0, weight=1)
+        self.rowconfigure(index=0, weight=1)
 
-        self.columnconfigure(0, weight = 1)
-        self.columnconfigure(1, weight = 1)
+        self.main_frame = tkinter.Frame(master=self, bg=self["bg"])
+        self.main_frame.grid(column=0, row=0, sticky="NESW")
 
-        self.title_text = tkinter.Label(self, text = "Bejelentkezés", font = (None, 24), bg = self["bg"])
-        self.title_text.grid(row = 0, column = 0, columnspan = 2)
+        self.main_frame.columnconfigure(index=0, weight=1)
+        self.main_frame.rowconfigure(index=0, weight=1)
 
-        self.username_entry = tkinter.Entry(self, bg = self["bg"])
-        self.password_entry = tkinter.Entry(self, bg = self["bg"], show = "*")
-
-        self.username_entry.grid(row = 1, column = 1, sticky = "SW")
-        self.password_entry.grid(row = 2, column = 1, sticky = "NW")
-
-        self.username_label = tkinter.Label(self, text = "Felhasználónév:", bg = self["bg"])
-        self.password_label = tkinter.Label(self, text = "Jelszó:", bg = self["bg"])
-
-        self.username_label.grid(row = 1, column = 0, sticky = "SE")
-        self.password_label.grid(row = 2, column = 0, sticky = "NE")
-
-        self.login_button = tkinter.Button(self, text = "Bejelentkezés", command = self.login, bg = self["bg"])
-        self.login_button.grid(row = 3, column = 0, columnspan = 2)
+        self.refresh()
 
 
-    def login(self):
+    def refresh(self) -> None:
+        for child in self.main_frame.winfo_children():
+            child.destroy()
+
+        if self.master.user is not None:
+
+            self.main_frame.columnconfigure(index=1, weight=0)
+            self.main_frame.rowconfigure(index=3, weight=0)
+
+            tkinter.Label(master=self.main_frame, text="Ön már be van jelentkezve, " + self.master.user.name + ".", font = ("", 26), bg=self["bg"]).grid(column=0, row=0)
+
+        else:
+            self.main_frame.columnconfigure(1, weight = 1)
+            self.main_frame.rowconfigure(index=3, weight=4)
+
+            tkinter.Label(self.main_frame, text = "Bejelentkezés", font = ("", 26), bg = self["bg"]).grid(row = 0, column = 0, columnspan = 2)
+
+            self.username_entry = tkinter.Entry(self.main_frame, bg = self["bg"])
+            self.username_entry.grid(row = 1, column = 1, sticky = "SW")
+
+            self.password_entry = tkinter.Entry(self.main_frame, bg = self["bg"], show = "*")
+            self.password_entry.grid(row = 2, column = 1, sticky = "NW")
+
+            tkinter.Label(self.main_frame, text = "Felhasználónév:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "SE")
+            tkinter.Label(self.main_frame, text = "Jelszó:", bg = self["bg"]).grid(row = 2, column = 0, sticky = "NE")
+
+            tkinter.Button(self.main_frame, text = "Bejelentkezés", command = self.login, bg = self["bg"]).grid(row = 3, column = 0, columnspan = 2, sticky="N")
+
+
+    def login(self) -> None:
         if self.username_entry.get() == "" or self.password_entry == "":
             tkinter.messagebox.showwarning("Figyelem", "Kérem adja meg a felhasználónevét és jelszavát is!")
 
@@ -65,7 +79,3 @@ class LoginPage(ContentPage.ContentPage):
                 self.master.load_new_page(Home.Home, None)
 
             connection.close()
-
-
-    def refresh(self):
-        pass

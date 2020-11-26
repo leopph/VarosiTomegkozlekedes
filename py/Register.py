@@ -1,7 +1,7 @@
-import ContentPage
 import tkinter
 import tkinter.messagebox
 import mysql.connector
+import ContentPage
 import Entity
 
 
@@ -11,41 +11,52 @@ class RegisterPage(ContentPage.ContentPage):
     def __init__(self, data, *args, **kwargs):
         ContentPage.ContentPage.__init__(self, data, *args, **kwargs)
 
-        self.rowconfigure(0, weight = 1)
-        self.rowconfigure(1, weight = 1)
-        self.rowconfigure(2, weight = 1)
-        self.rowconfigure(3, weight = 1)
-        self.rowconfigure(4, weight = 1)
-        self.rowconfigure(5, weight = 1)
+        self.columnconfigure(index=0, weight=1)
+        self.rowconfigure(index=0, weight=1)
 
-        self.columnconfigure(0, weight = 1)
-        self.columnconfigure(1, weight = 1)
+        self.main_frame = tkinter.Frame(master=self, bg=self["bg"])
+        self.main_frame.grid(row=0, column=0, sticky="NESW")
 
-        self.title_text = tkinter.Label(self, text = "Regisztráció", font = (None, 24), bg = self["bg"])
-        self.title_text.grid(row = 0, column = 0, columnspan = 2)
-        
-        self.username_entry = tkinter.Entry(self, bg = self["bg"])
-        self.password_entry = tkinter.Entry(self, bg = self["bg"], show = "*")
-        self.password_confirm_entry = tkinter.Entry(self, bg = self["bg"], show = "*")
-        self.email_entry = tkinter.Entry(self, bg = self["bg"])
+        self.main_frame.columnconfigure(index=0, weight=1)
+        self.main_frame.rowconfigure(index=0, weight=1)
 
-        self.username_entry.grid(row = 1, column = 1, sticky = "W")
-        self.password_entry.grid(row = 2, column = 1, sticky = "W")
-        self.password_confirm_entry.grid(row = 3, column = 1, sticky = "W")
-        self.email_entry.grid(row = 4, column = 1, sticky = "W")
+        self.refresh()
 
-        self.username_label = tkinter.Label(self, text = "Felhasználónév:", bg = self["bg"])
-        self.password_label = tkinter.Label(self, text = "Jelszó:", bg = self["bg"])
-        self.password_confirm_label = tkinter.Label(self, text = "Jelszó még egyszer:", bg = self["bg"])
-        self.email_label = tkinter.Label(self, text = "E-mail cím:", bg = self["bg"])
 
-        self.username_label.grid(row = 1, column = 0, sticky = "E")
-        self.password_label.grid(row = 2, column = 0, sticky = "E")
-        self.password_confirm_label.grid(row = 3, column = 0, sticky = "E")
-        self.email_label.grid(row = 4, column = 0, sticky = "E")
+    def refresh(self):
+        for child in self.main_frame.winfo_children():
+            child.destroy()
 
-        self.register_button = tkinter.Button(self, text = "Regisztráció", command = self.register, bg = self["bg"])
-        self.register_button.grid(row = 5, column = 0, columnspan = 2)
+        if self.master.user is not None:
+            self.main_frame.columnconfigure(index=1, weight=0)
+            self.main_frame.rowconfigure(index=5, weight=0)
+
+            tkinter.Label(master=self.main_frame, text="Ön már be van jelentkezve, " + self.master.user.name + ".", font = ("", 26), bg=self["bg"]).grid(column=0, row=0)
+
+        else:
+            self.main_frame.columnconfigure(index=1, weight=1)
+            self.main_frame.rowconfigure(index=5, weight=4)
+
+            tkinter.Label(self.main_frame, text = "Regisztráció", font = ("", 26), bg = self["bg"]).grid(row = 0, column = 0, columnspan=2)
+            
+            self.username_entry = tkinter.Entry(self.main_frame, bg = self["bg"])
+            self.username_entry.grid(row = 1, column = 1, sticky = "W")
+
+            self.password_entry = tkinter.Entry(self.main_frame, bg = self["bg"], show = "*")
+            self.password_entry.grid(row = 2, column = 1, sticky = "W")
+
+            self.password_confirm_entry = tkinter.Entry(self.main_frame, bg = self["bg"], show = "*")
+            self.password_confirm_entry.grid(row = 3, column = 1, sticky = "W")
+
+            self.email_entry = tkinter.Entry(self.main_frame, bg = self["bg"])
+            self.email_entry.grid(row = 4, column = 1, sticky = "W")
+
+            tkinter.Label(self.main_frame, text = "Felhasználónév:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
+            tkinter.Label(self.main_frame, text = "Jelszó:", bg = self["bg"]).grid(row = 2, column = 0, sticky = "E")
+            tkinter.Label(self.main_frame, text = "Jelszó még egyszer:", bg = self["bg"]).grid(row = 3, column = 0, sticky = "E")
+            tkinter.Label(self.main_frame, text = "E-mail cím:", bg = self["bg"]).grid(row = 4, column = 0, sticky = "E")
+
+            tkinter.Button(self.main_frame, text = "Regisztráció", command = self.register, bg = self["bg"]).grid(row = 5, column = 0, columnspan = 2, sticky="N")
 
 
     def register(self):
@@ -73,7 +84,3 @@ class RegisterPage(ContentPage.ContentPage):
             tkinter.messagebox.showinfo("Siker", "Sikeres regisztráció!")
 
         connection.close()
-
-    
-    def refresh(self):
-        pass
