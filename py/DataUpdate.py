@@ -56,7 +56,7 @@ class DataUpdatePage(ContentPage.ContentPage):
             self.content_frame.rowconfigure(index=1, weight=1)
 
             tkinter.Button(master=self.content_frame, text="Vonal módosítása", command=self.modify_line).grid(column=0, row=0)
-            tkinter.Button(master=self.content_frame, text="Megálló módosítása").grid(column=1, row=0)
+            tkinter.Button(master=self.content_frame, text="Megálló módosítása", command=self.modify_stop).grid(column=1, row=0)
             tkinter.Button(master=self.content_frame, text="Vezető módosítása", command=self.modify_driver).grid(column=2, row=0)
             tkinter.Button(master=self.content_frame, text="Járműtípus módosítása", command=self.modify_type).grid(column=3, row=0)
             tkinter.Button(master=self.content_frame, text="Jármű módosítása", command=self.modify_vehicle).grid(column=4, row=0)
@@ -64,6 +64,80 @@ class DataUpdatePage(ContentPage.ContentPage):
 
             self.form_frame = tkinter.Frame(self.content_frame, bg=self["bg"])
             self.form_frame.grid(column=0, row=1, columnspan=6, sticky="NESW")
+
+
+    def modify_stop(self) -> None:
+        def send_update() -> None:
+            connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
+            cursor = connection.cursor()
+            sql = "UPDATE megallo SET nev = %s, hely = %s WHERE id = %s"
+            
+            try:
+                cursor.execute(sql, (update_info[0].get(), update_info[1].get(), stops[stop_selection.get()]))
+                connection.commit()
+
+                tkinter.messagebox.showinfo("Siker", "Sikeres frissítés!")
+
+                for child in self.form_frame.winfo_children():
+                    child.destroy()
+
+            except mysql.connector.Error as error:
+                connection.rollback()
+                tkinter.messagebox.showerror("Hiba", "Hiba történt a módosítás során!\n" + str(error))
+
+            finally:
+                connection.close()
+
+
+        def show_form() -> None:
+            for child in self.form_frame.winfo_children():
+                child.destroy()
+
+            self.form_frame.columnconfigure(index=0, weight=1)
+            self.form_frame.columnconfigure(index=1, weight=1)
+
+            connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
+            cursor = connection.cursor()
+            sql = "SELECT nev, hely FROM megallo WHERE id = %s"
+            cursor.execute(sql, (stop_selection.get(),))
+            query_result: tuple[str, str] = cursor.fetchone()
+            connection.close()
+
+            nonlocal update_info
+            update_info = (tkinter.Entry(master=self.form_frame), tkinter.Entry(master=self.form_frame))
+            update_info[0].grid(row=0, column=1, sticky="W")
+            update_info[0].insert(0, query_result[0])
+            update_info[1].grid(row=1, column=1, sticky="W")
+            update_info[1].insert(0, query_result[1])
+
+            
+
+            tkinter.Label(master=self.form_frame, text="Név:", bg=self["bg"]).grid(column=0, row=0, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Hely:", bg=self["bg"]).grid(column=0, row=1, sticky="E")
+            tkinter.Button(master=self.form_frame, text="Módosítás", command=send_update).grid(column=0, row=2, columnspan=2)
+
+        
+        for child in self.form_frame.winfo_children():
+            child.destroy()
+
+        self.form_frame.columnconfigure(index=0, weight=1)
+        self.form_frame.columnconfigure(index=1, weight=1)
+
+        connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
+        cursor = connection.cursor()
+        sql = "SELECT id, nev FROM megallo"
+        cursor.execute(sql)
+
+        stops: dict[str, int] = {str(stop[0]) + " (" + str(stop[1]) + ")": stop[0] for stop in cursor.fetchall()}
+
+        stop_selection = tkinter.StringVar(master=self.form_frame)
+        stop_selection.set(sorted(stops.keys())[0])
+
+        update_info: Union[tuple[tkinter.Entry, tkinter.Entry], None] = None
+
+        tkinter.Label(master=self.form_frame, text="Válasszon megállót!", bg=self["bg"]).grid(column=0, row=0, sticky="E")
+        tkinter.OptionMenu(self.form_frame, stop_selection, *stops).grid(column=1, row=0, sticky="W")
+        tkinter.Button(master=self.form_frame, text="Kiválasztás", command=show_form).grid(column=0, row=1, columnspan=2)
 
 
     def modify_vehicle(self) -> None:
