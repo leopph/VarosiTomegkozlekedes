@@ -7,7 +7,7 @@ import mysql.connector
 
 
 class DataInsertPage(ContentPage.ContentPage):
-    def __init__(self, data, *args, **kwargs):
+    def __init__(self, data, *args, **kwargs) -> None:
         ContentPage.ContentPage.__init__(self, data, *args, **kwargs)
 
         self.title_frame = None
@@ -17,7 +17,7 @@ class DataInsertPage(ContentPage.ContentPage):
 
 
 
-    def refresh(self):
+    def refresh(self) -> None:
         self.rowconfigure(0, weight = 1)
         self.rowconfigure(1, weight = 9)
         self.columnconfigure(0, weight = 1)
@@ -53,8 +53,8 @@ class DataInsertPage(ContentPage.ContentPage):
 
 
 
-    def new_stop(self):
-        def process_new_stop():
+    def new_stop(self) -> None:
+        def process_new_stop() -> None:
             connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
             cursor = connection.cursor()
 
@@ -97,8 +97,8 @@ class DataInsertPage(ContentPage.ContentPage):
 
 
 
-    def new_line(self):
-        def process_new_line():
+    def new_line(self) -> None:
+        def process_new_line() -> None:
             connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
             cursor = connection.cursor()
 
@@ -145,8 +145,8 @@ class DataInsertPage(ContentPage.ContentPage):
 
 
 
-    def new_vehicle_type(self):
-        def process_new_vehicle_type():
+    def new_vehicle_type(self) -> None:
+        def process_new_vehicle_type() -> None:
             connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
             cursor = connection.cursor()
 
@@ -188,8 +188,8 @@ class DataInsertPage(ContentPage.ContentPage):
 
 
 
-    def new_vehicle(self):
-        def process_new_vehicle():
+    def new_vehicle(self) -> None:
+        def process_new_vehicle() -> None:
             connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
             cursor = connection.cursor()
 
@@ -212,17 +212,19 @@ class DataInsertPage(ContentPage.ContentPage):
             finally:
                 connection.close()
 
-        def get_foreign_key_entries():
+        def get_foreign_key_entries() -> tuple[list[str], list[str]]:
             connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
             cursor = connection.cursor()
 
             sql = "SELECT vezetoi_szam FROM vezeto"
             cursor.execute(sql)
-            drivers = [driver_id[0] for driver_id in cursor.fetchall()]
+            drivers: list[str] = [driver_id[0] for driver_id in cursor.fetchall()]
 
             sql = "SELECT nev FROM jarmutipus"
             cursor.execute(sql)
-            types = [type[0] for type in cursor.fetchall()]
+            types: list[str] = [type[0] for type in cursor.fetchall()]
+
+            connection.close()
 
             return drivers, types
 
@@ -264,21 +266,25 @@ class DataInsertPage(ContentPage.ContentPage):
 
         
 
-    def new_route(self):
-        def process_new_route():
+    def new_route(self) -> None:
+        def process_new_route() -> None:
             connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
             cursor = connection.cursor()
 
             try:
-                sql = "INSERT INTO indul(rendszam, vonal_nev, visszamenet, mikor) VALUES" + ["(\"{}\", \"{}\", {}, \"{}\"),".format(start[1].get(), line.get(), start[2].get(), start[0].get().strip()) for start in starts]
+                sql = "INSERT INTO indul(rendszam, vonal_nev, visszamenet, mikor) VALUES"
+                for start in starts:
+                    sql += "(\"{}\", \"{}\", {}, \"{}\"),".format(start[1].get(), line.get(), start[2].get(), start[0].get().strip())
                 cursor.execute(sql[:-1])
 
-                sql2 = "INSERT INTO megall(vonal_nev, visszamenet, megallo_id, mikor) VALUES" + ["(\"{}\", {}, {}, \"{}\"),".format(line.get(), stop[2].get(), stop[1].get(), stop[0].get().strip()) for stop in stops]
+                sql2 = "INSERT INTO megall(vonal_nev, visszamenet, megallo_id, mikor) VALUES"
+                for stop in stops:
+                    sql2 += "(\"{}\", {}, {}, \"{}\"),".format(line.get(), stop[2].get(), stop_id_entries[stop[1].get()], stop[0].get().strip())
                 cursor.execute(sql2[:-1])
 
                 connection.commit()
 
-                line.set[line_entries[0]]
+                line.set(line_entries[0])
                 
                 for start in starts:
                     start[0].delete(0, "end")
@@ -287,7 +293,7 @@ class DataInsertPage(ContentPage.ContentPage):
 
                 for stop in stops:
                     stop[0].delete(0, "end")
-                    stop[1].set(stop_id_entries[0])
+                    stop[1].set(sorted(stop_id_entries)[0])
                     stop[2].set(False)
 
                 tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
@@ -300,25 +306,27 @@ class DataInsertPage(ContentPage.ContentPage):
                 connection.close()
 
 
-        def get_foreign_key_entries() -> tuple:
+        def get_foreign_key_entries() -> tuple[list[str], list[str], dict[str, int]]:
             connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
             cursor = connection.cursor()
 
             sql = "SELECT nev FROM vonal"
             cursor.execute(sql)
-            lines = [line[0] for line in cursor.fetchall()]
+            lines: list[str] = [line[0] for line in cursor.fetchall()]
 
             sql = "SELECT rendszam FROM jarmu"
             cursor.execute(sql)
-            licenses = [license[0] for license in cursor.fetchall()]
+            licenses: list[str] = [license[0] for license in cursor.fetchall()]
 
-            sql = "SELECT id FROM megallo"
+            sql = "SELECT id, nev FROM megallo"
             cursor.execute(sql)
-            stop_ids = [stop_id[0] for stop_id in cursor.fetchall()]
+            stop_ids: dict[str, int] = {str(stop_id[0]) + " (" + stop_id[1] + ")": stop_id[0] for stop_id in cursor.fetchall()}
+
+            connection.close()
 
             return lines, licenses, stop_ids
 
-        def expand_starts_menu():
+        def expand_starts_menu() -> None:
             starts_frame.rowconfigure(len(starts) + 1, weight = 1)
             new_start_button.grid(row = len(starts) + 1, column = 0, columnspan = 3)
 
@@ -336,16 +344,16 @@ class DataInsertPage(ContentPage.ContentPage):
             starts.append((time_entry, license, direction))
 
 
-        def expand_stops_menu():
+        def expand_stops_menu() -> None:
             stops_frame.rowconfigure(len(stops) + 1, weight = 1)
             new_stop_button.grid(row = len(stops) + 1, column = 0, columnspan = 3)
 
             time_entry = tkinter.Entry(stops_frame)
             time_entry.grid(row = len(stops), column = 0)
 
-            stop_id = tkinter.IntVar(stops_frame)
-            stop_id.set(stop_id_entries[0])
-            tkinter.OptionMenu(stops_frame, stop_id, *stop_id_entries).grid(row = len(stops), column = 1)
+            stop_id = tkinter.StringVar(stops_frame)
+            stop_id.set(sorted(stop_id_entries.keys())[0])
+            tkinter.OptionMenu(stops_frame, stop_id, *stop_id_entries.keys()).grid(row = len(stops), column = 1)
 
             direction = tkinter.BooleanVar(stops_frame)
             direction.set(False)
