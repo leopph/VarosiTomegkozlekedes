@@ -56,15 +56,183 @@ class DataUpdatePage(ContentPage.ContentPage):
             self.content_frame.rowconfigure(index=1, weight=1)
 
             tkinter.Button(master=self.content_frame, text="Vonal módosítása", command=self.modify_line).grid(column=0, row=0)
-            tkinter.Button(master=self.content_frame, text="Vezető módosítása", command=self.modify_driver).grid(column=1, row=0)
-            tkinter.Button(master=self.content_frame, text="Járműtípus módosítása").grid(column=2, row=0)
-            tkinter.Button(master=self.content_frame, text="Jármű módosítása").grid(column=3, row=0)
-            tkinter.Button(master=self.content_frame, text="Járat módosítása").grid(column=4, row=0)
+            tkinter.Button(master=self.content_frame, text="Megálló módosítása").grid(column=1, row=0)
+            tkinter.Button(master=self.content_frame, text="Vezető módosítása", command=self.modify_driver).grid(column=2, row=0)
+            tkinter.Button(master=self.content_frame, text="Járműtípus módosítása", command=self.modify_type).grid(column=3, row=0)
+            tkinter.Button(master=self.content_frame, text="Jármű módosítása", command=self.modify_vehicle).grid(column=4, row=0)
+            tkinter.Button(master=self.content_frame, text="Járat módosítása").grid(column=5, row=0)
 
             self.form_frame = tkinter.Frame(self.content_frame, bg=self["bg"])
-            self.form_frame.grid(column=0, row=1, columnspan=5, sticky="NESW")
+            self.form_frame.grid(column=0, row=1, columnspan=6, sticky="NESW")
 
 
+    def modify_vehicle(self) -> None:
+        def send_update() -> None:
+            connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
+            cursor = connection.cursor()
+            sql = "UPDATE jarmu SET rendszam = %s, alacsony_padlos =%s, tipus_nev = %s, vezetoi_szam = %s WHERE rendszam = %s"
+
+            try:
+                cursor.execute(sql, (update_info[0].get(), update_info[1].get(), update_info[2].get(), update_info[3].get(), license_selection.get()))
+                connection.commit()
+
+                tkinter.messagebox.showinfo("Siker", "Sikeres frissítés!")
+
+                for child in self.form_frame.winfo_children():
+                    child.destroy()
+
+            except mysql.connector.Error as error:
+                connection.rollback()
+                tkinter.messagebox.showerror("Hiba", "Hiba történt a módosítás során!\n" + str(error))
+
+            finally:
+                connection.close()
+
+
+        def show_form() -> None:
+            for child in self.form_frame.winfo_children():
+                child.destroy()
+
+            self.form_frame.columnconfigure(index=0, weight=1)
+            self.form_frame.columnconfigure(index=1, weight=1)
+
+            nonlocal update_info
+            update_info = (tkinter.Entry(master=self.form_frame), tkinter.BooleanVar(master=self.form_frame), tkinter.StringVar(master=self.form_frame), tkinter.StringVar(master=self.form_frame))
+            update_info[0].grid(column=1, row=0, sticky="W")
+            update_info[0].insert(0, license_selection.get())
+
+            connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
+            cursor = connection.cursor()
+            sql = "SELECT alacsony_padlos, tipus_nev, vezetoi_szam FROM jarmu WHERE rendszam = %s"
+            cursor.execute(sql, (license_selection.get(),))
+            query_result: tuple[bool, str, str] = cursor.fetchone()
+
+            for i in range(1, 4):
+                update_info[i].set(query_result[i-1])
+
+
+            sql = "SELECT vezetoi_szam FROM vezeto"
+            cursor.execute(sql)
+            drivers: list[str] = [driver[0] for driver in cursor.fetchall()]
+
+            sql = "SELECT nev FROM jarmutipus"
+            cursor.execute(sql)
+            types: list[str] = [type_[0] for type_ in cursor.fetchall()]
+
+            connection.close()
+
+            tkinter.OptionMenu(self.form_frame, update_info[1], *[True, False]).grid(column=1, row=1, sticky="W")
+            tkinter.OptionMenu(self.form_frame, update_info[2], *types).grid(column=1, row=2, sticky="W")
+            tkinter.OptionMenu(self.form_frame, update_info[3], *drivers).grid(column=1, row=3, sticky="W")
+
+            tkinter.Label(master=self.form_frame, text="Rendszám:", bg=self["bg"]).grid(column=0, row=0, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Alacsony padlós-e:", bg=self["bg"]).grid(column=0, row=1, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Típus:", bg=self["bg"]).grid(column=0, row=2, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Vezető száma:", bg=self["bg"]).grid(column=0, row=3, sticky="E")
+
+            tkinter.Button(master=self.form_frame, text="Módosítás", command=send_update).grid(column=0, row=4, columnspan=2)
+
+
+
+
+        for child in self.form_frame.winfo_children():
+            child.destroy()
+
+        self.form_frame.columnconfigure(index=0, weight = 1)
+        self.form_frame.columnconfigure(index=1, weight = 1)
+
+        connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
+        cursor = connection.cursor()
+        sql = "SELECT rendszam FROM jarmu"
+        cursor.execute(sql)
+
+        licenses: list[str] = [license[0] for license in cursor.fetchall()]
+
+        license_selection = tkinter.StringVar(master=self.form_frame)
+        license_selection.set(licenses[0])
+
+        update_info: Union[tuple[tkinter.Entry, tkinter.BooleanVar, tkinter.StringVar, tkinter.StringVar], None] = None
+
+        tkinter.Label(master=self.form_frame, text="Rendszám:", bg=self["bg"]).grid(column=0, row=0, sticky="E")
+        tkinter.OptionMenu(self.form_frame, license_selection, *licenses).grid(column=1, row=0, sticky="W")
+        tkinter.Button(master=self.form_frame, text="Kiválasztás", command=show_form).grid(column=0, row=1, columnspan=2)
+
+
+    def modify_type(self) -> None:
+        def send_update() -> None:
+            connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
+            cursor = connection.cursor()
+            sql = "UPDATE jarmutipus SET nev = %s, elektromos = %s WHERE nev = %s"
+
+            try:
+                cursor.execute(sql, (update_info[0].get(), update_info[1].get(), type_choice.get()))
+                connection.commit()
+
+                tkinter.messagebox.showinfo("Siker", "Sikeres frissítés!")
+
+                for child in self.form_frame.winfo_children():
+                    child.destroy()
+
+            except mysql.connector.Error as error:
+                connection.rollback()
+                tkinter.messagebox.showerror("Hiba", "Hiba történt a módosítás során!\n" + str(error))
+
+            finally:
+                connection.close()
+
+        
+        def show_form() -> None:
+            for child in self.form_frame.winfo_children():
+                child.destroy()
+
+            self.form_frame.columnconfigure(index=0, weight=1)
+            self.form_frame.columnconfigure(index=1, weight=1)
+
+            nonlocal update_info
+            update_info = (tkinter.Entry(master=self.form_frame), tkinter.BooleanVar(master=self.form_frame))
+            update_info[0].grid(column=1, row=0, sticky="W")
+            update_info[0].insert(0, type_choice.get())
+            
+            connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
+            cursor = connection.cursor()
+            sql = "SELECT elektromos FROM jarmutipus WHERE nev = %s"
+            cursor.execute(sql, (type_choice.get(),))
+
+            update_info[1].set(cursor.fetchone()[0])
+            tkinter.OptionMenu(self.form_frame, update_info[1], *[True, False]).grid(column=1, row=1, sticky="W")
+
+            tkinter.Label(master=self.form_frame, text="Típus neve:", bg=self["bg"]).grid(column=0, row=0, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Elektromos-e:", bg=self["bg"]).grid(column=0, row=1, sticky="E")
+            tkinter.Button(master=self.form_frame, text="Módosítás", command=send_update).grid(column=0, row=2, columnspan=2)
+            
+
+            
+
+
+        for child in self.form_frame.winfo_children():
+            child.destroy()
+
+        
+        connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
+        cursor = connection.cursor()
+        sql = "SELECT nev FROM jarmutipus"
+        cursor.execute(sql)
+
+        types: list[str] = [type_[0] for type_ in cursor.fetchall()]
+
+        type_choice = tkinter.StringVar(master=self.form_frame)
+        type_choice.set(types[0])
+
+        self.form_frame.columnconfigure(index=0, weight=1)
+        self.form_frame.columnconfigure(index=1, weight=1)
+
+        update_info: Union[tuple[tkinter.Entry, tkinter.BooleanVar], None] = None
+
+        tkinter.OptionMenu(self.form_frame, type_choice, *types).grid(column=1, row=0, sticky="W")
+        tkinter.Label(master=self.form_frame, text="Válasson típus!", bg=self["bg"]).grid(column=0, row=0, sticky="E")
+        tkinter.Button(master=self.form_frame, text="Kiválasztás", command=show_form).grid(column=0, row=1, columnspan=2)
+
+        
     def modify_driver(self) -> None:
         def send_update() -> None:
             connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
@@ -212,5 +380,3 @@ class DataUpdatePage(ContentPage.ContentPage):
         tkinter.Label(master=self.form_frame, text="Válassza ki a vonalat!", bg=self["bg"]).grid(column=0, row=0, sticky="E")
         tkinter.OptionMenu(self.form_frame, line_choice, *lines).grid(column=1, row=0, sticky="W")
         tkinter.Button(master=self.form_frame, text="Kiválasztás", command=show_form).grid(column=0, row=1, columnspan=2)
-        
-
