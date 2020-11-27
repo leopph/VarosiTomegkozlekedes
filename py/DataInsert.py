@@ -1,5 +1,6 @@
 import ContentPage
 import tkinter
+import tkinter.ttk
 import tkinter.messagebox
 import mysql.connector
 
@@ -52,12 +53,12 @@ class DataInsertPage(ContentPage.ContentPage):
             self.content_frame.columnconfigure(0, weight = 1)
             self.content_frame.columnconfigure(5, weight = 1)
 
-            tkinter.Button(self.content_frame, text = "Új vonal", bg = self["bg"], font = ("", 12), command = self.new_line).grid(row = 0, column = 0, sticky="E")
-            tkinter.Button(self.content_frame, text = "Új megálló", bg = self["bg"], font = ("", 12), command = self.new_stop).grid(row = 0, column = 1)
-            tkinter.Button(self.content_frame, text = "Új vezető", bg = self["bg"], font = ("", 12), command = self.new_driver).grid(row = 0, column = 2)
-            tkinter.Button(self.content_frame, text = "Új járműtípus", bg = self["bg"], font = ("", 12), command = self.new_vehicle_type).grid(row = 0, column = 3)
-            tkinter.Button(self.content_frame, text = "Új jármű", bg = self["bg"], font = ("", 12), command = self.new_vehicle).grid(row = 0, column = 4)
-            tkinter.Button(self.content_frame, text = "Új járat", bg = self["bg"], font = ("", 12), command = self.new_route).grid(row = 0, column = 5, sticky="W")
+            tkinter.ttk.Button(self.content_frame, text = "Új vonal", command = self.new_line).grid(row = 0, column = 0, sticky="E")
+            tkinter.ttk.Button(self.content_frame, text = "Új megálló", command = self.new_stop).grid(row = 0, column = 1)
+            tkinter.ttk.Button(self.content_frame, text = "Új vezető", command = self.new_driver).grid(row = 0, column = 2)
+            tkinter.ttk.Button(self.content_frame, text = "Új járműtípus", command = self.new_vehicle_type).grid(row = 0, column = 3)
+            tkinter.ttk.Button(self.content_frame, text = "Új jármű", command = self.new_vehicle).grid(row = 0, column = 4)
+            tkinter.ttk.Button(self.content_frame, text = "Új járat", command = self.new_route).grid(row = 0, column = 5, sticky="W")
 
 
 
@@ -92,10 +93,10 @@ class DataInsertPage(ContentPage.ContentPage):
         form_frame.columnconfigure(0, weight = 1)
         form_frame.columnconfigure(1, weight = 1)
 
-        driver_number_entry = tkinter.Entry(master=form_frame)
-        last_name_entry = tkinter.Entry(master=form_frame)
-        first_name_entry = tkinter.Entry(master=form_frame)
-        birth_date_entry = tkinter.Entry(master=form_frame)
+        driver_number_entry = tkinter.ttk.Entry(master=form_frame)
+        last_name_entry = tkinter.ttk.Entry(master=form_frame)
+        first_name_entry = tkinter.ttk.Entry(master=form_frame)
+        birth_date_entry = tkinter.ttk.Entry(master=form_frame)
 
         driver_number_entry.grid(column=1, row=0, sticky="W")
         last_name_entry.grid(column=1, row=1, sticky="W")
@@ -107,7 +108,7 @@ class DataInsertPage(ContentPage.ContentPage):
         tkinter.Label(master=form_frame, text="Keresztnév", bg=self["bg"]).grid(column=0, row=2, sticky="E")
         tkinter.Label(master=form_frame, text="Születési dátum:", bg=self["bg"]).grid(column=0, row=3, sticky="E")
         
-        tkinter.Button(master=form_frame, text="Felvitel", command=process_new_driver).grid(column=0, row=4, columnspan=2)
+        tkinter.ttk.Button(master=form_frame, text="Felvitel", command=process_new_driver).grid(column=0, row=4, columnspan=2)
 
 
     def new_stop(self) -> None:
@@ -139,8 +140,8 @@ class DataInsertPage(ContentPage.ContentPage):
         form_frame.columnconfigure(0, weight = 1)
         form_frame.columnconfigure(1, weight = 1)
 
-        stop_name_entry = tkinter.Entry(form_frame)
-        location_entry = tkinter.Entry(form_frame)
+        stop_name_entry = tkinter.ttk.Entry(form_frame)
+        location_entry = tkinter.ttk.Entry(form_frame)
 
         stop_name_entry.grid(column = 1, row = 0, sticky="W")
         location_entry.grid(column = 1, row = 1, sticky="W")
@@ -148,7 +149,7 @@ class DataInsertPage(ContentPage.ContentPage):
         tkinter.Label(form_frame, text = "Név:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
         tkinter.Label(form_frame, text = "Hely:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
 
-        tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_stop).grid(row = 2, column = 0, columnspan = 2)
+        tkinter.ttk.Button(form_frame, text = "Felvitel", command = process_new_stop).grid(row = 2, column = 0, columnspan = 2)
 
 
 
@@ -185,8 +186,8 @@ class DataInsertPage(ContentPage.ContentPage):
         form_frame.columnconfigure(0, weight = 1)
         form_frame.columnconfigure(1, weight = 1)
 
-        line_name_entry = tkinter.Entry(form_frame)
-        length_entry = tkinter.Entry(form_frame)
+        line_name_entry = tkinter.ttk.Entry(form_frame)
+        length_entry = tkinter.ttk.Entry(form_frame)
 
         line_name_entry.grid(column = 1, row = 0, sticky="W")
         length_entry.grid(column = 1, row = 1, sticky="W")
@@ -194,7 +195,7 @@ class DataInsertPage(ContentPage.ContentPage):
         tkinter.Label(form_frame, text = "Vonalnév:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
         tkinter.Label(form_frame, text = "Hossz:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
 
-        tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_line).grid(row = 2, column = 0, columnspan = 2)
+        tkinter.ttk.Button(form_frame, text = "Felvitel", command = process_new_line).grid(row = 2, column = 0, columnspan = 2)
 
 
 
@@ -226,19 +227,19 @@ class DataInsertPage(ContentPage.ContentPage):
         form_frame.columnconfigure(0, weight = 1)
         form_frame.columnconfigure(1, weight = 1)
 
-        name_entry = tkinter.Entry(form_frame)
+        name_entry = tkinter.ttk.Entry(form_frame)
         name_entry.grid(column = 1, row = 0, sticky="W")
 
         electric_options = {"Igen": True, "Nem": False}
 
         is_electric = tkinter.StringVar(form_frame)
         is_electric.set(sorted(electric_options)[0])
-        tkinter.OptionMenu(form_frame, is_electric, *electric_options).grid(row = 1, column = 1, sticky="W")
+        tkinter.ttk.OptionMenu(form_frame, is_electric, is_electric.get(), *electric_options).grid(row = 1, column = 1, sticky="W")
 
         tkinter.Label(form_frame, text = "Típusnév:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
         tkinter.Label(form_frame, text = "Elektromos-e:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
 
-        tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_vehicle_type).grid(row = 2, column = 0, columnspan = 2)
+        tkinter.ttk.Button(form_frame, text = "Felvitel", command = process_new_vehicle_type).grid(row = 2, column = 0, columnspan = 2)
 
 
 
@@ -291,29 +292,29 @@ class DataInsertPage(ContentPage.ContentPage):
 
         driver_id_entries, type_name_entries = get_foreign_key_entries()
 
-        license_entry = tkinter.Entry(form_frame)
+        license_entry = tkinter.ttk.Entry(form_frame)
         license_entry.grid(column = 1, row = 0, sticky="W")
 
         floor_options = {"Igen": True, "Nem": False}
 
         floor = tkinter.StringVar(form_frame)
         floor.set(sorted(floor_options)[0])
-        tkinter.OptionMenu(form_frame, floor, *floor_options).grid(row = 1, column = 1, sticky="W")
+        tkinter.ttk.OptionMenu(form_frame, floor, floor.get(), *floor_options).grid(row = 1, column = 1, sticky="W")
 
         type_ = tkinter.StringVar(form_frame)
         type_.set(type_name_entries[0])
-        tkinter.OptionMenu(form_frame, type_, *type_name_entries).grid(row = 2, column = 1, sticky="W")
+        tkinter.ttk.OptionMenu(form_frame, type_, type_.get(), *type_name_entries).grid(row = 2, column = 1, sticky="W")
 
         driver = tkinter.StringVar(form_frame)
         driver.set(sorted(driver_id_entries.keys())[0])
-        tkinter.OptionMenu(form_frame, driver, *driver_id_entries).grid(row = 3, column = 1, sticky="W")
+        tkinter.ttk.OptionMenu(form_frame, driver, driver.get(), *driver_id_entries).grid(row = 3, column = 1, sticky="W")
 
         tkinter.Label(form_frame, text = "Rendszám:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
         tkinter.Label(form_frame, text = "Alacsony padlós-e:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
         tkinter.Label(form_frame, text = "Jármű típus:", bg = self["bg"]).grid(row = 2, column = 0, sticky = "E")
         tkinter.Label(form_frame, text = "Vezető száma:", bg = self["bg"]).grid(row = 3, column = 0, sticky = "E")
 
-        tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_vehicle).grid(row = 4, column = 0, columnspan = 2)
+        tkinter.ttk.Button(form_frame, text = "Felvitel", command = process_new_vehicle).grid(row = 4, column = 0, columnspan = 2)
 
         
 
@@ -387,16 +388,16 @@ class DataInsertPage(ContentPage.ContentPage):
         def expand_starts_menu() -> None:
             new_start_button.grid(row = len(starts) + 1, column = 0, columnspan=3)
 
-            time_entry = tkinter.Entry(starts_frame)
+            time_entry = tkinter.ttk.Entry(starts_frame)
             time_entry.grid(row = len(starts), column = 0)
 
             license = tkinter.StringVar(starts_frame)
             license.set(sorted(license_entries.keys())[0])
-            tkinter.OptionMenu(starts_frame, license, *license_entries).grid(row = len(starts), column = 1)
+            tkinter.ttk.OptionMenu(starts_frame, license, license.get(), *license_entries).grid(row = len(starts), column = 1)
 
             direction = tkinter.StringVar(starts_frame)
             direction.set(sorted(direction_options.keys())[0])
-            tkinter.OptionMenu(starts_frame, direction, *direction_options).grid(row = len(starts), column = 2)
+            tkinter.ttk.OptionMenu(starts_frame, direction, direction.get(), *direction_options).grid(row = len(starts), column = 2)
 
             starts.append((time_entry, license, direction))
 
@@ -404,16 +405,16 @@ class DataInsertPage(ContentPage.ContentPage):
         def expand_stops_menu() -> None:
             new_stop_button.grid(row = len(stops) + 1, column = 0, columnspan=3)
 
-            time_entry = tkinter.Entry(stops_frame)
+            time_entry = tkinter.ttk.Entry(stops_frame)
             time_entry.grid(row = len(stops), column = 0)
 
             stop_id = tkinter.StringVar(stops_frame)
             stop_id.set(sorted(stop_id_entries.keys())[0])
-            tkinter.OptionMenu(stops_frame, stop_id, *stop_id_entries.keys()).grid(row = len(stops), column = 1)
+            tkinter.ttk.OptionMenu(stops_frame, stop_id, stop_id.get(), *stop_id_entries.keys()).grid(row = len(stops), column = 1)
 
             direction = tkinter.StringVar(stops_frame)
             direction.set(sorted(direction_options.keys())[0])
-            tkinter.OptionMenu(stops_frame, direction, *direction_options).grid(row = len(stops), column = 2)
+            tkinter.ttk.OptionMenu(stops_frame, direction, direction.get(), *direction_options).grid(row = len(stops), column = 2)
 
             stops.append((time_entry, stop_id, direction))
 
@@ -433,13 +434,13 @@ class DataInsertPage(ContentPage.ContentPage):
 
         line = tkinter.StringVar(form_frame)
         line.set(line_entries[0])
-        tkinter.OptionMenu(form_frame, line, *line_entries).grid(row = 1, column = 0, sticky="n")
+        tkinter.ttk.OptionMenu(form_frame, line, line.get(), *line_entries).grid(row = 1, column = 0, sticky="n")
 
         starts = list()
         starts_frame = tkinter.Frame(form_frame, bg=self["bg"])
         starts_frame.grid(row = 1, column = 1)
 
-        new_start_button = tkinter.Button(starts_frame, text = "Új indulás")
+        new_start_button = tkinter.ttk.Button(starts_frame, text = "Új indulás")
         new_start_button.configure(command = expand_starts_menu)
         new_start_button.grid(row = 0, column = 0, columnspan=3)
 
@@ -447,10 +448,10 @@ class DataInsertPage(ContentPage.ContentPage):
         stops_frame = tkinter.Frame(form_frame, bg=self["bg"])
         stops_frame.grid(row = 1, column = 2)
 
-        new_stop_button = tkinter.Button(stops_frame, text = "Új megállás")
+        new_stop_button = tkinter.ttk.Button(stops_frame, text = "Új megállás")
         new_stop_button.configure(command = expand_stops_menu)
         new_stop_button.grid(row = 0, column = 0, columnspan=3)
 
         direction_options = {"Visszamenet": True, "Odamenet": False}
 
-        tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_route).grid(row = 2, column = 0, columnspan = 3)
+        tkinter.ttk.Button(form_frame, text = "Felvitel", command = process_new_route).grid(row = 2, column = 0, columnspan = 3)

@@ -9,6 +9,7 @@ import Search
 import StopDetails
 import DataUpdate
 import DataDelete
+from typing import Union
 
 
 class App(tkinter.Tk):
@@ -52,12 +53,12 @@ class App(tkinter.Tk):
         self.header.nextbutton["state"] = "disabled"
 
         
-    def load_new_page(self, page: str, data: dict):
+    def load_new_page(self, page: type, data: Union[dict, list, None]):
         if page in self.content_pages:
             if self.current_page is not None and self.loaded_pages.index(self.current_page) != len(self.loaded_pages) - 1:
                 del self.loaded_pages[self.loaded_pages.index(self.current_page) + 1:]
 
-            self.current_page = page(data, self, bg = "snow")
+            self.current_page = page(data, self)
             self.current_page.grid(row = 1, sticky = "NESW")
             self.loaded_pages.append(self.current_page)
 

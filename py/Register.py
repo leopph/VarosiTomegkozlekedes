@@ -1,4 +1,5 @@
 import tkinter
+import tkinter.ttk
 import tkinter.messagebox
 import mysql.connector
 import ContentPage
@@ -39,16 +40,16 @@ class RegisterPage(ContentPage.ContentPage):
 
             tkinter.Label(self.main_frame, text = "Regisztráció", font = ("", 26), bg = self["bg"]).grid(row = 0, column = 0, columnspan=2)
             
-            self.username_entry = tkinter.Entry(self.main_frame, bg = self["bg"])
+            self.username_entry = tkinter.ttk.Entry(self.main_frame)
             self.username_entry.grid(row = 1, column = 1, sticky = "W")
 
-            self.password_entry = tkinter.Entry(self.main_frame, bg = self["bg"], show = "*")
+            self.password_entry = tkinter.ttk.Entry(self.main_frame, show = "*")
             self.password_entry.grid(row = 2, column = 1, sticky = "W")
 
-            self.password_confirm_entry = tkinter.Entry(self.main_frame, bg = self["bg"], show = "*")
+            self.password_confirm_entry = tkinter.ttk.Entry(self.main_frame, show = "*")
             self.password_confirm_entry.grid(row = 3, column = 1, sticky = "W")
 
-            self.email_entry = tkinter.Entry(self.main_frame, bg = self["bg"])
+            self.email_entry = tkinter.ttk.Entry(self.main_frame)
             self.email_entry.grid(row = 4, column = 1, sticky = "W")
 
             tkinter.Label(self.main_frame, text = "Felhasználónév:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
@@ -56,7 +57,7 @@ class RegisterPage(ContentPage.ContentPage):
             tkinter.Label(self.main_frame, text = "Jelszó még egyszer:", bg = self["bg"]).grid(row = 3, column = 0, sticky = "E")
             tkinter.Label(self.main_frame, text = "E-mail cím:", bg = self["bg"]).grid(row = 4, column = 0, sticky = "E")
 
-            tkinter.Button(self.main_frame, text = "Regisztráció", command = self.register, bg = self["bg"]).grid(row = 5, column = 0, columnspan = 2, sticky="N")
+            tkinter.ttk.Button(self.main_frame, text = "Regisztráció", command = self.register).grid(row = 5, column = 0, columnspan = 2, sticky="N")
 
 
     def register(self):

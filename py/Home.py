@@ -1,5 +1,6 @@
 import ContentPage
 import tkinter
+import tkinter.ttk
 import Login
 import Register
 import DataInsert
@@ -33,17 +34,17 @@ class Home(ContentPage.ContentPage):
 
         if self.master.user is None:
             tkinter.Label(self.main_frame, text = "Üdvözöljük!", font = ("", 26), bg = self["bg"]).grid(row = 0, column = 0, sticky="S")
-            tkinter.Button(self.main_frame, text = "Bejelentkezés", font = ("", 12), bg = self["bg"], command = lambda: self.master.load_new_page(Login.LoginPage, None)).grid(row = 1, column = 0)
-            tkinter.Button(self.main_frame, text = "Regisztráció", font = ("", 12), bg = self["bg"], command = lambda: self.master.load_new_page(Register.RegisterPage, None)).grid(row = 2, column = 0)
+            tkinter.ttk.Button(self.main_frame, text = "Bejelentkezés", command = lambda: self.master.load_new_page(Login.LoginPage, None)).grid(row = 1, column = 0)
+            tkinter.ttk.Button(self.main_frame, text = "Regisztráció", command = lambda: self.master.load_new_page(Register.RegisterPage, None)).grid(row = 2, column = 0)
 
         else:
             tkinter.Label(self.main_frame, text = "Üdvözöljük, " + self.master.user.name + "!", font = ("", 24), bg = self["bg"]).grid(row = 0, column = 0, sticky="S")
-            tkinter.Button(self.main_frame, text = "Kijelentkezés", font = ("", 12), bg = self["bg"], command = self.logout).grid(row = 4, column = 0, sticky="N")
+            tkinter.ttk.Button(self.main_frame, text = "Kijelentkezés", command = self.logout).grid(row = 4, column = 0, sticky="N")
 
             if self.master.user.is_admin:
-                tkinter.Button(self.main_frame, text = "Adatok felvitele", font = ("", 12), bg = self["bg"], command = lambda: self.master.load_new_page(DataInsert.DataInsertPage, None)).grid(row = 1, column = 0)
-                tkinter.Button(self.main_frame, text = "Adatok módosítása", font = ("", 12), bg = self["bg"], command = lambda: self.master.load_new_page(DataUpdate.DataUpdatePage, None)).grid(row = 2, column = 0)
-                tkinter.Button(self.main_frame, text = "Adatok törlése", font = ("", 12), bg = self["bg"], command = lambda: self.master.load_new_page(DataDelete.DataDeletePage, None)).grid(row = 3, column = 0)
+                tkinter.ttk.Button(self.main_frame, text = "Adatok felvitele", command = lambda: self.master.load_new_page(DataInsert.DataInsertPage, None)).grid(row = 1, column = 0)
+                tkinter.ttk.Button(self.main_frame, text = "Adatok módosítása", command = lambda: self.master.load_new_page(DataUpdate.DataUpdatePage, None)).grid(row = 2, column = 0)
+                tkinter.ttk.Button(self.main_frame, text = "Adatok törlése", command = lambda: self.master.load_new_page(DataDelete.DataDeletePage, None)).grid(row = 3, column = 0)
 
 
 

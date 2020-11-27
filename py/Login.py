@@ -1,4 +1,5 @@
 import tkinter
+import tkinter.ttk
 import tkinter.messagebox
 import mysql.connector
 import ContentPage
@@ -41,16 +42,16 @@ class LoginPage(ContentPage.ContentPage):
 
             tkinter.Label(self.main_frame, text = "Bejelentkezés", font = ("", 26), bg = self["bg"]).grid(row = 0, column = 0, columnspan = 2)
 
-            self.username_entry = tkinter.Entry(self.main_frame, bg = self["bg"])
+            self.username_entry = tkinter.ttk.Entry(self.main_frame)
             self.username_entry.grid(row = 1, column = 1, sticky = "SW")
 
-            self.password_entry = tkinter.Entry(self.main_frame, bg = self["bg"], show = "*")
+            self.password_entry = tkinter.ttk.Entry(self.main_frame, show = "*")
             self.password_entry.grid(row = 2, column = 1, sticky = "NW")
 
             tkinter.Label(self.main_frame, text = "Felhasználónév:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "SE")
             tkinter.Label(self.main_frame, text = "Jelszó:", bg = self["bg"]).grid(row = 2, column = 0, sticky = "NE")
 
-            tkinter.Button(self.main_frame, text = "Bejelentkezés", command = self.login, bg = self["bg"]).grid(row = 3, column = 0, columnspan = 2, sticky="N")
+            tkinter.ttk.Button(self.main_frame, text = "Bejelentkezés", command = self.login).grid(row = 3, column = 0, columnspan = 2, sticky="N")
 
 
     def login(self) -> None:
