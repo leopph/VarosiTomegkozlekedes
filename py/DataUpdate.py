@@ -131,8 +131,8 @@ class DataUpdatePage(ContentPage.ContentPage):
 
             # FORM LABELS
             tkinter.Label(master=self.form_frame, text="Vonal száma: " + str(routes[selection][0]), bg=self["bg"], font=("", 16)).grid(row=0, column=0, columnspan=2)
-            tkinter.Label(master=self.form_frame, text="Indulások:", bg=self["bg"]).grid(row=1, column=0, sticky="E")
-            tkinter.Label(master=self.form_frame, text="Megállások:", bg=self["bg"]).grid(row=2, column=0, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Indulások", bg=self["bg"], font=("", 14)).grid(row=1, column=0)
+            tkinter.Label(master=self.form_frame, text="Megállások", bg=self["bg"], font=("", 14)).grid(row=1, column=1)
 
             # OPENING DB CONNECTION
             connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
@@ -153,7 +153,7 @@ class DataUpdatePage(ContentPage.ContentPage):
 
             # FRAME TO HOLD ALL THE START ENTRIES
             starts_frame = tkinter.Frame(self.form_frame, bg=self["bg"])
-            starts_frame.grid(row=1, column=1, sticky="W")
+            starts_frame.grid(row=2, column=0)
             
             # LIST OF ALL THE CURRENT START ENTRIES
             start_entries: list[tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button]] = list()
@@ -187,7 +187,7 @@ class DataUpdatePage(ContentPage.ContentPage):
 
             # FRAME TO ADD STOP ENTRIES TO
             stops_frame = tkinter.Frame(master=self.form_frame, bg=self["bg"])
-            stops_frame.grid(row=2, column=1, sticky="W")
+            stops_frame.grid(row=2, column=1)
 
             # LIST OF ALL THE CURRENT STOP ENTRIES
             stop_entries: list[tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button]] = list()
