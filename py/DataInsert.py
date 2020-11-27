@@ -246,13 +246,13 @@ class DataInsertPage(ContentPage.ContentPage):
 
             try:
                 sql = "INSERT INTO jarmu(rendszam, alacsony_padlos, tipus_nev, vezetoi_szam) VALUES(%s, %s, %s, %s)"
-                cursor.execute(sql, params = (license_entry.get().strip(), floor.get(), type_.get(), driver.get()))
+                cursor.execute(sql, params = (license_entry.get().strip(), floor.get(), type_.get(), driver_id_entries[driver.get()]))
                 connection.commit()
 
                 license_entry.delete(0, "end")
                 floor.set(False)
                 type_.set(type_name_entries[0])
-                driver.set(driver_id_entries[0])
+                driver.set(sorted(driver_id_entries.keys())[0])
 
                 tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
 
@@ -263,13 +263,13 @@ class DataInsertPage(ContentPage.ContentPage):
             finally:
                 connection.close()
 
-        def get_foreign_key_entries() -> tuple[list[str], list[str]]:
+        def get_foreign_key_entries() -> tuple[dict[str, str], list[str]]:
             connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
             cursor = connection.cursor()
 
-            sql = "SELECT vezetoi_szam FROM vezeto"
+            sql = "SELECT vezetoi_szam, vezeteknev, keresztnev FROM vezeto"
             cursor.execute(sql)
-            drivers: list[str] = [driver_id[0] for driver_id in cursor.fetchall()]
+            drivers: dict[str, str] = {str(driver[0]) + " (" + str(driver[1]) + " " + str(driver[2]) + ")": driver[0] for driver in cursor.fetchall()}
 
             sql = "SELECT nev FROM jarmutipus"
             cursor.execute(sql)
@@ -300,7 +300,7 @@ class DataInsertPage(ContentPage.ContentPage):
         tkinter.OptionMenu(form_frame, type_, *type_name_entries).grid(row = 2, column = 1, sticky="W")
 
         driver = tkinter.StringVar(form_frame)
-        driver.set(driver_id_entries[0])
+        driver.set(sorted(driver_id_entries.keys())[0])
         tkinter.OptionMenu(form_frame, driver, *driver_id_entries).grid(row = 3, column = 1, sticky="W")
 
         tkinter.Label(form_frame, text = "Rendszám:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
@@ -340,7 +340,7 @@ class DataInsertPage(ContentPage.ContentPage):
                 
                 for start in starts:
                     start[0].delete(0, "end")
-                    start[1].set(license_entries[0])
+                    start[1].set(sorted(license_entries.keys())[0])
                     start[2].set(False)
 
                 for stop in stops:
@@ -359,7 +359,7 @@ class DataInsertPage(ContentPage.ContentPage):
                 connection.close()
 
 
-        def get_foreign_key_entries() -> tuple[list[str], list[str], dict[str, int]]:
+        def get_foreign_key_entries() -> tuple[list[str], dict[str, str], dict[str, int]]:
             connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
             cursor = connection.cursor()
 
@@ -367,9 +367,9 @@ class DataInsertPage(ContentPage.ContentPage):
             cursor.execute(sql)
             lines: list[str] = [line[0] for line in cursor.fetchall()]
 
-            sql = "SELECT rendszam FROM jarmu"
+            sql = "SELECT rendszam, tipus_nev FROM jarmu"
             cursor.execute(sql)
-            licenses: list[str] = [license[0] for license in cursor.fetchall()]
+            licenses: dict[str, str] = {str(license[0]) + " (" + license[1] + ")": license[0] for license in cursor.fetchall()}
 
             sql = "SELECT id, nev FROM megallo"
             cursor.execute(sql)
@@ -386,7 +386,7 @@ class DataInsertPage(ContentPage.ContentPage):
             time_entry.grid(row = len(starts), column = 0)
 
             license = tkinter.StringVar(starts_frame)
-            license.set(license_entries[0])
+            license.set(sorted(license_entries.keys())[0])
             tkinter.OptionMenu(starts_frame, license, *license_entries).grid(row = len(starts), column = 1)
 
             direction = tkinter.BooleanVar(starts_frame)
