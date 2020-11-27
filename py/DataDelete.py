@@ -50,12 +50,12 @@ class DataDeletePage(ContentPage.ContentPage):
             self.content_frame.columnconfigure(0, weight = 1)
             self.content_frame.columnconfigure(5, weight = 1)
 
-            tkinter.Button(self.content_frame, text = "Vonal törlése", bg = self["bg"], font = ("", 12), command = self.delete_line).grid(row = 0, column = 0, sticky="E")
-            tkinter.Button(self.content_frame, text = "Megálló törlése", bg = self["bg"], font = ("", 12), command = self.delete_stop).grid(row = 0, column = 1)
-            tkinter.Button(self.content_frame, text = "Vezető törlése", bg = self["bg"], font = ("", 12), command = self.delete_driver).grid(row = 0, column = 2)
-            tkinter.Button(self.content_frame, text = "Járműtípus törlése", bg = self["bg"], font = ("", 12), command = self.delete_vehicle_type).grid(row = 0, column = 3)
-            tkinter.Button(self.content_frame, text = "Jármű törlése", bg = self["bg"], font = ("", 12), command = self.delete_vehicle).grid(row = 0, column = 4)
-            tkinter.Button(self.content_frame, text = "Járat törlése", bg = self["bg"], font = ("", 12), command = self.delete_route).grid(row = 0, column = 5, sticky="W")
+            tkinter.Button(self.content_frame, text = "Vonal törlése", font = ("", 12), command = self.delete_line).grid(row = 0, column = 0, sticky="E")
+            tkinter.Button(self.content_frame, text = "Megálló törlése", font = ("", 12), command = self.delete_stop).grid(row = 0, column = 1)
+            tkinter.Button(self.content_frame, text = "Vezető törlése", font = ("", 12), command = self.delete_driver).grid(row = 0, column = 2)
+            tkinter.Button(self.content_frame, text = "Járműtípus törlése", font = ("", 12), command = self.delete_vehicle_type).grid(row = 0, column = 3)
+            tkinter.Button(self.content_frame, text = "Jármű törlése", font = ("", 12), command = self.delete_vehicle).grid(row = 0, column = 4)
+            tkinter.Button(self.content_frame, text = "Járat törlése", font = ("", 12), command = self.delete_route).grid(row = 0, column = 5, sticky="W")
 
             self.form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
             self.form_frame.grid(row = 1, column = 0, columnspan=6, sticky = "NESW")
@@ -158,7 +158,7 @@ class DataDeletePage(ContentPage.ContentPage):
         license_drop_down = tkinter.OptionMenu(self.form_frame, license, *licenses)
         license_drop_down.grid(row = 0, column = 1, sticky="W")
 
-        tkinter.Label(self.form_frame, text = "Rendszám:").grid(row = 0, column = 0, sticky="E")
+        tkinter.Label(self.form_frame, text = "Rendszám:", bg=self["bg"]).grid(row = 0, column = 0, sticky="E")
         tkinter.Button(self.form_frame, text = "Törlés", command = process_transaction).grid(row = 1, column = 0, columnspan = 2)
 
     
@@ -213,7 +213,7 @@ class DataDeletePage(ContentPage.ContentPage):
         type_drop_down = tkinter.OptionMenu(self.form_frame, type_, *types)
         type_drop_down.grid(row = 0, column = 1, sticky="W")
 
-        tkinter.Label(self.form_frame, text = "Típusnév:").grid(row = 0, column = 0, sticky="E")
+        tkinter.Label(self.form_frame, text = "Típusnév:", bg=self["bg"]).grid(row = 0, column = 0, sticky="E")
         tkinter.Button(self.form_frame, text = "Törlés", command = process_transaction).grid(row = 1, column = 0, columnspan = 2)
 
 
@@ -268,7 +268,7 @@ class DataDeletePage(ContentPage.ContentPage):
         line_drop_down = tkinter.OptionMenu(self.form_frame, line, *lines)
         line_drop_down.grid(row = 0, column = 1, sticky="W")
 
-        tkinter.Label(self.form_frame, text = "Vonalnév:").grid(row = 0, column = 0, sticky="E")
+        tkinter.Label(self.form_frame, text = "Vonalnév:", bg=self["bg"]).grid(row = 0, column = 0, sticky="E")
         tkinter.Button(self.form_frame, text = "Törlés", command = process_transaction).grid(row = 1, column = 0, columnspan = 2)
 
 
@@ -324,7 +324,7 @@ class DataDeletePage(ContentPage.ContentPage):
         stop_drop_down = tkinter.OptionMenu(self.form_frame, stop, *stops.keys())
         stop_drop_down.grid(row = 0, column = 1, sticky="W")
 
-        tkinter.Label(self.form_frame, text = "Megálló ID:").grid(row = 0, column = 0, sticky="E")
+        tkinter.Label(self.form_frame, text = "Megálló ID:", bg=self["bg"]).grid(row = 0, column = 0, sticky="E")
         tkinter.Button(self.form_frame, text = "Törlés", command = process_transaction).grid(row = 1, column = 0, columnspan = 2)
 
 
@@ -335,15 +335,10 @@ class DataDeletePage(ContentPage.ContentPage):
 
             try:
                 sql = "DELETE FROM jarat WHERE vonal_nev = %s and visszamenet = %s"
-                cursor.execute(sql, (route.get(), direction.get()))
+                cursor.execute(sql, (routes[route.get()][0], routes[route.get()][1],))
                 connection.commit()
 
                 if cursor.rowcount != 0:
-                    route_drop_down["menu"].delete(routes.index(route.get()))
-                    routes.remove(route.get())
-                    route.set(routes[0])
-                    direction.set(False)
-
                     tkinter.messagebox.showinfo("Siker", "Sikeres törlés!")
 
                     for child in self.form_frame.winfo_children():
@@ -363,10 +358,10 @@ class DataDeletePage(ContentPage.ContentPage):
             connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
             cursor = connection.cursor()
 
-            sql = "SELECT vonal_nev FROM jarat"
+            sql = "SELECT vonal_nev, visszamenet FROM jarat"
             cursor.execute(sql)
 
-            ret = [route[0] for route in cursor.fetchall()]
+            ret: dict[str, tuple[str, bool]] = {route[0] + " (" + str("visszamenet" if route[1] else "odamenet") + ")": (route[0], route[1]) for route in cursor.fetchall()}
             
             connection.close()
 
@@ -380,15 +375,9 @@ class DataDeletePage(ContentPage.ContentPage):
 
         routes = get_foreign_key_entries()
         route = tkinter.StringVar(self.form_frame)
-        route.set(routes[0])
+        route.set(sorted(routes.keys())[0])
         route_drop_down = tkinter.OptionMenu(self.form_frame, route, *routes)
         route_drop_down.grid(row = 0, column = 1, sticky="W")
 
-        direction = tkinter.BooleanVar(self.form_frame)
-        direction.set(False)
-        direction_drop_down = tkinter.OptionMenu(self.form_frame, direction, *[False, True])
-        direction_drop_down.grid(row = 1, column = 1, sticky="W")
-
-        tkinter.Label(self.form_frame, text = "Vonal név:").grid(row = 0, column = 0, sticky="E")
-        tkinter.Label(self.form_frame, text = "Visszamenet-e:").grid(row = 1, column = 0, sticky="E")
+        tkinter.Label(self.form_frame, text = "Járat:", bg=self["bg"]).grid(row = 0, column = 0, sticky="E")
         tkinter.Button(self.form_frame, text = "Törlés", command = process_transaction).grid(row = 2, column = 0, columnspan = 2)
