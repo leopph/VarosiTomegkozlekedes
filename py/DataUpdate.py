@@ -67,7 +67,7 @@ class DataUpdatePage(ContentPage.ContentPage):
 
     def modify_route(self) -> None:
         def send_update() -> None:
-            pass
+            print("sending")
 
 
         # OPEN MENU TO DISPLAY AND UPDATE THE ROUTE DATA
@@ -215,6 +215,8 @@ class DataUpdatePage(ContentPage.ContentPage):
             stops_rowcount = len(stop_entries) + 1
 
             connection.close()
+
+            tkinter.Button(master=self.form_frame, text="Módosítás", command=send_update).grid(row = 3, column=0, columnspan=2)
 
 
         # ACTUAL FUNCTION BODY START HERE
