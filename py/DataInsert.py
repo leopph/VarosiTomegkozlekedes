@@ -324,19 +324,19 @@ class DataInsertPage(ContentPage.ContentPage):
 
             try:
                 for i in range(2):
-                    if i in [start[2].get() for start in starts] + [stop[2].get() for stop in stops]:
+                    if i in [direction_options[start[2].get()] for start in starts] + [direction_options[stop[2].get()] for stop in stops]:
                         cursor.execute("INSERT INTO jarat(vonal_nev, visszamenet) VALUES(%s, %s)", (line.get(), i))
 
                 if starts:
                     sql = "INSERT INTO indul(rendszam, vonal_nev, visszamenet, mikor) VALUES"
                     for start in starts:
-                        sql += "(\"{}\", \"{}\", {}, \"{}\"),".format(start[1].get(), line.get(), start[2].get(), start[0].get().strip())
+                        sql += "(\"{}\", \"{}\", {}, \"{}\"),".format(start[1].get(), line.get(), direction_options[start[2].get()], start[0].get().strip())
                     cursor.execute(sql[:-1])
 
                 if stops:
                     sql2 = "INSERT INTO megall(vonal_nev, visszamenet, megallo_id, mikor) VALUES"
                     for stop in stops:
-                        sql2 += "(\"{}\", {}, {}, \"{}\"),".format(line.get(), stop[2].get(), stop_id_entries[stop[1].get()], stop[0].get().strip())
+                        sql2 += "(\"{}\", {}, {}, \"{}\"),".format(line.get(), direction_options[stop[2].get()], stop_id_entries[stop[1].get()], stop[0].get().strip())
                     cursor.execute(sql2[:-1])
 
                 connection.commit()
@@ -346,12 +346,12 @@ class DataInsertPage(ContentPage.ContentPage):
                 for start in starts:
                     start[0].delete(0, "end")
                     start[1].set(sorted(license_entries.keys())[0])
-                    start[2].set(False)
+                    start[2].set(sorted(direction_options.keys())[0])
 
                 for stop in stops:
                     stop[0].delete(0, "end")
                     stop[1].set(sorted(stop_id_entries)[0])
-                    stop[2].set(False)
+                    stop[2].set(sorted(direction_options.keys())[0])
 
                 if starts or stops:
                     tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
@@ -394,9 +394,9 @@ class DataInsertPage(ContentPage.ContentPage):
             license.set(sorted(license_entries.keys())[0])
             tkinter.OptionMenu(starts_frame, license, *license_entries).grid(row = len(starts), column = 1)
 
-            direction = tkinter.BooleanVar(starts_frame)
-            direction.set(False)
-            tkinter.OptionMenu(starts_frame, direction, *[True, False]).grid(row = len(starts), column = 2)
+            direction = tkinter.StringVar(starts_frame)
+            direction.set(sorted(direction_options.keys())[0])
+            tkinter.OptionMenu(starts_frame, direction, *direction_options).grid(row = len(starts), column = 2)
 
             starts.append((time_entry, license, direction))
 
@@ -411,9 +411,9 @@ class DataInsertPage(ContentPage.ContentPage):
             stop_id.set(sorted(stop_id_entries.keys())[0])
             tkinter.OptionMenu(stops_frame, stop_id, *stop_id_entries.keys()).grid(row = len(stops), column = 1)
 
-            direction = tkinter.BooleanVar(stops_frame)
-            direction.set(False)
-            tkinter.OptionMenu(stops_frame, direction, *[True, False]).grid(row = len(stops), column = 2)
+            direction = tkinter.StringVar(stops_frame)
+            direction.set(sorted(direction_options.keys())[0])
+            tkinter.OptionMenu(stops_frame, direction, *direction_options).grid(row = len(stops), column = 2)
 
             stops.append((time_entry, stop_id, direction))
 
@@ -450,5 +450,7 @@ class DataInsertPage(ContentPage.ContentPage):
         new_stop_button = tkinter.Button(stops_frame, text = "Új megállás")
         new_stop_button.configure(command = expand_stops_menu)
         new_stop_button.grid(row = 0, column = 0, columnspan=3)
+
+        direction_options = {"Visszamenet": True, "Odamenet": False}
 
         tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_route).grid(row = 2, column = 0, columnspan = 3)
