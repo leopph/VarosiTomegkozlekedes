@@ -1,11 +1,11 @@
 import tkinter
-from tkinter import Button
 import tkinter.ttk
 import tkinter.messagebox
 import mysql.connector
 from mysql.connector.dbapi import Date
 import ContentPage
 from typing import Union
+from datetime import timedelta
 
 
 class DataUpdatePage(ContentPage.ContentPage):
@@ -70,95 +70,161 @@ class DataUpdatePage(ContentPage.ContentPage):
             pass
 
 
+        # OPEN MENU TO DISPLAY AND UPDATE THE ROUTE DATA
         def show_form() -> None:
+            # REMOVE A STOP OR START ENTRY
             def remove_entry(entry: tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button], list: list[tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button]]) -> None:
                 for elem in entry:
                     elem.destroy()
                 list.remove(entry)
 
 
+            # ADD A NEW EMPTY ENTRY TO THE STARTS LIST
             def add_start_entry() -> None:
                 nonlocal starts_rowcount
 
                 time = tkinter.Entry(master=starts_frame)
                 time.grid(row = starts_rowcount - 1, column=0)
 
-                license_box = tkinter.ttk.Combobox(master=starts_frame, values=license_options)
+                license_box = tkinter.ttk.Combobox(master=starts_frame, values=license_options, state="readonly")
                 license_box.set(license_options[0])
                 license_box.grid(row=starts_rowcount - 1, column=1)
 
                 remove_button = tkinter.Button(master=starts_frame, text="Törlés")
-                remove_button.config(command=lambda start=(time, license_box, remove_button): remove_entry(start, starts))
+                remove_button.config(command=lambda start=(time, license_box, remove_button): remove_entry(start, start_entries))
                 remove_button.grid(row=starts_rowcount - 1, column=2)
 
-                starts.append((time, license_box, remove_button))
+                start_entries.append((time, license_box, remove_button))
 
                 new_start_button.grid(row=starts_rowcount)
 
                 starts_rowcount += 1
 
+
+            # ADD A NEW EMPTY ENTRY TO THE STARTS LIST
+            def add_stop_entry() -> None:
+                nonlocal stops_rowcount
+
+                time = tkinter.Entry(master=stops_frame)
+                time.grid(row = stops_rowcount - 1, column=0)
+
+                stop_box = tkinter.ttk.Combobox(master=stops_frame, values=sorted(stop_options.keys()), state="readonly")
+                stop_box.set(sorted(stop_options.keys())[0])
+                stop_box.grid(row=stops_rowcount - 1, column=1)
+
+                remove_button = tkinter.Button(master=stops_frame, text="Törlés")
+                remove_button.config(command=lambda stop=(time, stop_box, remove_button): remove_entry(stop, stop_entries))
+                remove_button.grid(row=stops_rowcount - 1, column=2)
+
+                stop_entries.append((time, stop_box, remove_button))
+
+                new_stop_button.grid(row=stops_rowcount)
+
+                stops_rowcount += 1
+
             
+            # SAVING SELECTION BEFORE DESTROYING
             selection = combobox.get()
 
             for child in self.form_frame.winfo_children():
                 child.destroy()
 
+            # FORM LABELS
             tkinter.Label(master=self.form_frame, text="Vonal száma:", bg=self["bg"]).grid(row=0, column=0, sticky="E")
             tkinter.Label(master=self.form_frame, text="Indulások:", bg=self["bg"]).grid(row=1, column=0, sticky="E")
             tkinter.Label(master=self.form_frame, text="Megállások:", bg=self["bg"]).grid(row=2, column=0, sticky="E")
 
+            # QUERY FOR ALL THE POSSIBLE LINES
             connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
             cursor = connection.cursor()
             cursor.execute("SELECT nev FROM vonal")
-            line_options = [line[0] for line in cursor.fetchall()]
+            line_options: list[str] = [line[0] for line in cursor.fetchall()]
 
+            # QUERY FOR ALL THE POSSIBLE LICENSE PLATE NUMBERS
+            cursor.execute("SELECT rendszam FROM jarmu")
+            license_options: list[str] = [license[0] for license in cursor.fetchall()]
+
+            # QUERY FOR ALL THE POSSIBLE STOP NAMES AND THEIR IDS
+            cursor.execute("SELECT id, nev FROM megallo")
+            stop_options: dict[str, int] = {str(stop[0]) + " (" + stop[1] + ")": stop[0] for stop in cursor.fetchall()}
+
+            # FILLING A COMBOBOX WITH THE POSSIBLE LINES AND SETTING IT TO THE STORED VALUE
             line_selection = tkinter.ttk.Combobox(master=self.form_frame, values=line_options, state="readonly")
             line_selection.set(routes[selection][0])
             line_selection.grid(row=0, column=1, sticky="W")
 
+            # QUERY FOR ALL STORED START DATA
             sql = "SELECT rendszam, mikor FROM indul WHERE vonal_nev = %s and visszamenet = %s order by mikor"
             cursor.execute(sql, (routes[selection][0], routes[selection][1]))
-            start_data = [(start[0], start[1]) for start in cursor.fetchall()]
+            starts_db_stored: list[tuple[str, timedelta]] = [(start[0], start[1]) for start in cursor.fetchall()]
 
-            cursor.execute("SELECT rendszam FROM jarmu")
-            license_options = [license[0] for license in cursor.fetchall()]
-
-            starts: list[tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button]] = list()
-
+            # FRAME TO HOLD ALL THE START ENTRIES
             starts_frame = tkinter.Frame(self.form_frame, bg=self["bg"])
-            starts_frame.grid(row=1, column=1)
+            starts_frame.grid(row=1, column=1, sticky="W")
+            
+            # LIST OF ALL THE CURRENT START ENTRIES
+            start_entries: list[tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button]] = list()
 
-            for start in start_data:
+            # CREATING ENTRIES FOR THE STORED START DATA AND ADDING THEM TO THE FRAME
+            for start in starts_db_stored:
                 time = tkinter.Entry(master=starts_frame)
                 time.insert(0, start[1])
-                time.grid(row = len(starts), column=0)
+                time.grid(row = len(start_entries), column=0)
 
-                license_box = tkinter.ttk.Combobox(master=starts_frame, values=license_options)
+                license_box = tkinter.ttk.Combobox(master=starts_frame, values=license_options, state="readonly")
                 license_box.set(start[0])
-                license_box.grid(row=len(starts), column=1)
+                license_box.grid(row=len(start_entries), column=1)
 
                 remove_button = tkinter.Button(master=starts_frame, text="Törlés")
-                remove_button.config(command=lambda start=(time, license_box, remove_button): remove_entry(start, starts))
-                remove_button.grid(row=len(starts), column=2)
+                remove_button.config(command=lambda start=(time, license_box, remove_button): remove_entry(start, start_entries))
+                remove_button.grid(row=len(start_entries), column=2)
 
-                starts.append((time, license_box, remove_button))
+                start_entries.append((time, license_box, remove_button))
 
+            # BUTTON TO ADD A NEW EMPTY START ENTRY
             new_start_button = tkinter.Button(master=starts_frame, text="Új indulás", command=add_start_entry)
-            new_start_button.grid(row=len(starts), column=0)
+            new_start_button.grid(row=len(start_entries), column=0)
 
-            starts_rowcount = len(starts) + 1
+            starts_rowcount = len(start_entries) + 1
 
-            
+            # QUERY FOR ALL STORED STOP DATA
+            sql = "SELECT megall.megallo_id, megallo.nev, megall.mikor FROM megall INNER JOIN megallo ON megall.megallo_id = megallo.id WHERE megall.vonal_nev = %s and megall.visszamenet = %s order by megall.mikor"
+            cursor.execute(sql, (routes[selection][0], routes[selection][1]))
+            stops_db_stored = [(stop[0], stop[1], stop[2]) for stop in cursor.fetchall()]
 
+            # FRAME TO ADD STOP ENTRIES TO
+            stops_frame = tkinter.Frame(master=self.form_frame, bg=self["bg"])
+            stops_frame.grid(row=2, column=1, sticky="W")
 
+            # LIST OF ALL THE CURRENT STOP ENTRIES
+            stop_entries: list[tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button]] = list()
 
+            # CREATING ENTRIES FOR THE STORED STOP DATA AND ADDING THEM TO THE FRAME
+            for stop in stops_db_stored:
+                time = tkinter.Entry(master=stops_frame)
+                time.insert(0, stop[2])
+                time.grid(row = len(stop_entries), column=0)
 
+                stop_box = tkinter.ttk.Combobox(master=stops_frame, values=sorted(stop_options.keys()), state="readonly")
+                stop_box.set(str(stop[0]) + " (" + str(stop[1]) + ")")
+                stop_box.grid(row=len(stop_entries), column=1)
 
+                remove_button = tkinter.Button(master=stops_frame, text="Törlés")
+                remove_button.config(command=lambda stop=(time, stop_box, remove_button): remove_entry(stop, stop_entries))
+                remove_button.grid(row=len(stop_entries), column=2)
+
+                stop_entries.append((time, stop_box, remove_button))
+
+            # BUTTON TO ADD A NEW EMPTY STOP ENTRY
+            new_stop_button = tkinter.Button(master=stops_frame, text="Új megállás", command=add_stop_entry)
+            new_stop_button.grid(row=len(stop_entries), column=0)
+
+            stops_rowcount = len(stop_entries) + 1
 
             connection.close()
 
 
-
+        # ACTUAL FUNCTION BODY START HERE
         for child in self.form_frame.winfo_children():
             child.destroy()
 
