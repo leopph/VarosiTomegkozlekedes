@@ -130,15 +130,13 @@ class DataUpdatePage(ContentPage.ContentPage):
                 child.destroy()
 
             # FORM LABELS
-            tkinter.Label(master=self.form_frame, text="Vonal száma:", bg=self["bg"]).grid(row=0, column=0, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Vonal száma: " + str(routes[selection][0]), bg=self["bg"], font=("", 16)).grid(row=0, column=0, columnspan=2)
             tkinter.Label(master=self.form_frame, text="Indulások:", bg=self["bg"]).grid(row=1, column=0, sticky="E")
             tkinter.Label(master=self.form_frame, text="Megállások:", bg=self["bg"]).grid(row=2, column=0, sticky="E")
 
-            # QUERY FOR ALL THE POSSIBLE LINES
+            # OPENING DB CONNECTION
             connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
             cursor = connection.cursor()
-            cursor.execute("SELECT nev FROM vonal")
-            line_options: list[str] = [line[0] for line in cursor.fetchall()]
 
             # QUERY FOR ALL THE POSSIBLE LICENSE PLATE NUMBERS
             cursor.execute("SELECT rendszam FROM jarmu")
@@ -147,11 +145,6 @@ class DataUpdatePage(ContentPage.ContentPage):
             # QUERY FOR ALL THE POSSIBLE STOP NAMES AND THEIR IDS
             cursor.execute("SELECT id, nev FROM megallo")
             stop_options: dict[str, int] = {str(stop[0]) + " (" + stop[1] + ")": stop[0] for stop in cursor.fetchall()}
-
-            # FILLING A COMBOBOX WITH THE POSSIBLE LINES AND SETTING IT TO THE STORED VALUE
-            line_selection = tkinter.ttk.Combobox(master=self.form_frame, values=line_options, state="readonly")
-            line_selection.set(routes[selection][0])
-            line_selection.grid(row=0, column=1, sticky="W")
 
             # QUERY FOR ALL STORED START DATA
             sql = "SELECT rendszam, mikor FROM indul WHERE vonal_nev = %s and visszamenet = %s order by mikor"
@@ -183,7 +176,7 @@ class DataUpdatePage(ContentPage.ContentPage):
 
             # BUTTON TO ADD A NEW EMPTY START ENTRY
             new_start_button = tkinter.Button(master=starts_frame, text="Új indulás", command=add_start_entry)
-            new_start_button.grid(row=len(start_entries), column=0)
+            new_start_button.grid(row=len(start_entries), column=0, columnspan=3)
 
             starts_rowcount = len(start_entries) + 1
 
@@ -217,7 +210,7 @@ class DataUpdatePage(ContentPage.ContentPage):
 
             # BUTTON TO ADD A NEW EMPTY STOP ENTRY
             new_stop_button = tkinter.Button(master=stops_frame, text="Új megállás", command=add_stop_entry)
-            new_stop_button.grid(row=len(stop_entries), column=0)
+            new_stop_button.grid(row=len(stop_entries), column=0, columnspan=3)
 
             stops_rowcount = len(stop_entries) + 1
 
