@@ -205,11 +205,11 @@ class DataInsertPage(ContentPage.ContentPage):
 
             try:
                 sql = "INSERT INTO jarmutipus(nev, elektromos) VALUES(%s, %s)"
-                cursor.execute(sql, params = (name_entry.get().strip(), is_electric.get()))
+                cursor.execute(sql, params = (name_entry.get().strip(),electric_options[is_electric.get()]))
                 connection.commit()
 
                 name_entry.delete(0, "end")
-                is_electric.set(False)
+                is_electric.set(sorted(electric_options)[0])
 
                 tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
 
@@ -229,8 +229,11 @@ class DataInsertPage(ContentPage.ContentPage):
         name_entry = tkinter.Entry(form_frame)
         name_entry.grid(column = 1, row = 0, sticky="W")
 
-        is_electric = tkinter.BooleanVar(form_frame)
-        tkinter.OptionMenu(form_frame, is_electric, *[True, False]).grid(row = 1, column = 1, sticky="W")
+        electric_options = {"Igen": True, "Nem": False}
+
+        is_electric = tkinter.StringVar(form_frame)
+        is_electric.set(sorted(electric_options)[0])
+        tkinter.OptionMenu(form_frame, is_electric, *electric_options).grid(row = 1, column = 1, sticky="W")
 
         tkinter.Label(form_frame, text = "Típusnév:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
         tkinter.Label(form_frame, text = "Elektromos-e:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
@@ -246,11 +249,11 @@ class DataInsertPage(ContentPage.ContentPage):
 
             try:
                 sql = "INSERT INTO jarmu(rendszam, alacsony_padlos, tipus_nev, vezetoi_szam) VALUES(%s, %s, %s, %s)"
-                cursor.execute(sql, params = (license_entry.get().strip(), floor.get(), type_.get(), driver_id_entries[driver.get()]))
+                cursor.execute(sql, params = (license_entry.get().strip(), floor_options[floor.get()], type_.get(), driver_id_entries[driver.get()]))
                 connection.commit()
 
                 license_entry.delete(0, "end")
-                floor.set(False)
+                floor.set(sorted(floor_options)[0])
                 type_.set(type_name_entries[0])
                 driver.set(sorted(driver_id_entries.keys())[0])
 
@@ -291,9 +294,11 @@ class DataInsertPage(ContentPage.ContentPage):
         license_entry = tkinter.Entry(form_frame)
         license_entry.grid(column = 1, row = 0, sticky="W")
 
-        floor = tkinter.BooleanVar(form_frame)
-        floor.set(False)
-        tkinter.OptionMenu(form_frame, floor, *[False, True]).grid(row = 1, column = 1, sticky="W")
+        floor_options = {"Igen": True, "Nem": False}
+
+        floor = tkinter.StringVar(form_frame)
+        floor.set(sorted(floor_options)[0])
+        tkinter.OptionMenu(form_frame, floor, *floor_options).grid(row = 1, column = 1, sticky="W")
 
         type_ = tkinter.StringVar(form_frame)
         type_.set(type_name_entries[0])
@@ -363,7 +368,7 @@ class DataInsertPage(ContentPage.ContentPage):
             connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
             cursor = connection.cursor()
 
-            sql = "SELECT nev FROM vonal WHERE nev NOT IN (SELECT DISTINCT vonal_nev FROM jarat)"
+            sql = "SELECT nev FROM vonal WHERE nev NOT IN (SELECT DISTINCT vonal_nev FROM jarat WHERE visszamenet = 0) and nev NOT IN (SELECT DISTINCT vonal_nev FROM jarat WHERE visszamenet = 1)"
             cursor.execute(sql)
             lines: list[str] = [line[0] for line in cursor.fetchall()]
 
