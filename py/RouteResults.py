@@ -8,13 +8,12 @@ import StopDetails
 
 
 class RouteResults(ContentPage.ContentPage):
-    def __init__(self, data, *args, **kwargs):
+    def __init__(self, data, *args, **kwargs) -> None:
         ContentPage.ContentPage.__init__(self, data, *args, **kwargs)
 
         self.columnconfigure(0, weight = 1)
         self.rowconfigure(0, weight = 1)
         self.rowconfigure(1, weight = 9)
-
 
         title_frame = tkinter.Frame(self, bg = self["bg"])
         title_frame.grid(row = 0, column = 0, sticky = "NESW")
@@ -22,7 +21,7 @@ class RouteResults(ContentPage.ContentPage):
         title_frame.rowconfigure(0, weight = 1)
         title_frame.columnconfigure(0, weight = 1)
 
-        tkinter.Label(title_frame, text = data["route"].name + " jelzésű " + data["route"].type, font = (None, 24), bg = self["bg"]).grid(row = 0, sticky = "NESW")
+        tkinter.Label(title_frame, text = data["route"].name + " jelzésű " + data["route"].type, font = ("", 24), bg = self["bg"]).grid(row = 0, sticky = "NESW")
 
         result_frame = tkinter.Frame(self, bg = self["bg"])
         result_frame.grid(row = 1, sticky = "NESW")
@@ -34,15 +33,17 @@ class RouteResults(ContentPage.ContentPage):
 
         grid_row_count = 0
         for stop, time in data["stops"]:
-            tkinter.Label(result_frame, text = time, font = (None, 12)).grid(row = grid_row_count, column = 0, sticky = "NESW")
-            tkinter.Label(result_frame, text = stop.name, font = (None, 12)).grid(row = grid_row_count, column = 1, sticky = "NESW")
-            tkinter.Label(result_frame, text = stop.location, font = (None, 12)).grid(row = grid_row_count, column = 2, sticky = "NESW")
-            tkinter.Button(result_frame, text = "Részletek", font = (None, 12), command = lambda stop = stop: self.stop_details(stop)).grid(row = grid_row_count, column = 3, sticky = "NESW")
+            tkinter.Label(result_frame, text = time, font = ("", 12)).grid(row = grid_row_count, column = 0, sticky = "NESW")
+            tkinter.Label(result_frame, text = stop.name, font = ("", 12)).grid(row = grid_row_count, column = 1, sticky = "NESW")
+            tkinter.Label(result_frame, text = stop.location, font = ("", 12)).grid(row = grid_row_count, column = 2, sticky = "NESW")
+            tkinter.Button(result_frame, text = "Részletek", font = ("", 12), command = lambda stop = stop: self.stop_details(stop)).grid(row = grid_row_count, column = 3, sticky = "NESW")
 
             grid_row_count += 1
 
+        self.refresh()
 
-    def stop_details(self, stop: Entity.Stop):
+
+    def stop_details(self, stop: Entity.Stop) -> None:
         connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
         cursor = connection.cursor()
 
@@ -68,5 +69,5 @@ class RouteResults(ContentPage.ContentPage):
         self.master.load_new_page(StopDetails.StopDetails, data)
 
     
-    def refresh(self):
+    def refresh(self) -> None:
         pass

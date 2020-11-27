@@ -1,4 +1,5 @@
 import tkinter
+import tkinter.ttk
 import tkinter.messagebox
 import mysql.connector
 import Home
@@ -11,39 +12,30 @@ class Header(tkinter.Frame):
     def __init__(self, *args, **kwargs):
         tkinter.Frame.__init__(self, *args, **kwargs)
 
-        self.columnconfigure(0, weight = 1)
-        self.columnconfigure(1, weight = 1)
-        self.columnconfigure(2, weight = 2)
-        self.columnconfigure(3, weight = 4)
-        self.columnconfigure(4, weight = 2)
-        self.columnconfigure(5, weight = 4)
-        self.columnconfigure(6, weight = 1)
-        self.columnconfigure(7, weight = 1)
-
+        self.query_for_stops()
 
         self._backbutton = tkinter.Button(self, text = "Vissza", command = self.master.load_previous_page, bg = "DarkOliveGreen3")
-        self._backbutton.grid(row = 0, column = 0, sticky = "NESW")
+        self._backbutton.grid(row = 0, column = 0)
 
         self._nextbutton = tkinter.Button(self, text = "Előre", command = self.master.load_next_page, bg = "DarkOliveGreen3")
-        self._nextbutton.grid(row = 0, column = 1, sticky = "NESW")
+        self._nextbutton.grid(row = 0, column = 1)
 
-        self.from_stop_label = tkinter.Label(self, text = "Honnan:", bg = self["bg"], fg = "snow", font = (None, 10))
-        self.from_stop_label.grid(row = 0, column = 2, sticky = "E")
+        tkinter.Button(self, text = "Főoldal", command = lambda: self.master.load_new_page(Home.Home, None), bg = "DarkOliveGreen3").grid(row = 0, column = 2)
+        tkinter.Label(self, text = "Honnan:", bg = self["bg"], fg = "snow", font = ("", 10)).grid(row = 0, column = 3)
 
-        self.from_stop = tkinter.Entry(self)
-        self.from_stop.grid(row = 0, column = 3, sticky = "W")
+        self.from_stop = tkinter.ttk.Combobox(self)
+        self.from_stop.config(postcommand=self.update_menus, width=max(len(stop) for stop in self.stops), state="readonly")
+        self.from_stop.grid(row=0, column=4)
+        self.from_stop.set("Válasszon megállót!")
 
-        self.to_stop_label = tkinter.Label(self, text = "Hová:", bg = self["bg"], fg = "snow", font = (None, 10))
-        self.to_stop_label.grid(row = 0, column = 4, sticky = "E")
+        tkinter.Label(self, text = "Hová:", bg = self["bg"], fg = "snow", font = ("", 10)).grid(row = 0, column = 5)
 
-        self.to_stop = tkinter.Entry(self)
-        self.to_stop.grid(row = 0, column = 5, sticky = "W")
+        self.to_stop = tkinter.ttk.Combobox(self)
+        self.to_stop.config(postcommand=self.update_menus, width=max(len(stop) for stop in self.stops), state="readonly")
+        self.to_stop.grid(row=0, column=6)
+        self.to_stop.set("Válasszon megállót!")
 
-        self.search_button = tkinter.Button(self, text = "Keresés", command = self.search, bg = "thistle3")
-        self.search_button.grid(row = 0, column = 6)
-
-        self.home_button = tkinter.Button(self, text = "Főoldal", command = lambda: self.master.load_new_page(Home.Home, None), bg = "DarkOliveGreen3")
-        self.home_button.grid(row = 0, column = 7)
+        tkinter.Button(self, text = "Keresés", command = self.search, bg = "thistle3").grid(row = 0, column = 7)
 
     
     @property
@@ -55,14 +47,26 @@ class Header(tkinter.Frame):
         return self._nextbutton
 
 
-    def search(self):
-        from_stop = self.from_stop.get().strip()
-        to_stop = self.to_stop.get().strip()
+    def update_menus(self):
+        self.query_for_stops()
+        self.from_stop.config(values=sorted(self.stops.keys()), width=max(len(stop) for stop in self.stops))
+        self.to_stop.config(values=sorted(self.stops.keys()), width=max(len(stop) for stop in self.stops))
 
-        if from_stop == "" or to_stop == "":
+    def query_for_stops(self):
+        connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
+        cursor = connection.cursor()
+        cursor.execute("SELECT nev, hely FROM megallo WHERE id IN(SELECT DISTINCT megallo_id FROM megall)")
+        self.stops: dict[str, int] = {str(stop[0]) + " (" + str(stop[1]) + ")": stop[0] for stop in cursor.fetchall()}
+        connection.close()
+
+
+    def search(self):
+        if self.from_stop.get() == "" or self.to_stop.get() == "":
             tkinter.messagebox.showwarning(title = "Figyelem!", message = "Kérem adja meg az indulási- és célállomását!")
 
         else:
+            self.focus_set()
+
             connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
             cursor = connection.cursor()
 
@@ -76,14 +80,14 @@ class Header(tkinter.Frame):
                     and alkerdes1.mikor < alkerdes2.mikor) as alkerdes3 on alkerdes3.vonal = indul.vonal_nev and alkerdes3.visszamenet = indul.visszamenet
                     order by addtime(indul.mikor, alkerdes3.mikor)'''
 
-            cursor.execute(operation = monster_sql, params = (from_stop, to_stop, from_stop, to_stop))
+            cursor.execute(operation = monster_sql, params = (self.stops[self.from_stop.get()], self.stops[self.to_stop.get()], self.stops[self.from_stop.get()], self.stops[self.to_stop.get()]))
             rows = cursor.fetchall()
 
             if not rows:
                 tkinter.messagebox.showerror(title = "Hiba", message = "Ezen az útvonalon nem jár egy járat sem!")
 
             else:
-                data = {"from": from_stop, "to": to_stop, "results": dict()}
+                data = {"from": self.stops[self.from_stop.get()], "to": self.stops[self.to_stop.get()], "results": dict()}
 
                 for row in rows:
                     if row[0] not in data["results"]:
@@ -94,5 +98,5 @@ class Header(tkinter.Frame):
 
             connection.close()
 
-            self.from_stop.delete(0, "end")
-            self.to_stop.delete(0, "end")
+            self.from_stop.set("Válasszon megállót!")
+            self.to_stop.set("Válasszon megállót!")

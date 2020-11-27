@@ -346,8 +346,8 @@ class DataDeletePage(ContentPage.ContentPage):
 
                     tkinter.messagebox.showinfo("Siker", "Sikeres törlés!")
 
-                for child in self.form_frame.winfo_children():
-                    child.destroy()
+                    for child in self.form_frame.winfo_children():
+                        child.destroy()
 
                 else:
                     tkinter.messagebox.showerror("Hiba", "Ilyen járat már nincs az adatbázisban!")
