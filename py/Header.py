@@ -61,7 +61,7 @@ class Header(tkinter.Frame):
 
 
     def search(self):
-        if self.from_stop.get() == "" or self.to_stop.get() == "":
+        if self.from_stop.get() not in self.stops or self.to_stop.get() not in self.stops:
             tkinter.messagebox.showwarning(title = "Figyelem!", message = "Kérem adja meg az indulási- és célállomását!")
 
         else:

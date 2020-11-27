@@ -411,37 +411,32 @@ class DataInsertPage(ContentPage.ContentPage):
 
         form_frame.columnconfigure(0, weight = 1)
         form_frame.columnconfigure(1, weight = 1)
+        form_frame.columnconfigure(2, weight = 1)
 
-        tkinter.Label(form_frame, text = "Vonal száma:").grid(row = 0, column = 0, sticky = "NSEW")
-        tkinter.Label(form_frame, text = "Indulások (mikor, rendszám, visszamenet-e):").grid(row = 1, column = 0, sticky = "NSEW")
-        tkinter.Label(form_frame, text = "Megállások (mikor, megálló id, visszamenet-e;):").grid(row = 2, column = 0, sticky = "NSEW")
+        tkinter.Label(form_frame, text = "Vonal száma", bg=self["bg"], font=("", 14)).grid(row = 0, column = 0)
+        tkinter.Label(form_frame, text = "Indulások", bg=self["bg"], font=("", 14)).grid(row = 0, column = 1)
+        tkinter.Label(form_frame, text = "Megállások", bg=self["bg"], font=("", 14)).grid(row = 0, column = 2)
 
         line_entries, license_entries, stop_id_entries = get_foreign_key_entries()
 
         line = tkinter.StringVar(form_frame)
         line.set(line_entries[0])
-        tkinter.OptionMenu(form_frame, line, *line_entries).grid(row = 0, column = 1)
+        tkinter.OptionMenu(form_frame, line, *line_entries).grid(row = 1, column = 0)
 
         starts = list()
-        starts_frame = tkinter.Frame(form_frame)
-        starts_frame.grid(row = 1, column = 1, sticky = "EW")
-        starts_frame.columnconfigure(index=0, weight=1)
-        starts_frame.columnconfigure(index=1, weight=1)
-        starts_frame.columnconfigure(index=2, weight=1)
+        starts_frame = tkinter.Frame(form_frame, bg=self["bg"])
+        starts_frame.grid(row = 1, column = 1)
 
         new_start_button = tkinter.Button(starts_frame, text = "Új indulás")
         new_start_button.configure(command = expand_starts_menu)
         new_start_button.grid(row = 0, column = 0, columnspan=3)
 
         stops = list()
-        stops_frame = tkinter.Frame(form_frame)
-        stops_frame.grid(row = 2, column = 1, sticky = "EW")
-        stops_frame.columnconfigure(index=0, weight=1)
-        stops_frame.columnconfigure(index=1, weight=1)
-        stops_frame.columnconfigure(index=2, weight=1)
+        stops_frame = tkinter.Frame(form_frame, bg=self["bg"])
+        stops_frame.grid(row = 1, column = 2)
 
         new_stop_button = tkinter.Button(stops_frame, text = "Új megállás")
         new_stop_button.configure(command = expand_stops_menu)
         new_stop_button.grid(row = 0, column = 0, columnspan=3)
 
-        tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_route).grid(row = 3, column = 0, columnspan = 2)
+        tkinter.Button(form_frame, text = "Felvitel", bg = self["bg"], command = process_new_route).grid(row = 2, column = 0, columnspan = 3)
