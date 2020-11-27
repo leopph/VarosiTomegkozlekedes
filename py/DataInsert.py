@@ -318,15 +318,21 @@ class DataInsertPage(ContentPage.ContentPage):
             cursor = connection.cursor()
 
             try:
-                sql = "INSERT INTO indul(rendszam, vonal_nev, visszamenet, mikor) VALUES"
-                for start in starts:
-                    sql += "(\"{}\", \"{}\", {}, \"{}\"),".format(start[1].get(), line.get(), start[2].get(), start[0].get().strip())
-                cursor.execute(sql[:-1])
+                for i in range(2):
+                    if i in [start[2].get() for start in starts] + [stop[2].get() for stop in stops]:
+                        cursor.execute("INSERT INTO jarat(vonal_nev, visszamenet) VALUES(%s, %s)", (line.get(), i))
 
-                sql2 = "INSERT INTO megall(vonal_nev, visszamenet, megallo_id, mikor) VALUES"
-                for stop in stops:
-                    sql2 += "(\"{}\", {}, {}, \"{}\"),".format(line.get(), stop[2].get(), stop_id_entries[stop[1].get()], stop[0].get().strip())
-                cursor.execute(sql2[:-1])
+                if starts:
+                    sql = "INSERT INTO indul(rendszam, vonal_nev, visszamenet, mikor) VALUES"
+                    for start in starts:
+                        sql += "(\"{}\", \"{}\", {}, \"{}\"),".format(start[1].get(), line.get(), start[2].get(), start[0].get().strip())
+                    cursor.execute(sql[:-1])
+
+                if stops:
+                    sql2 = "INSERT INTO megall(vonal_nev, visszamenet, megallo_id, mikor) VALUES"
+                    for stop in stops:
+                        sql2 += "(\"{}\", {}, {}, \"{}\"),".format(line.get(), stop[2].get(), stop_id_entries[stop[1].get()], stop[0].get().strip())
+                    cursor.execute(sql2[:-1])
 
                 connection.commit()
 
@@ -342,7 +348,8 @@ class DataInsertPage(ContentPage.ContentPage):
                     stop[1].set(sorted(stop_id_entries)[0])
                     stop[2].set(False)
 
-                tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
+                if starts or stops:
+                    tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
 
             except mysql.connector.Error as error:
                 connection.rollback()
@@ -356,7 +363,7 @@ class DataInsertPage(ContentPage.ContentPage):
             connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
             cursor = connection.cursor()
 
-            sql = "SELECT nev FROM vonal"
+            sql = "SELECT nev FROM vonal WHERE nev NOT IN (SELECT DISTINCT vonal_nev FROM jarat)"
             cursor.execute(sql)
             lines: list[str] = [line[0] for line in cursor.fetchall()]
 
@@ -421,7 +428,7 @@ class DataInsertPage(ContentPage.ContentPage):
 
         line = tkinter.StringVar(form_frame)
         line.set(line_entries[0])
-        tkinter.OptionMenu(form_frame, line, *line_entries).grid(row = 1, column = 0)
+        tkinter.OptionMenu(form_frame, line, *line_entries).grid(row = 1, column = 0, sticky="n")
 
         starts = list()
         starts_frame = tkinter.Frame(form_frame, bg=self["bg"])
