@@ -1,4 +1,6 @@
 import tkinter
+from tkinter import Button
+import tkinter.ttk
 import tkinter.messagebox
 import mysql.connector
 from mysql.connector.dbapi import Date
@@ -64,7 +66,120 @@ class DataUpdatePage(ContentPage.ContentPage):
 
 
     def modify_route(self) -> None:
-        pass
+        def send_update() -> None:
+            pass
+
+
+        def show_form() -> None:
+            def remove_entry(entry: tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button], list: list[tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button]]) -> None:
+                for elem in entry:
+                    elem.destroy()
+                list.remove(entry)
+
+
+            def add_start_entry() -> None:
+                nonlocal starts_rowcount
+
+                time = tkinter.Entry(master=starts_frame)
+                time.grid(row = starts_rowcount - 1, column=0)
+
+                license_box = tkinter.ttk.Combobox(master=starts_frame, values=license_options)
+                license_box.set(license_options[0])
+                license_box.grid(row=starts_rowcount - 1, column=1)
+
+                remove_button = tkinter.Button(master=starts_frame, text="Törlés")
+                remove_button.config(command=lambda start=(time, license_box, remove_button): remove_entry(start, starts))
+                remove_button.grid(row=starts_rowcount - 1, column=2)
+
+                starts.append((time, license_box, remove_button))
+
+                new_start_button.grid(row=starts_rowcount)
+
+                starts_rowcount += 1
+
+            
+            selection = combobox.get()
+
+            for child in self.form_frame.winfo_children():
+                child.destroy()
+
+            tkinter.Label(master=self.form_frame, text="Vonal száma:", bg=self["bg"]).grid(row=0, column=0, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Indulások:", bg=self["bg"]).grid(row=1, column=0, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Megállások:", bg=self["bg"]).grid(row=2, column=0, sticky="E")
+
+            connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
+            cursor = connection.cursor()
+            cursor.execute("SELECT nev FROM vonal")
+            line_options = [line[0] for line in cursor.fetchall()]
+
+            line_selection = tkinter.ttk.Combobox(master=self.form_frame, values=line_options, state="readonly")
+            line_selection.set(routes[selection][0])
+            line_selection.grid(row=0, column=1, sticky="W")
+
+            sql = "SELECT rendszam, mikor FROM indul WHERE vonal_nev = %s and visszamenet = %s order by mikor"
+            cursor.execute(sql, (routes[selection][0], routes[selection][1]))
+            start_data = [(start[0], start[1]) for start in cursor.fetchall()]
+
+            cursor.execute("SELECT rendszam FROM jarmu")
+            license_options = [license[0] for license in cursor.fetchall()]
+
+            starts: list[tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button]] = list()
+
+            starts_frame = tkinter.Frame(self.form_frame, bg=self["bg"])
+            starts_frame.grid(row=1, column=1)
+
+            for start in start_data:
+                time = tkinter.Entry(master=starts_frame)
+                time.insert(0, start[1])
+                time.grid(row = len(starts), column=0)
+
+                license_box = tkinter.ttk.Combobox(master=starts_frame, values=license_options)
+                license_box.set(start[0])
+                license_box.grid(row=len(starts), column=1)
+
+                remove_button = tkinter.Button(master=starts_frame, text="Törlés")
+                remove_button.config(command=lambda start=(time, license_box, remove_button): remove_entry(start, starts))
+                remove_button.grid(row=len(starts), column=2)
+
+                starts.append((time, license_box, remove_button))
+
+            new_start_button = tkinter.Button(master=starts_frame, text="Új indulás", command=add_start_entry)
+            new_start_button.grid(row=len(starts), column=0)
+
+            starts_rowcount = len(starts) + 1
+
+            
+
+
+
+
+
+
+            connection.close()
+
+
+
+        for child in self.form_frame.winfo_children():
+            child.destroy()
+
+        self.form_frame.columnconfigure(index=0, weight=1)
+        self.form_frame.columnconfigure(index=1, weight=1)
+
+        connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM jarat")
+
+        routes: dict[str, tuple[str, bool]] = {str(route[0]) + " (" + str("visszafelé" if route[1] else "odafelé") + ")": (route[0], route[1]) for route in cursor.fetchall()}
+
+        connection.close()
+
+        combobox = tkinter.ttk.Combobox(master=self.form_frame, values=sorted(routes.keys()))
+        combobox.set(sorted(routes.keys())[0])
+        combobox.grid(row=0, column=1, sticky="W")
+
+        tkinter.Label(master=self.form_frame, text="Válasszon járatot!", bg=self["bg"]).grid(row=0, column=0, sticky="E")
+        tkinter.Button(master=self.form_frame, text="Kiválasztás", command=show_form).grid(row=1, column=0, columnspan=2)
+
 
 
     def modify_stop(self) -> None:
