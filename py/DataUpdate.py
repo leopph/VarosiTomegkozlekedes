@@ -66,14 +66,53 @@ class DataUpdatePage(ContentPage.ContentPage):
 
 
     def modify_route(self) -> None:
+        # SQL COMMUNICATION
         def send_update() -> None:
-            print("sending")
+            connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
+            cursor = connection.cursor()
+
+            try:
+                sql = "DELETE FROM indul WHERE vonal_nev = %s and visszamenet = %s"
+                cursor.execute(sql, (routes[selection][0], routes[selection][1]))
+
+                if start_entries:
+                    sql = "INSERT INTO indul(rendszam, vonal_nev, visszamenet, mikor) VALUES"
+
+                    for entry in start_entries:
+                        sql += "(\"{}\", \"{}\", {}, \"{}\"),".format(entry[1].get(), routes[selection][0], routes[selection][1], entry[0].get())
+                    
+                    cursor.execute(sql[:-1])
+
+                sql = "DELETE FROM megall WHERE vonal_nev = %s and visszamenet = %s"
+                cursor.execute(sql, (routes[selection][0], routes[selection][1]))
+
+                if stop_entries:
+                    sql = "INSERT INTO megall(vonal_nev, visszamenet, megallo_id, mikor) VALUES"
+
+                    for entry in stop_entries:
+                        sql += "(\"{}\", {}, {}, \"{}\"),".format(routes[selection][0], routes[selection][1], stop_options[entry[1].get()], entry[0].get())
+
+                    cursor.execute(sql[:-1])
+
+                connection.commit()
+
+                for child in self.form_frame.winfo_children():
+                    child.destroy()
+
+                tkinter.messagebox.showinfo("Siker", "Sikeres frissítés!")
+
+            except mysql.connector.Error as error:
+                connection.rollback()
+                tkinter.messagebox.showerror("Hiba", "Hiba történt a módosítás során!\n" + str(error))
+
+            finally:
+                connection.close()
 
 
         # OPEN MENU TO DISPLAY AND UPDATE THE ROUTE DATA
         def show_form() -> None:
             # REMOVE A STOP OR START ENTRY
-            def remove_entry(entry: tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button], list: list[tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button]]) -> None:
+            def remove_entry(entry: tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button], list: Union[list[tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button]], None]) -> None:
                 for elem in entry:
                     elem.destroy()
                 list.remove(entry)
@@ -124,6 +163,7 @@ class DataUpdatePage(ContentPage.ContentPage):
 
             
             # SAVING SELECTION BEFORE DESTROYING
+            nonlocal selection
             selection = combobox.get()
 
             for child in self.form_frame.winfo_children():
@@ -144,7 +184,8 @@ class DataUpdatePage(ContentPage.ContentPage):
 
             # QUERY FOR ALL THE POSSIBLE STOP NAMES AND THEIR IDS
             cursor.execute("SELECT id, nev FROM megallo")
-            stop_options: dict[str, int] = {str(stop[0]) + " (" + stop[1] + ")": stop[0] for stop in cursor.fetchall()}
+            nonlocal stop_options
+            stop_options = {str(stop[0]) + " (" + stop[1] + ")": stop[0] for stop in cursor.fetchall()}
 
             # QUERY FOR ALL STORED START DATA
             sql = "SELECT rendszam, mikor FROM indul WHERE vonal_nev = %s and visszamenet = %s order by mikor"
@@ -156,7 +197,8 @@ class DataUpdatePage(ContentPage.ContentPage):
             starts_frame.grid(row=2, column=0)
             
             # LIST OF ALL THE CURRENT START ENTRIES
-            start_entries: list[tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button]] = list()
+            nonlocal start_entries
+            start_entries = list()
 
             # CREATING ENTRIES FOR THE STORED START DATA AND ADDING THEM TO THE FRAME
             for start in starts_db_stored:
@@ -190,7 +232,8 @@ class DataUpdatePage(ContentPage.ContentPage):
             stops_frame.grid(row=2, column=1)
 
             # LIST OF ALL THE CURRENT STOP ENTRIES
-            stop_entries: list[tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button]] = list()
+            nonlocal stop_entries
+            stop_entries = list()
 
             # CREATING ENTRIES FOR THE STORED STOP DATA AND ADDING THEM TO THE FRAME
             for stop in stops_db_stored:
@@ -237,6 +280,11 @@ class DataUpdatePage(ContentPage.ContentPage):
         combobox = tkinter.ttk.Combobox(master=self.form_frame, values=sorted(routes.keys()))
         combobox.set(sorted(routes.keys())[0])
         combobox.grid(row=0, column=1, sticky="W")
+
+        selection: str = combobox.get()
+        stop_options: Union[dict[str, int], None] = None
+        start_entries: Union[list[tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button]], None] = None
+        stop_entries: Union[list[tuple[tkinter.Entry, tkinter.ttk.Combobox, tkinter.Button]], None] = None
 
         tkinter.Label(master=self.form_frame, text="Válasszon járatot!", bg=self["bg"]).grid(row=0, column=0, sticky="E")
         tkinter.Button(master=self.form_frame, text="Kiválasztás", command=show_form).grid(row=1, column=0, columnspan=2)
