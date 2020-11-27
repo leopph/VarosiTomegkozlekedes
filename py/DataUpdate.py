@@ -125,8 +125,8 @@ class DataUpdatePage(ContentPage.ContentPage):
                 time = tkinter.Entry(master=starts_frame)
                 time.grid(row = starts_rowcount - 1, column=0)
 
-                license_box = tkinter.ttk.Combobox(master=starts_frame, values=license_options, state="readonly")
-                license_box.set(license_options[0])
+                license_box = tkinter.ttk.Combobox(master=starts_frame, values=sorted(license_options.keys()), state="readonly")
+                license_box.set(sorted(license_options.keys())[0])
                 license_box.grid(row=starts_rowcount - 1, column=1)
 
                 remove_button = tkinter.Button(master=starts_frame, text="Törlés")
@@ -179,8 +179,8 @@ class DataUpdatePage(ContentPage.ContentPage):
             cursor = connection.cursor()
 
             # QUERY FOR ALL THE POSSIBLE LICENSE PLATE NUMBERS
-            cursor.execute("SELECT rendszam FROM jarmu")
-            license_options: list[str] = [license[0] for license in cursor.fetchall()]
+            cursor.execute("SELECT rendszam, tipus_nev FROM jarmu")
+            license_options: dict[str, str] = {str(license[0]) + " (" + str(license[1]) + ")": str(license[0]) for license in cursor.fetchall()}
 
             # QUERY FOR ALL THE POSSIBLE STOP NAMES AND THEIR IDS
             cursor.execute("SELECT id, nev FROM megallo")
@@ -188,9 +188,9 @@ class DataUpdatePage(ContentPage.ContentPage):
             stop_options = {str(stop[0]) + " (" + stop[1] + ")": stop[0] for stop in cursor.fetchall()}
 
             # QUERY FOR ALL STORED START DATA
-            sql = "SELECT rendszam, mikor FROM indul WHERE vonal_nev = %s and visszamenet = %s order by mikor"
+            sql = "SELECT indul.rendszam, jarmu.tipus_nev, indul.mikor FROM indul INNER JOIN jarmu ON indul.rendszam = jarmu.rendszam WHERE vonal_nev = %s and visszamenet = %s order by mikor"
             cursor.execute(sql, (routes[selection][0], routes[selection][1]))
-            starts_db_stored: list[tuple[str, timedelta]] = [(start[0], start[1]) for start in cursor.fetchall()]
+            starts_db_stored: list[tuple[str, str, timedelta]] = [(start[0], start[1], start[2]) for start in cursor.fetchall()]
 
             # FRAME TO HOLD ALL THE START ENTRIES
             starts_frame = tkinter.Frame(self.form_frame, bg=self["bg"])
@@ -203,11 +203,11 @@ class DataUpdatePage(ContentPage.ContentPage):
             # CREATING ENTRIES FOR THE STORED START DATA AND ADDING THEM TO THE FRAME
             for start in starts_db_stored:
                 time = tkinter.Entry(master=starts_frame)
-                time.insert(0, start[1])
+                time.insert(0, start[2])
                 time.grid(row = len(start_entries), column=0)
 
-                license_box = tkinter.ttk.Combobox(master=starts_frame, values=license_options, state="readonly")
-                license_box.set(start[0])
+                license_box = tkinter.ttk.Combobox(master=starts_frame, values=sorted(license_options.keys()), state="readonly")
+                license_box.set(start[0] + " (" + start[1] + ")")
                 license_box.grid(row=len(start_entries), column=1)
 
                 remove_button = tkinter.Button(master=starts_frame, text="Törlés")
