@@ -162,9 +162,6 @@ class DataInsertPage(ContentPage.ContentPage):
                 sql = "INSERT INTO vonal VALUES(%s, %s)"
                 cursor.execute(sql, params = (line_name_entry.get().strip(), length_entry.get().strip()))
 
-                sql = "INSERT INTO jarat VALUES(%s, %s), (%s, %s)"
-                cursor.execute(sql, params = (line_name_entry.get().strip(), 0, line_name_entry.get().strip(), 1))
-
                 connection.commit()
 
                 line_name_entry.delete(0, "end")

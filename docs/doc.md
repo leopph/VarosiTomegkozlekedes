@@ -42,7 +42,7 @@ A járat egy gyenge egyed. Egy járat csak egy vonalon megy, illetve egy vonalon
 
 Jöjjenek a kapcsolatok. Ezek a következőek: a vezetők vezetik a járműveket, a járművek felvesznek egy típust maguknak és elindulnak járatként bizonyos időpontokban, a járatok pedig megállnak megállóknál bizonyos időpontokban.  
 - Vezeti(***vezetői_szám***, ***rendszám***)
-- Indul(***rendszám***, ***vonal_név***, ***visszamenet***, mikor)
+- Indul(***rendszám***, *vonal_név*, *visszamenet*, **mikor**)
 - Megáll(***vonal_név***, ***visszamenet***, ***megálló_id***, induláshoz_képest_mikor)
 - Típusa(***rendszám***, ***típus_név***)
 
@@ -56,7 +56,7 @@ Ezzel a teljes egyed-kapcsolat diagram le van képezve sémákká. A végleges s
 - Vonal(**név**, hossz)
 - Megálló(**id**, név, hely)
 - Járat(***vonal_név***, **visszamenet**)
-- Indul(***rendszám***, ***vonal_név***, ***visszamenet***, mikor)
+- Indul(***rendszám***, *vonal_név*, *visszamenet*, **mikor**)
 - Megáll(***vonal_név***, ***visszamenet***, ***megálló_id***, induláshoz_képest_mikor)
 
 Ezeken kívül az adatbázis rendelkezik az alábbi egyszerű user sémával:
@@ -70,14 +70,18 @@ A sémák már 1. normálformában vannak, hiszen nincs többértékű attribút
 
 #### 2NF
 Az egyedek sémái (a járatot leszámítva) mind egyelemű kulcsokkal rendelkeznek, így azok 2. normálformában vannak. A járatnak nincsenek más attribútumai a kulcsain kívül, így az is.  
-Az Indul mikor attribútuma teljesen függ a kulcstól, hiszen más rendszámú, más vonalon induló, más irányú járművek indulási időpontjai sem összefüggőek. Végezetül a Megáll induláshoz_képest_mikor attribútuma is teljesen függ a séma kulcsától, hiszen más vonanalon közlekedő járművek más megállóknál állnak meg, a vonal iránya pedig befolyásolja, hogy az adott megállóhoz induláshoz képest hányadik percben ér. Így tehát az összes séma megfelel a 2. normálformának.
+Az Indul vonalnév és visszamenet attribútumai teljesen függnek a kulcstól, hiszen ugyanaz a jármű több vonalon is indulhat különböző időpontokban, ráadásul más irányokba is, illeve több jármű is indulhat egy időpontban, de más vonalakon és/vagy irányba. Végezetül a Megáll induláshoz_képest_mikor attribútuma is teljesen függ a séma kulcsától, hiszen más vonanalon közlekedő járművek más megállóknál állnak meg, a vonal iránya pedig befolyásolja, hogy az adott megállóhoz induláshoz képest hányadik percben ér. Így tehát az összes séma megfelel a 2. normálformának.
 
 #### 3NF
-Több másodlagos attribútummal csak a Vezető, Jármű, és Megálló sémák rendelkeznek. A vezető esetében a neve és a születési dátuma között semmilyen összefüggés nincs. Ugyanez igaz a jármű típusára, padlószintjére, és vezetői számára. Egy megálló neve és helyszíne között sincsen kapcsolat. Ezek így 3. normálformában vannak, ahogy a Járműtípus, Járat, Indul, Vonal, és Megáll sémák is, hiszen azokban
+Több másodlagos attribútummal csak a Vezető, Jármű, Megálló, és Indul sémák rendelkeznek. A vezető esetében a neve és a születési dátuma között semmilyen összefüggés nincs. Ugyanez igaz a jármű típusára, padlószintjére, és vezetői számára. Egy megálló neve és helyszíne között sincsen kapcsolat. Az indulás vonala nem határozza meg az irányát, és az irány sem határozza meg a vonalat. Ezek így 3. normálformában vannak, ahogy a Járműtípus, Járat, Vonal, és Megáll sémák is, hiszen azokban
 nincs egynél több másodlagos attribútum, így nincs amik közt függés alakulhatna ki.
 
 
-### 5. **Az alkalmazás használata**
+### 5. **Az alkalmazás ismertetése**
+Az alkalmazás Python nyelven íródott, és a mysql.connector, tkinter, illetve tkinter.ttk csomagokat használja. Bár a program nincsen folyamatos kapcsolatban az adatbázissal, a futtatáshoz elengedhetetlenül szükséges az adatbázis elérés, különben egyes háttérfolyamatok (pl.: megjelenő választási lehetőségek listájának frissítése) sikertelenül fejeződhetnek be.
+
+
+### 6. **Az alkalmazás használata**
 Az alkalmazásnak 3 használati esete van. Ebben a részlegben ezeket részletezem.
 
 #### Vendég felhasználó
