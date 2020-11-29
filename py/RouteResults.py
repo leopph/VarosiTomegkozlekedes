@@ -18,10 +18,15 @@ class RouteResults(ContentPage.ContentPage):
         title_frame = tkinter.Frame(self, bg = self["bg"])
         title_frame.grid(row = 0, column = 0, sticky = "NESW")
 
-        title_frame.columnconfigure(0, weight = 1)
+        title_frame.columnconfigure(index=0, weight = 1)
+        title_frame.columnconfigure(index=1, weight = 1)
 
-        tkinter.Label(title_frame, text = data["route"].name + " jelzésű " + data["route"].type, font = ("", 24), bg = self["bg"], fg="snow").grid(row = 0, sticky = "NESW")
-        tkinter.Label(title_frame, text = str(data["stops"][0][1]) + " " + data["stops"][-1][0].name + " felé", font = ("", 20), bg = self["bg"], fg="snow").grid(row = 1, sticky = "NESW")
+        tkinter.Label(title_frame, text = data["route"].name + " jelzésű " + data["route"].type, font = ("", 24), bg = self["bg"], fg="snow").grid(row = 0, columnspan=2, sticky = "NESW")
+        tkinter.Label(title_frame, text = str(data["stops"][0][1]) + " " + data["stops"][-1][0].name + " felé", font = ("", 20), bg = self["bg"], fg="snow").grid(row = 1, columnspan=2, sticky = "NESW")
+
+        if self.master.user is not None:
+            tkinter.Label(title_frame, text="Alacsony padlós" if data["bonus"][0] else "Nem alacsony padlós", font=("", 18), bg=self["bg"], fg="snow").grid(row=2, column=0)
+            tkinter.Label(title_frame, text="Vezető: " + data["bonus"][1] + " " + data["bonus"][2], font=("", 18), bg=self["bg"], fg="snow").grid(row=2, column=1)
 
         result_frame = tkinter.Frame(self, bg = self["bg"])
         result_frame.grid(row = 1, sticky = "NESW")

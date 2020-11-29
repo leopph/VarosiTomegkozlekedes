@@ -63,6 +63,14 @@ class StopDetails(ContentPage.ContentPage):
         for row in cursor.fetchall():
             data["stops"].append((Entity.Stop(row[0], row[1]), row[2]))
 
+        sql = '''SELECT jarmu.alacsony_padlos, vezeto.vezeteknev, vezeto.keresztnev FROM jarmu
+                INNER JOIN vezeto ON jarmu.vezetoi_szam = vezeto.vezetoi_szam
+                INNER JOIN indul ON indul.rendszam = jarmu.rendszam
+                WHERE indul.mikor = %s AND indul.vonal_nev = %s AND indul.visszamenet = %s'''
+
+        cursor.execute(sql, (route.departure, route.name, route.is_returning))
+        data["bonus"] = cursor.fetchone()
+
         connection.close()
 
         self.master.load_new_page(RouteResults.RouteResults, data)
