@@ -15,42 +15,6 @@ class RouteResults(ContentPage.ContentPage):
         self.rowconfigure(0, weight = 1)
         self.rowconfigure(1, weight = 9)
 
-        title_frame = tkinter.Frame(self, bg = self["bg"])
-        title_frame.grid(row = 0, column = 0, sticky = "NESW")
-
-        title_frame.columnconfigure(index=0, weight = 1)
-        title_frame.columnconfigure(index=1, weight = 1)
-
-        tkinter.Label(title_frame, text = data["route"].name + " jelzésű " + data["route"].type, font = ("", 24), bg = self["bg"], fg="snow").grid(row = 0, columnspan=2, sticky = "NESW")
-        tkinter.Label(title_frame, text = str(data["stops"][0][1]) + " " + data["stops"][-1][0].name + " felé", font = ("", 20), bg = self["bg"], fg="snow").grid(row = 1, columnspan=2, sticky = "NESW")
-
-        if self.master.user is not None:
-            tkinter.Label(title_frame, text="Alacsony padlós" if data["bonus"][0] else "Nem alacsony padlós", font=("", 18), bg=self["bg"], fg="snow").grid(row=2, column=0)
-            tkinter.Label(title_frame, text="Vezető: " + data["bonus"][1] + " " + data["bonus"][2], font=("", 18), bg=self["bg"], fg="snow").grid(row=2, column=1)
-
-        result_frame = tkinter.Frame(self, bg = self["bg"])
-        result_frame.grid(row = 1, sticky = "NESW")
-
-        result_frame.columnconfigure(0, weight = 8)
-        result_frame.columnconfigure(1, weight = 4)
-        result_frame.columnconfigure(2, weight = 4)
-        result_frame.columnconfigure(3, weight = 4)
-        result_frame.columnconfigure(4, weight = 1)
-        result_frame.columnconfigure(5, weight = 8)
-
-        tkinter.Label(master=result_frame, text="Időpont", font=("", 16), bg=self["bg"], fg="snow").grid(row=0, column=1)
-        tkinter.Label(master=result_frame, text="Megálló neve", font=("", 16), bg=self["bg"], fg="snow").grid(row=0, column=2)
-        tkinter.Label(master=result_frame, text="Megálló helye", font=("", 16), bg=self["bg"], fg="snow").grid(row=0, column=3)
-
-        grid_row_count = 1
-        for stop, time in data["stops"]:
-            tkinter.Label(result_frame, text = time, font = ("", 12), bg=self["bg"], fg="snow").grid(row = grid_row_count, column = 1, sticky = "NESW")
-            tkinter.Label(result_frame, text = stop.name, font = ("", 12), bg=self["bg"], fg="snow").grid(row = grid_row_count, column = 2, sticky = "NESW")
-            tkinter.Label(result_frame, text = stop.location, font = ("", 12), bg=self["bg"], fg="snow").grid(row = grid_row_count, column = 3, sticky = "NESW")
-            tkinter.Button(result_frame, text = "Részletek", command = lambda stop = stop: self.stop_details(stop), bg = "dark slate blue", fg = "snow").grid(row = grid_row_count, column = 4, sticky = "NESW")
-
-            grid_row_count += 1
-
         self.refresh()
 
 
@@ -81,4 +45,43 @@ class RouteResults(ContentPage.ContentPage):
 
     
     def refresh(self) -> None:
-        pass
+        for child in self.winfo_children():
+            child.destroy()
+
+        title_frame = tkinter.Frame(self, bg = self["bg"])
+        title_frame.grid(row = 0, column = 0, sticky = "NESW")
+
+        title_frame.columnconfigure(index=0, weight = 1)
+        title_frame.columnconfigure(index=1, weight = 1)
+        title_frame.columnconfigure(index=2, weight = 1)
+
+        tkinter.Label(title_frame, text = self.data["route"].name + " jelzésű " + self.data["route"].type, font = ("", 24), bg = self["bg"], fg="snow").grid(row = 0, columnspan=3, sticky = "NESW")
+        tkinter.Label(title_frame, text = str(self.data["stops"][0][1]) + " " + self.data["stops"][-1][0].name + " felé", font = ("", 20), bg = self["bg"], fg="snow").grid(row = 1, columnspan=3, sticky = "NESW")
+
+        if self.master.user is not None:
+            tkinter.Label(title_frame, text="Alacsony padlós" if self.data["bonus"][0] else "Nem alacsony padlós", font=("", 18), bg=self["bg"], fg="snow").grid(row=2, column=0)
+            tkinter.Label(title_frame, text="Útvonal hossza: " + str(self.data["bonus"][3]) + "km", font=("", 18), bg=self["bg"], fg="snow").grid(row=2, column=1)
+            tkinter.Label(title_frame, text="Vezető: " + self.data["bonus"][1] + " " + self.data["bonus"][2], font=("", 18), bg=self["bg"], fg="snow").grid(row=2, column=2)
+
+        result_frame = tkinter.Frame(self, bg = self["bg"])
+        result_frame.grid(row = 1, sticky = "NESW")
+
+        result_frame.columnconfigure(0, weight = 8)
+        result_frame.columnconfigure(1, weight = 4)
+        result_frame.columnconfigure(2, weight = 4)
+        result_frame.columnconfigure(3, weight = 4)
+        result_frame.columnconfigure(4, weight = 1)
+        result_frame.columnconfigure(5, weight = 8)
+
+        tkinter.Label(master=result_frame, text="Időpont", font=("", 16), bg=self["bg"], fg="snow").grid(row=0, column=1)
+        tkinter.Label(master=result_frame, text="Megálló neve", font=("", 16), bg=self["bg"], fg="snow").grid(row=0, column=2)
+        tkinter.Label(master=result_frame, text="Megálló helye", font=("", 16), bg=self["bg"], fg="snow").grid(row=0, column=3)
+
+        grid_row_count = 1
+        for stop, time in self.data["stops"]:
+            tkinter.Label(result_frame, text = time, font = ("", 12), bg=self["bg"], fg="snow").grid(row = grid_row_count, column = 1, sticky = "NESW")
+            tkinter.Label(result_frame, text = stop.name, font = ("", 12), bg=self["bg"], fg="snow").grid(row = grid_row_count, column = 2, sticky = "NESW")
+            tkinter.Label(result_frame, text = stop.location, font = ("", 12), bg=self["bg"], fg="snow").grid(row = grid_row_count, column = 3, sticky = "NESW")
+            tkinter.Button(result_frame, text = "Részletek", command = lambda stop = stop: self.stop_details(stop), bg = "dark slate blue", fg = "snow").grid(row = grid_row_count, column = 4, sticky = "NESW")
+
+            grid_row_count += 1

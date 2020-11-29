@@ -65,9 +65,10 @@ class SearchResults(ContentPage.ContentPage):
         for row in cursor.fetchall():
             data["stops"].append((Entity.Stop(row[0], row[1]), row[2]))
 
-        sql = '''SELECT jarmu.alacsony_padlos, vezeto.vezeteknev, vezeto.keresztnev FROM jarmu
+        sql = '''SELECT jarmu.alacsony_padlos, vezeto.vezeteknev, vezeto.keresztnev, vonal.hossz FROM jarmu
                 INNER JOIN vezeto ON jarmu.vezetoi_szam = vezeto.vezetoi_szam
                 INNER JOIN indul ON indul.rendszam = jarmu.rendszam
+                INNER JOIN vonal ON vonal.nev = indul.vonal_nev
                 WHERE indul.mikor = %s AND indul.vonal_nev = %s AND indul.visszamenet = %s'''
 
         cursor.execute(sql, (route.departure, route.name, route.is_returning))
