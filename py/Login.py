@@ -34,13 +34,13 @@ class LoginPage(ContentPage.ContentPage):
             self.main_frame.columnconfigure(index=1, weight=0)
             self.main_frame.rowconfigure(index=3, weight=0)
 
-            tkinter.Label(master=self.main_frame, text="Ön már be van jelentkezve, " + self.master.user.name + ".", font = ("", 26), bg=self["bg"]).grid(column=0, row=0)
+            tkinter.Label(master=self.main_frame, text="Ön már be van jelentkezve, " + self.master.user.name + ".", font = ("", 26), bg=self["bg"], fg="snow").grid(column=0, row=0)
 
         else:
             self.main_frame.columnconfigure(1, weight = 1)
             self.main_frame.rowconfigure(index=3, weight=4)
 
-            tkinter.Label(self.main_frame, text = "Bejelentkezés", font = ("", 26), bg = self["bg"]).grid(row = 0, column = 0, columnspan = 2)
+            tkinter.Label(self.main_frame, text = "Bejelentkezés", font = ("", 26), bg = self["bg"], fg="snow").grid(row = 0, column = 0, columnspan = 2)
 
             self.username_entry = tkinter.ttk.Entry(self.main_frame)
             self.username_entry.grid(row = 1, column = 1, sticky = "SW")
@@ -48,8 +48,8 @@ class LoginPage(ContentPage.ContentPage):
             self.password_entry = tkinter.ttk.Entry(self.main_frame, show = "*")
             self.password_entry.grid(row = 2, column = 1, sticky = "NW")
 
-            tkinter.Label(self.main_frame, text = "Felhasználónév:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "SE")
-            tkinter.Label(self.main_frame, text = "Jelszó:", bg = self["bg"]).grid(row = 2, column = 0, sticky = "NE")
+            tkinter.Label(self.main_frame, text = "Felhasználónév:", bg = self["bg"], fg="snow").grid(row = 1, column = 0, sticky = "SE")
+            tkinter.Label(self.main_frame, text = "Jelszó:", bg = self["bg"], fg="snow").grid(row = 2, column = 0, sticky = "NE")
 
             tkinter.ttk.Button(self.main_frame, text = "Bejelentkezés", command = self.login).grid(row = 3, column = 0, columnspan = 2, sticky="N")
 

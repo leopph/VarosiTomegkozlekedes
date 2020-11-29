@@ -31,7 +31,7 @@ class DataUpdatePage(ContentPage.ContentPage):
             self.title_frame = tkinter.Frame(master=self, bg=self["bg"])
             self.title_frame.grid(column=0, row=0, sticky="NESW")
             self.title_frame.columnconfigure(index=0, weight=1)
-            tkinter.Label(master=self.title_frame, text="Ez az oldal csak adminisztrátorok számára érhető el!", bg=self["bg"], font=("", 26)).grid(column=0, row=0, sticky="NESW")
+            tkinter.Label(master=self.title_frame, text="Ez az oldal csak adminisztrátorok számára érhető el!", bg=self["bg"], font=("", 26), fg="snow").grid(column=0, row=0, sticky="NESW")
             
 
         else:
@@ -44,8 +44,8 @@ class DataUpdatePage(ContentPage.ContentPage):
 
             self.title_frame.columnconfigure(index=0, weight=1)
 
-            tkinter.Label(master=self.title_frame, text="Adatok módosítása", bg=self["bg"], font=("", 26)).grid(column=0, row=0)
-            tkinter.Label(master=self.title_frame, text="Válassza ki a módosítani kívánt típust!", bg=self["bg"], font=("", 22)).grid(column=0, row=1)
+            tkinter.Label(master=self.title_frame, text="Adatok módosítása", bg=self["bg"], font=("", 26), fg="snow").grid(column=0, row=0)
+            tkinter.Label(master=self.title_frame, text="Válassza ki a módosítani kívánt típust!", bg=self["bg"], font=("", 22), fg="snow").grid(column=0, row=1)
 
             self.content_frame = tkinter.Frame(master=self, bg=self["bg"])
             self.content_frame.grid(column=0, row=1,sticky="NESW")
@@ -170,9 +170,9 @@ class DataUpdatePage(ContentPage.ContentPage):
                 child.destroy()
 
             # FORM LABELS
-            tkinter.Label(master=self.form_frame, text="Vonal száma: " + str(routes[selection][0]), bg=self["bg"], font=("", 16)).grid(row=0, column=0, columnspan=2)
-            tkinter.Label(master=self.form_frame, text="Indulások", bg=self["bg"], font=("", 14)).grid(row=1, column=0)
-            tkinter.Label(master=self.form_frame, text="Megállások", bg=self["bg"], font=("", 14)).grid(row=1, column=1)
+            tkinter.Label(master=self.form_frame, text="Vonal száma: " + str(routes[selection][0]), bg=self["bg"], font=("", 16), fg="snow").grid(row=0, column=0, columnspan=2)
+            tkinter.Label(master=self.form_frame, text="Indulások", bg=self["bg"], font=("", 14), fg="snow").grid(row=1, column=0)
+            tkinter.Label(master=self.form_frame, text="Megállások", bg=self["bg"], font=("", 14), fg="snow").grid(row=1, column=1)
 
             # OPENING DB CONNECTION
             connection = mysql.connector.connect(host=self.master.dbhost, database=self.master.dbname, user=self.master.dbuser, password=self.master.dbpwd)
@@ -286,7 +286,7 @@ class DataUpdatePage(ContentPage.ContentPage):
         start_entries: Union[list[tuple[tkinter.ttk.Entry, tkinter.ttk.Combobox, tkinter.ttk.Button]], None] = None
         stop_entries: Union[list[tuple[tkinter.ttk.Entry, tkinter.ttk.Combobox, tkinter.ttk.Button]], None] = None
 
-        tkinter.Label(master=self.form_frame, text="Válasszon járatot!", bg=self["bg"]).grid(row=0, column=0, sticky="E")
+        tkinter.Label(master=self.form_frame, text="Válasszon járatot!", bg=self["bg"], fg="snow").grid(row=0, column=0, sticky="E")
         tkinter.ttk.Button(master=self.form_frame, text="Kiválasztás", command=show_form).grid(row=1, column=0, columnspan=2)
 
 
@@ -337,8 +337,8 @@ class DataUpdatePage(ContentPage.ContentPage):
 
             
 
-            tkinter.Label(master=self.form_frame, text="Név:", bg=self["bg"]).grid(column=0, row=0, sticky="E")
-            tkinter.Label(master=self.form_frame, text="Hely:", bg=self["bg"]).grid(column=0, row=1, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Név:", bg=self["bg"], fg="snow").grid(column=0, row=0, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Hely:", bg=self["bg"], fg="snow").grid(column=0, row=1, sticky="E")
             tkinter.ttk.Button(master=self.form_frame, text="Módosítás", command=send_update).grid(column=0, row=2, columnspan=2)
 
         
@@ -360,7 +360,7 @@ class DataUpdatePage(ContentPage.ContentPage):
 
         update_info: Union[tuple[tkinter.ttk.Entry, tkinter.ttk.Entry], None] = None
 
-        tkinter.Label(master=self.form_frame, text="Válasszon megállót!", bg=self["bg"]).grid(column=0, row=0, sticky="E")
+        tkinter.Label(master=self.form_frame, text="Válasszon megállót!", bg=self["bg"], fg="snow").grid(column=0, row=0, sticky="E")
         tkinter.ttk.OptionMenu(self.form_frame, stop_selection, stop_selection.get(), *stops).grid(column=1, row=0, sticky="W")
         tkinter.ttk.Button(master=self.form_frame, text="Kiválasztás", command=show_form).grid(column=0, row=1, columnspan=2)
 
@@ -424,10 +424,10 @@ class DataUpdatePage(ContentPage.ContentPage):
             tkinter.ttk.OptionMenu(self.form_frame, update_info[2], update_info[2].get(), *types).grid(column=1, row=2, sticky="W")
             tkinter.ttk.OptionMenu(self.form_frame, update_info[3], update_info[3].get(), *drivers).grid(column=1, row=3, sticky="W")
 
-            tkinter.Label(master=self.form_frame, text="Rendszám:", bg=self["bg"]).grid(column=0, row=0, sticky="E")
-            tkinter.Label(master=self.form_frame, text="Alacsony padlós-e:", bg=self["bg"]).grid(column=0, row=1, sticky="E")
-            tkinter.Label(master=self.form_frame, text="Típus:", bg=self["bg"]).grid(column=0, row=2, sticky="E")
-            tkinter.Label(master=self.form_frame, text="Vezető száma:", bg=self["bg"]).grid(column=0, row=3, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Rendszám:", bg=self["bg"], fg="snow").grid(column=0, row=0, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Alacsony padlós-e:", bg=self["bg"], fg="snow").grid(column=0, row=1, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Típus:", bg=self["bg"], fg="snow").grid(column=0, row=2, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Vezető száma:", bg=self["bg"], fg="snow").grid(column=0, row=3, sticky="E")
 
             tkinter.ttk.Button(master=self.form_frame, text="Módosítás", command=send_update).grid(column=0, row=4, columnspan=2)
 
@@ -452,7 +452,7 @@ class DataUpdatePage(ContentPage.ContentPage):
 
         update_info: Union[tuple[tkinter.ttk.Entry, tkinter.BooleanVar, tkinter.StringVar, tkinter.StringVar], None] = None
 
-        tkinter.Label(master=self.form_frame, text="Rendszám:", bg=self["bg"]).grid(column=0, row=0, sticky="E")
+        tkinter.Label(master=self.form_frame, text="Rendszám:", bg=self["bg"], fg="snow").grid(column=0, row=0, sticky="E")
         tkinter.ttk.OptionMenu(self.form_frame, license_selection, license_selection.get(), *licenses).grid(column=1, row=0, sticky="W")
         tkinter.ttk.Button(master=self.form_frame, text="Kiválasztás", command=show_form).grid(column=0, row=1, columnspan=2)
 
@@ -500,8 +500,8 @@ class DataUpdatePage(ContentPage.ContentPage):
             update_info[1].set(cursor.fetchone()[0])
             tkinter.ttk.OptionMenu(self.form_frame, update_info[1], update_info[1].get(), *[True, False]).grid(column=1, row=1, sticky="W")
 
-            tkinter.Label(master=self.form_frame, text="Típus neve:", bg=self["bg"]).grid(column=0, row=0, sticky="E")
-            tkinter.Label(master=self.form_frame, text="Elektromos-e:", bg=self["bg"]).grid(column=0, row=1, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Típus neve:", bg=self["bg"], fg="snow").grid(column=0, row=0, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Elektromos-e:", bg=self["bg"], fg="snow").grid(column=0, row=1, sticky="E")
             tkinter.ttk.Button(master=self.form_frame, text="Módosítás", command=send_update).grid(column=0, row=2, columnspan=2)
             
 
@@ -528,7 +528,7 @@ class DataUpdatePage(ContentPage.ContentPage):
         update_info: Union[tuple[tkinter.ttk.Entry, tkinter.BooleanVar], None] = None
 
         tkinter.ttk.OptionMenu(self.form_frame, type_choice, type_choice.get(), *types).grid(column=1, row=0, sticky="W")
-        tkinter.Label(master=self.form_frame, text="Válasson típus!", bg=self["bg"]).grid(column=0, row=0, sticky="E")
+        tkinter.Label(master=self.form_frame, text="Válasson típus!", bg=self["bg"], fg="snow").grid(column=0, row=0, sticky="E")
         tkinter.ttk.Button(master=self.form_frame, text="Kiválasztás", command=show_form).grid(column=0, row=1, columnspan=2)
 
         
@@ -562,10 +562,10 @@ class DataUpdatePage(ContentPage.ContentPage):
             self.form_frame.columnconfigure(index=0, weight=1)
             self.form_frame.columnconfigure(index=1, weight=1)
 
-            tkinter.Label(master=self.form_frame, text="Vezetői szám:", bg=self["bg"]).grid(column=0, row=0, sticky="E")
-            tkinter.Label(master=self.form_frame, text="Vezetéknév:", bg=self["bg"]).grid(column=0, row=1, sticky="E")
-            tkinter.Label(master=self.form_frame, text="Keresztnév:", bg=self["bg"]).grid(column=0, row=2, sticky="E")
-            tkinter.Label(master=self.form_frame, text="Születési dátum:", bg=self["bg"]).grid(column=0, row=3, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Vezetői szám:", bg=self["bg"], fg="snow").grid(column=0, row=0, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Vezetéknév:", bg=self["bg"], fg="snow").grid(column=0, row=1, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Keresztnév:", bg=self["bg"], fg="snow").grid(column=0, row=2, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Születési dátum:", bg=self["bg"], fg="snow").grid(column=0, row=3, sticky="E")
 
             nonlocal update_info
             update_info = (tkinter.ttk.Entry(master=self.form_frame), tkinter.ttk.Entry(master=self.form_frame), tkinter.ttk.Entry(master=self.form_frame), tkinter.ttk.Entry(self.form_frame))
@@ -605,7 +605,7 @@ class DataUpdatePage(ContentPage.ContentPage):
 
         update_info: Union[tuple[tkinter.ttk.Entry, tkinter.ttk.Entry, tkinter.ttk.Entry, tkinter.ttk.Entry], None] = None
 
-        tkinter.Label(master=self.form_frame, text="Válasszon vezetőt!", bg=self["bg"]).grid(column=0, row=0, sticky="E")
+        tkinter.Label(master=self.form_frame, text="Válasszon vezetőt!", bg=self["bg"], fg="snow").grid(column=0, row=0, sticky="E")
         tkinter.ttk.OptionMenu(self.form_frame, driver_choice, driver_choice.get(), *drivers).grid(column=1, row=0, sticky="W")
         tkinter.ttk.Button(master=self.form_frame, text="Kiválasztás", command=show_form).grid(column=0, row=1, columnspan=2)
 
@@ -639,8 +639,8 @@ class DataUpdatePage(ContentPage.ContentPage):
             self.form_frame.columnconfigure(index=0, weight=1)
             self.form_frame.columnconfigure(index=1, weight=1)
 
-            tkinter.Label(master=self.form_frame, text="Név:", bg=self["bg"]).grid(column=0, row=0, sticky="E")
-            tkinter.Label(master=self.form_frame, text="Hossz:", bg= self["bg"]).grid(column=0, row=1, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Név:", bg=self["bg"], fg="snow").grid(column=0, row=0, sticky="E")
+            tkinter.Label(master=self.form_frame, text="Hossz:", bg= self["bg"], fg="snow").grid(column=0, row=1, sticky="E")
 
             nonlocal update_info
             update_info = (tkinter.ttk.Entry(master=self.form_frame), tkinter.ttk.Entry(master=self.form_frame))
@@ -676,6 +676,6 @@ class DataUpdatePage(ContentPage.ContentPage):
 
         update_info: Union[tuple[tkinter.Entry, tkinter.Entry], None] = None
 
-        tkinter.Label(master=self.form_frame, text="Válassza ki a vonalat!", bg=self["bg"]).grid(column=0, row=0, sticky="E")
+        tkinter.Label(master=self.form_frame, text="Válassza ki a vonalat!", bg=self["bg"], fg="snow").grid(column=0, row=0, sticky="E")
         tkinter.ttk.OptionMenu(self.form_frame, line_choice, line_choice.get(), *lines).grid(column=1, row=0, sticky="W")
         tkinter.ttk.Button(master=self.form_frame, text="Kiválasztás", command=show_form).grid(column=0, row=1, columnspan=2)

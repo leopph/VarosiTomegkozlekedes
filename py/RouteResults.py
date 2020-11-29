@@ -20,8 +20,8 @@ class RouteResults(ContentPage.ContentPage):
 
         title_frame.columnconfigure(0, weight = 1)
 
-        tkinter.Label(title_frame, text = data["route"].name + " jelzésű " + data["route"].type, font = ("", 24), bg = self["bg"]).grid(row = 0, sticky = "NESW")
-        tkinter.Label(title_frame, text = str(data["stops"][0][1]) + " " + data["stops"][-1][0].name + " felé", font = ("", 20), bg = self["bg"]).grid(row = 1, sticky = "NESW")
+        tkinter.Label(title_frame, text = data["route"].name + " jelzésű " + data["route"].type, font = ("", 24), bg = self["bg"], fg="snow").grid(row = 0, sticky = "NESW")
+        tkinter.Label(title_frame, text = str(data["stops"][0][1]) + " " + data["stops"][-1][0].name + " felé", font = ("", 20), bg = self["bg"], fg="snow").grid(row = 1, sticky = "NESW")
 
         result_frame = tkinter.Frame(self, bg = self["bg"])
         result_frame.grid(row = 1, sticky = "NESW")
@@ -33,15 +33,15 @@ class RouteResults(ContentPage.ContentPage):
         result_frame.columnconfigure(4, weight = 1)
         result_frame.columnconfigure(5, weight = 8)
 
-        tkinter.Label(master=result_frame, text="Időpont", font=("", 16)).grid(row=0, column=1)
-        tkinter.Label(master=result_frame, text="Megálló neve", font=("", 16)).grid(row=0, column=2)
-        tkinter.Label(master=result_frame, text="Megálló helye", font=("", 16)).grid(row=0, column=3)
+        tkinter.Label(master=result_frame, text="Időpont", font=("", 16), bg=self["bg"], fg="snow").grid(row=0, column=1)
+        tkinter.Label(master=result_frame, text="Megálló neve", font=("", 16), bg=self["bg"], fg="snow").grid(row=0, column=2)
+        tkinter.Label(master=result_frame, text="Megálló helye", font=("", 16), bg=self["bg"], fg="snow").grid(row=0, column=3)
 
         grid_row_count = 1
         for stop, time in data["stops"]:
-            tkinter.Label(result_frame, text = time, font = ("", 12)).grid(row = grid_row_count, column = 1, sticky = "NESW")
-            tkinter.Label(result_frame, text = stop.name, font = ("", 12)).grid(row = grid_row_count, column = 2, sticky = "NESW")
-            tkinter.Label(result_frame, text = stop.location, font = ("", 12)).grid(row = grid_row_count, column = 3, sticky = "NESW")
+            tkinter.Label(result_frame, text = time, font = ("", 12), bg=self["bg"], fg="snow").grid(row = grid_row_count, column = 1, sticky = "NESW")
+            tkinter.Label(result_frame, text = stop.name, font = ("", 12), bg=self["bg"], fg="snow").grid(row = grid_row_count, column = 2, sticky = "NESW")
+            tkinter.Label(result_frame, text = stop.location, font = ("", 12), bg=self["bg"], fg="snow").grid(row = grid_row_count, column = 3, sticky = "NESW")
             tkinter.Button(result_frame, text = "Részletek", command = lambda stop = stop: self.stop_details(stop), bg = "dark slate blue", fg = "snow").grid(row = grid_row_count, column = 4, sticky = "NESW")
 
             grid_row_count += 1

@@ -9,6 +9,7 @@ import Search
 import StopDetails
 import DataUpdate
 import DataDelete
+from ContentPage import ContentPage
 from typing import Union
 
 
@@ -17,6 +18,7 @@ class App(tkinter.Tk):
         tkinter.Tk.__init__(self, *args, **kwargs)
         self.geometry("640x360")
         self.title("Városi Tömegközlekedés")
+        self["bg"] = "dark slate grey"
 
         self.columnconfigure(0, weight = 1)
         self.rowconfigure(0, weight = 2)
@@ -29,7 +31,7 @@ class App(tkinter.Tk):
 
         self.user = None
 
-        self.header = Header.Header(self, bg = "slate blue")
+        self.header = Header.Header(self, bg = "purple3")
         self.header.grid(row = 0, sticky = "NESW")
 
         self.content_pages = {
@@ -58,7 +60,7 @@ class App(tkinter.Tk):
             if self.current_page is not None and self.loaded_pages.index(self.current_page) != len(self.loaded_pages) - 1:
                 del self.loaded_pages[self.loaded_pages.index(self.current_page) + 1:]
 
-            self.current_page = page(data, self)
+            self.current_page = page(data, self, bg=self["bg"])
             self.current_page.grid(row = 1, sticky = "NESW")
             self.loaded_pages.append(self.current_page)
 

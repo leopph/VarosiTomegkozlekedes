@@ -33,12 +33,12 @@ class Home(ContentPage.ContentPage):
                 child.destroy()
 
         if self.master.user is None:
-            tkinter.Label(self.main_frame, text = "Üdvözöljük!", font = ("", 26), bg = self["bg"]).grid(row = 0, column = 0, sticky="S")
+            tkinter.Label(self.main_frame, text = "Üdvözöljük!", font = ("", 26), bg = self["bg"], fg="snow").grid(row = 0, column = 0, sticky="S")
             tkinter.ttk.Button(self.main_frame, text = "Bejelentkezés", command = lambda: self.master.load_new_page(Login.LoginPage, None)).grid(row = 1, column = 0)
             tkinter.ttk.Button(self.main_frame, text = "Regisztráció", command = lambda: self.master.load_new_page(Register.RegisterPage, None)).grid(row = 2, column = 0)
 
         else:
-            tkinter.Label(self.main_frame, text = "Üdvözöljük, " + self.master.user.name + "!", font = ("", 24), bg = self["bg"]).grid(row = 0, column = 0, sticky="S")
+            tkinter.Label(self.main_frame, text = "Üdvözöljük, " + self.master.user.name + "!", font = ("", 24), bg = self["bg"], fg="snow").grid(row = 0, column = 0, sticky="S")
             tkinter.ttk.Button(self.main_frame, text = "Kijelentkezés", command = self.logout).grid(row = 4, column = 0, sticky="N")
 
             if self.master.user.is_admin:

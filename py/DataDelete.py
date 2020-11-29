@@ -29,7 +29,7 @@ class DataDeletePage(ContentPage.ContentPage):
             self.title_frame = tkinter.Frame(master=self, bg=self["bg"])
             self.title_frame.grid(column=0, row=0, sticky="NESW")
             self.title_frame.columnconfigure(index=0, weight=1)
-            tkinter.Label(master=self.title_frame, text="Ez az oldal csak adminisztrátorok számára érhető el!", bg=self["bg"], font=("", 26)).grid(column=0, row=0, sticky="NESW")
+            tkinter.Label(master=self.title_frame, text="Ez az oldal csak adminisztrátorok számára érhető el!", bg=self["bg"], font=("", 26), fg="snow").grid(column=0, row=0, sticky="NESW")
 
 
         else:
@@ -42,8 +42,8 @@ class DataDeletePage(ContentPage.ContentPage):
 
             self.title_frame.columnconfigure(0, weight = 1)
 
-            tkinter.Label(self.title_frame, text="Adatok törlése", bg=self["bg"], font=("", 26)).grid(column=0, row=0, sticky="NESW")
-            tkinter.Label(self.title_frame, text="Válassza ki a törölni kívánt adatot", bg=self["bg"], font=("", 22)).grid(column=0, row=1, sticky="NESW")
+            tkinter.Label(self.title_frame, text="Adatok törlése", bg=self["bg"], font=("", 26), fg="snow").grid(column=0, row=0, sticky="NESW")
+            tkinter.Label(self.title_frame, text="Válassza ki a törölni kívánt adatot", bg=self["bg"], font=("", 22), fg="snow").grid(column=0, row=1, sticky="NESW")
 
             self.content_frame = tkinter.Frame(self, bg = self["bg"])
             self.content_frame.grid(row = 1, column = 0, sticky = "NESW")
@@ -101,7 +101,7 @@ class DataDeletePage(ContentPage.ContentPage):
         driver = tkinter.StringVar(self.form_frame)
         driver.set(sorted(drivers.keys())[0])
 
-        tkinter.Label(master=self.form_frame, text="Vezetői szám:", bg=self["bg"]).grid(row=0, column=0, sticky="E")
+        tkinter.Label(master=self.form_frame, text="Vezetői szám:", bg=self["bg"], fg="snow").grid(row=0, column=0, sticky="E")
         tkinter.ttk.OptionMenu(self.form_frame, driver, driver.get(), *drivers).grid(row=0, column=1, sticky="W")
         tkinter.ttk.Button(master=self.form_frame, text="Törlés", command=process_transaction).grid(row=1, column=0, columnspan=2)
 
@@ -159,7 +159,7 @@ class DataDeletePage(ContentPage.ContentPage):
         license_drop_down = tkinter.ttk.OptionMenu(self.form_frame, license, license.get(), *licenses)
         license_drop_down.grid(row = 0, column = 1, sticky="W")
 
-        tkinter.Label(self.form_frame, text = "Rendszám:", bg=self["bg"]).grid(row = 0, column = 0, sticky="E")
+        tkinter.Label(self.form_frame, text = "Rendszám:", bg=self["bg"], fg="snow").grid(row = 0, column = 0, sticky="E")
         tkinter.ttk.Button(self.form_frame, text = "Törlés", command = process_transaction).grid(row = 1, column = 0, columnspan = 2)
 
     
@@ -214,7 +214,7 @@ class DataDeletePage(ContentPage.ContentPage):
         type_drop_down = tkinter.ttk.OptionMenu(self.form_frame, type_, type_.get(), *types)
         type_drop_down.grid(row = 0, column = 1, sticky="W")
 
-        tkinter.Label(self.form_frame, text = "Típusnév:", bg=self["bg"]).grid(row = 0, column = 0, sticky="E")
+        tkinter.Label(self.form_frame, text = "Típusnév:", bg=self["bg"], fg="snow").grid(row = 0, column = 0, sticky="E")
         tkinter.ttk.Button(self.form_frame, text = "Törlés", command = process_transaction).grid(row = 1, column = 0, columnspan = 2)
 
 
@@ -269,7 +269,7 @@ class DataDeletePage(ContentPage.ContentPage):
         line_drop_down = tkinter.ttk.OptionMenu(self.form_frame, line, line.get(), *lines)
         line_drop_down.grid(row = 0, column = 1, sticky="W")
 
-        tkinter.Label(self.form_frame, text = "Vonalnév:", bg=self["bg"]).grid(row = 0, column = 0, sticky="E")
+        tkinter.Label(self.form_frame, text = "Vonalnév:", bg=self["bg"], fg="snow").grid(row = 0, column = 0, sticky="E")
         tkinter.ttk.Button(self.form_frame, text = "Törlés", command = process_transaction).grid(row = 1, column = 0, columnspan = 2)
 
 
@@ -325,7 +325,7 @@ class DataDeletePage(ContentPage.ContentPage):
         stop_drop_down = tkinter.ttk.OptionMenu(self.form_frame, stop, stop.get(), *stops.keys())
         stop_drop_down.grid(row = 0, column = 1, sticky="W")
 
-        tkinter.Label(self.form_frame, text = "Megálló ID:", bg=self["bg"]).grid(row = 0, column = 0, sticky="E")
+        tkinter.Label(self.form_frame, text = "Megálló ID:", bg=self["bg"], fg="snow").grid(row = 0, column = 0, sticky="E")
         tkinter.ttk.Button(self.form_frame, text = "Törlés", command = process_transaction).grid(row = 1, column = 0, columnspan = 2)
 
 
@@ -380,5 +380,5 @@ class DataDeletePage(ContentPage.ContentPage):
         route_drop_down = tkinter.ttk.OptionMenu(self.form_frame, route, route.get(), *routes)
         route_drop_down.grid(row = 0, column = 1, sticky="W")
 
-        tkinter.Label(self.form_frame, text = "Járat:", bg=self["bg"]).grid(row = 0, column = 0, sticky="E")
+        tkinter.Label(self.form_frame, text = "Járat:", bg=self["bg"], fg="snow").grid(row = 0, column = 0, sticky="E")
         tkinter.ttk.Button(self.form_frame, text = "Törlés", command = process_transaction).grid(row = 2, column = 0, columnspan = 2)

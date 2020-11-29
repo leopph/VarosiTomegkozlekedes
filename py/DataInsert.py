@@ -31,7 +31,7 @@ class DataInsertPage(ContentPage.ContentPage):
             self.title_frame = tkinter.Frame(master=self, bg=self["bg"])
             self.title_frame.grid(column=0, row=0, sticky="NESW")
             self.title_frame.columnconfigure(index=0, weight=1)
-            tkinter.Label(master=self.title_frame, text="Ez az oldal csak adminisztrátorok számára érhető el!", bg=self["bg"], font=("", 26)).grid(column=0, row=0, sticky="NESW")
+            tkinter.Label(master=self.title_frame, text="Ez az oldal csak adminisztrátorok számára érhető el!", bg=self["bg"], font=("", 26), fg="snow").grid(column=0, row=0, sticky="NESW")
 
 
         else:
@@ -44,8 +44,8 @@ class DataInsertPage(ContentPage.ContentPage):
 
             self.title_frame.columnconfigure(0, weight = 1)
 
-            tkinter.Label(self.title_frame, text = "Új adatok felvitele", bg = self["bg"], font = ("", 26)).grid(row = 0, column = 0, sticky = "NESW")
-            tkinter.Label(self.title_frame, text = "Válassza ki a felvinni kívánt adatot!", bg = self["bg"], font = ("", 22)).grid(row = 1, column = 0, sticky = "NESW")
+            tkinter.Label(self.title_frame, text = "Új adatok felvitele", bg = self["bg"], font = ("", 26), fg="snow").grid(row = 0, column = 0, sticky = "NESW")
+            tkinter.Label(self.title_frame, text = "Válassza ki a felvinni kívánt adatot!", bg = self["bg"], font = ("", 22), fg="snow").grid(row = 1, column = 0, sticky = "NESW")
 
             self.content_frame = tkinter.Frame(self, bg = self["bg"])
             self.content_frame.grid(row = 1, column = 0, sticky = "NESW")
@@ -103,10 +103,10 @@ class DataInsertPage(ContentPage.ContentPage):
         first_name_entry.grid(column=1, row=2, sticky="W")
         birth_date_entry.grid(column=1, row=3, sticky="W")
 
-        tkinter.Label(master=form_frame, text="Vezetői szám:", bg=self["bg"]).grid(column=0, row=0, sticky="E")
-        tkinter.Label(master=form_frame, text="Vezetéknév:", bg=self["bg"]).grid(column=0, row=1, sticky="E")
-        tkinter.Label(master=form_frame, text="Keresztnév", bg=self["bg"]).grid(column=0, row=2, sticky="E")
-        tkinter.Label(master=form_frame, text="Születési dátum:", bg=self["bg"]).grid(column=0, row=3, sticky="E")
+        tkinter.Label(master=form_frame, text="Vezetői szám:", bg=self["bg"], fg="snow").grid(column=0, row=0, sticky="E")
+        tkinter.Label(master=form_frame, text="Vezetéknév:", bg=self["bg"], fg="snow").grid(column=0, row=1, sticky="E")
+        tkinter.Label(master=form_frame, text="Keresztnév", bg=self["bg"], fg="snow").grid(column=0, row=2, sticky="E")
+        tkinter.Label(master=form_frame, text="Születési dátum:", bg=self["bg"], fg="snow").grid(column=0, row=3, sticky="E")
         
         tkinter.ttk.Button(master=form_frame, text="Felvitel", command=process_new_driver).grid(column=0, row=4, columnspan=2)
 
@@ -146,8 +146,8 @@ class DataInsertPage(ContentPage.ContentPage):
         stop_name_entry.grid(column = 1, row = 0, sticky="W")
         location_entry.grid(column = 1, row = 1, sticky="W")
 
-        tkinter.Label(form_frame, text = "Név:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
-        tkinter.Label(form_frame, text = "Hely:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Név:", bg = self["bg"], fg="snow").grid(row = 0, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Hely:", bg = self["bg"], fg="snow").grid(row = 1, column = 0, sticky = "E")
 
         tkinter.ttk.Button(form_frame, text = "Felvitel", command = process_new_stop).grid(row = 2, column = 0, columnspan = 2)
 
@@ -189,8 +189,8 @@ class DataInsertPage(ContentPage.ContentPage):
         line_name_entry.grid(column = 1, row = 0, sticky="W")
         length_entry.grid(column = 1, row = 1, sticky="W")
 
-        tkinter.Label(form_frame, text = "Vonalnév:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
-        tkinter.Label(form_frame, text = "Hossz:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Vonalnév:", bg = self["bg"], fg="snow").grid(row = 0, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Hossz:", bg = self["bg"], fg="snow").grid(row = 1, column = 0, sticky = "E")
 
         tkinter.ttk.Button(form_frame, text = "Felvitel", command = process_new_line).grid(row = 2, column = 0, columnspan = 2)
 
@@ -233,8 +233,8 @@ class DataInsertPage(ContentPage.ContentPage):
         is_electric.set(sorted(electric_options)[0])
         tkinter.ttk.OptionMenu(form_frame, is_electric, is_electric.get(), *electric_options).grid(row = 1, column = 1, sticky="W")
 
-        tkinter.Label(form_frame, text = "Típusnév:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
-        tkinter.Label(form_frame, text = "Elektromos-e:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Típusnév:", bg = self["bg"], fg="snow").grid(row = 0, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Elektromos-e:", bg = self["bg"], fg="snow").grid(row = 1, column = 0, sticky = "E")
 
         tkinter.ttk.Button(form_frame, text = "Felvitel", command = process_new_vehicle_type).grid(row = 2, column = 0, columnspan = 2)
 
@@ -306,10 +306,10 @@ class DataInsertPage(ContentPage.ContentPage):
         driver.set(sorted(driver_id_entries.keys())[0])
         tkinter.ttk.OptionMenu(form_frame, driver, driver.get(), *driver_id_entries).grid(row = 3, column = 1, sticky="W")
 
-        tkinter.Label(form_frame, text = "Rendszám:", bg = self["bg"]).grid(row = 0, column = 0, sticky = "E")
-        tkinter.Label(form_frame, text = "Alacsony padlós-e:", bg = self["bg"]).grid(row = 1, column = 0, sticky = "E")
-        tkinter.Label(form_frame, text = "Jármű típus:", bg = self["bg"]).grid(row = 2, column = 0, sticky = "E")
-        tkinter.Label(form_frame, text = "Vezető száma:", bg = self["bg"]).grid(row = 3, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Rendszám:", bg = self["bg"], fg="snow").grid(row = 0, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Alacsony padlós-e:", bg = self["bg"], fg="snow").grid(row = 1, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Jármű típus:", bg = self["bg"], fg="snow").grid(row = 2, column = 0, sticky = "E")
+        tkinter.Label(form_frame, text = "Vezető száma:", bg = self["bg"], fg="snow").grid(row = 3, column = 0, sticky = "E")
 
         tkinter.ttk.Button(form_frame, text = "Felvitel", command = process_new_vehicle).grid(row = 4, column = 0, columnspan = 2)
 
@@ -423,14 +423,17 @@ class DataInsertPage(ContentPage.ContentPage):
         form_frame.columnconfigure(1, weight = 1)
         form_frame.columnconfigure(2, weight = 1)
 
-        tkinter.Label(form_frame, text = "Vonal száma", bg=self["bg"], font=("", 14)).grid(row = 0, column = 0)
-        tkinter.Label(form_frame, text = "Indulások", bg=self["bg"], font=("", 14)).grid(row = 0, column = 1)
-        tkinter.Label(form_frame, text = "Megállások", bg=self["bg"], font=("", 14)).grid(row = 0, column = 2)
+        tkinter.Label(form_frame, text = "Vonal száma", bg=self["bg"], font=("", 14), fg="snow").grid(row = 0, column = 0)
+        tkinter.Label(form_frame, text = "Indulások", bg=self["bg"], font=("", 14), fg="snow").grid(row = 0, column = 1)
+        tkinter.Label(form_frame, text = "Megállások", bg=self["bg"], font=("", 14), fg="snow").grid(row = 0, column = 2)
 
         line_entries, license_entries, stop_id_entries = get_foreign_key_entries()
 
         line = tkinter.StringVar(form_frame)
-        line.set(line_entries[0])
+        if line_entries:
+            line.set(line_entries[0])
+        else:
+            line.set("")
         tkinter.ttk.OptionMenu(form_frame, line, line.get(), *line_entries).grid(row = 1, column = 0, sticky="n")
 
         starts = list()
