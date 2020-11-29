@@ -90,7 +90,7 @@ Az alkalmazás indítása után a fejlécben található megálló kereső segí
 A vendég felhasználók ingyenesen regisztrálhatják magukat a főoldalon található "Regisztráció" gomb megnyomásával megjelenő űrlap kitöltésével és elküldésével.
 
 #### Regisztrált felhasználó
-TBD
+A regisztrált felhasználók további információk szerezhetnek az egyes járatokról. A járatokat részletező oldalon 3 új mező fogadja őket: a vezető neve, a vonal hossza, illetve hogy az adott jármű alacsony padlós-e.
 
 ### Adminisztrátor
 Egy admin képes mindenre, amire az előző két csoport képes, ezen felül pedig lehetősége van az adatok részletes, listaszerű szerkesztésére, új adatok felvitelére, illetve meglévő adatok törlésére.
@@ -104,3 +104,11 @@ A főoldalon elérhető számukra három új gomb, az előbb említet három új
 Új adat felvitele esetén a választás után egy űrlap jelenik meg, ahol az adminisztrátor megadhatja az új adatokat.
 Adatmódosítás esetén először ki kell választania a módosítandó adatot egy listából, majd ezt követően jelenik meg egy előre kitöltött űrlap (hasonló az új adat űrlaphoz), amelyen keresztül végezhető el a frissítés.
 Törlés esetén csak az azonosítót kell kiválasztani egy listából.
+
+
+### 7. **Felhasznált eszközök**
+A szoftver Visual Studio Code-ban íródott, a Microsoft Python illetve Pylance kiegészítőit használva.
+Az alkalmazás Python nyelven fut, továbbá a tkinter, tkinter.ttk, és mysql.connector csomagokat használja.
+Az EK diagram a Dia nevű programmal készült.
+Az adatbázis az XAMPP szoftvercsomag MariaDB modulját használva készült.
+Az adatfeltöltés eleinte a PHPMyAdmin felületen keresztül történt, majd később a már kész és futó Python alkalmazással fejeződött be.
