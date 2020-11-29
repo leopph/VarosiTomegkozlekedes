@@ -3,6 +3,7 @@ import tkinter
 import tkinter.ttk
 import tkinter.messagebox
 import mysql.connector
+from CustomException import CustomException
 
 
 
@@ -64,27 +65,31 @@ class DataInsertPage(ContentPage.ContentPage):
 
     def new_driver(self) -> None:
         def process_new_driver() -> None:
-            connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
-            cursor = connection.cursor()
-            sql = "INSERT INTO vezeto(vezetoi_szam, vezeteknev, keresztnev, szul_datum) VALUES(%s, %s, %s, %s)"
+            if driver_number_entry.get().strip() == "" or last_name_entry.get().strip() == "" or first_name_entry.get().strip() == "" or birth_date_entry.get().strip() == 0:
+                tkinter.messagebox.showwarning("Figyelem", "Kérem töltse ki az összes mezőt!")
 
-            try:
-                cursor.execute(sql, (driver_number_entry.get(), last_name_entry.get(), first_name_entry.get(), birth_date_entry.get()))
-                connection.commit()
+            else:
+                connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
+                cursor = connection.cursor()
+                sql = "INSERT INTO vezeto(vezetoi_szam, vezeteknev, keresztnev, szul_datum) VALUES(%s, %s, %s, %s)"
 
-                driver_number_entry.delete(0, "end")
-                last_name_entry.delete(0, "end")
-                first_name_entry.delete(0, "end")
-                birth_date_entry.delete(0, "end")
+                try:
+                    cursor.execute(sql, (driver_number_entry.get().strip(), last_name_entry.get().strip(), first_name_entry.get().strip(), birth_date_entry.get().strip()))
+                    connection.commit()
 
-                tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
-                
-            except mysql.connector.Error as error:
-                connection.rollback()
-                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a megadott adatokat!\n" + str(error))
+                    driver_number_entry.delete(0, "end")
+                    last_name_entry.delete(0, "end")
+                    first_name_entry.delete(0, "end")
+                    birth_date_entry.delete(0, "end")
 
-            finally:
-                connection.close()
+                    tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
+                    
+                except mysql.connector.Error as error:
+                    connection.rollback()
+                    tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a megadott adatokat!\n" + str(error))
+
+                finally:
+                    connection.close()
 
 
         form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
@@ -113,25 +118,29 @@ class DataInsertPage(ContentPage.ContentPage):
 
     def new_stop(self) -> None:
         def process_new_stop() -> None:
-            connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
-            cursor = connection.cursor()
+            if stop_name_entry.get().strip() == "" or location_entry.get().strip() == "":
+                tkinter.messagebox.showwarning("Figyelem", "Kérem töltse ki az összes mezőt!")
 
-            try:
-                sql = "INSERT INTO megallo(nev, hely) VALUES(%s, %s)"
-                cursor.execute(sql, params = (stop_name_entry.get().strip(), location_entry.get().strip()))
-                connection.commit()
+            else:
+                connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
+                cursor = connection.cursor()
 
-                stop_name_entry.delete(0, "end")
-                location_entry.delete(0, "end")
+                try:
+                    sql = "INSERT INTO megallo(nev, hely) VALUES(%s, %s)"
+                    cursor.execute(sql, params = (stop_name_entry.get().strip(), location_entry.get().strip()))
+                    connection.commit()
 
-                tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
+                    stop_name_entry.delete(0, "end")
+                    location_entry.delete(0, "end")
 
-            except mysql.connector.Error as error:
-                connection.rollback()
-                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a megadott adatokat!\n" + str(error))
+                    tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
 
-            finally:
-                connection.close()
+                except mysql.connector.Error as error:
+                    connection.rollback()
+                    tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a megadott adatokat!\n" + str(error))
+
+                finally:
+                    connection.close()
 
 
         form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
@@ -155,26 +164,33 @@ class DataInsertPage(ContentPage.ContentPage):
 
     def new_line(self) -> None:
         def process_new_line() -> None:
-            connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
-            cursor = connection.cursor()
+            if line_name_entry.get().strip() == "" or length_entry.get().strip() == "":
+                tkinter.messagebox.showwarning("Figyelem", "Kérem töltse ki az összes mezőt!")
 
-            try:
-                sql = "INSERT INTO vonal VALUES(%s, %s)"
-                cursor.execute(sql, params = (line_name_entry.get().strip(), length_entry.get().strip()))
+            elif not length_entry.get().strip().isnumeric():
+                tkinter.messagebox.showerror("Hiba", "Kérem számmal reprezentálja a hosszt!")
 
-                connection.commit()
+            else:
+                connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
+                cursor = connection.cursor()
 
-                line_name_entry.delete(0, "end")
-                length_entry.delete(0, "end")
+                try:
+                    sql = "INSERT INTO vonal VALUES(%s, %s)"
+                    cursor.execute(sql, params = (line_name_entry.get().strip(), length_entry.get().strip()))
 
-                tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
+                    connection.commit()
 
-            except mysql.connector.Error as error:
-                connection.rollback()
-                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a megadott adatokat!\n" + str(error))
+                    line_name_entry.delete(0, "end")
+                    length_entry.delete(0, "end")
 
-            finally:
-                connection.close()
+                    tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
+
+                except mysql.connector.Error as error:
+                    connection.rollback()
+                    tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a megadott adatokat!\n" + str(error))
+
+                finally:
+                    connection.close()
 
 
         form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
@@ -198,25 +214,29 @@ class DataInsertPage(ContentPage.ContentPage):
 
     def new_vehicle_type(self) -> None:
         def process_new_vehicle_type() -> None:
-            connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
-            cursor = connection.cursor()
+            if name_entry.get().strip() == "":
+                tkinter.messagebox.showwarning("Figyelem", "Kérem töltse ki az összes mezőt!")
 
-            try:
-                sql = "INSERT INTO jarmutipus(nev, elektromos) VALUES(%s, %s)"
-                cursor.execute(sql, params = (name_entry.get().strip(),electric_options[is_electric.get()]))
-                connection.commit()
+            else:
+                connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
+                cursor = connection.cursor()
 
-                name_entry.delete(0, "end")
-                is_electric.set(sorted(electric_options)[0])
+                try:
+                    sql = "INSERT INTO jarmutipus(nev, elektromos) VALUES(%s, %s)"
+                    cursor.execute(sql, params = (name_entry.get().strip(),electric_options[is_electric.get()]))
+                    connection.commit()
 
-                tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
+                    name_entry.delete(0, "end")
+                    is_electric.set(sorted(electric_options)[0])
 
-            except mysql.connector.Error as error:
-                connection.rollback()
-                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a megadott adatokat!\n" + str(error))
+                    tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
 
-            finally:
-                connection.close()
+                except mysql.connector.Error as error:
+                    connection.rollback()
+                    tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a megadott adatokat!\n" + str(error))
+
+                finally:
+                    connection.close()
 
         form_frame = tkinter.Frame(self.content_frame, bg = self["bg"])
         form_frame.grid(row = 1, column = 0, columnspan=6, sticky = "NESW")
@@ -242,41 +262,53 @@ class DataInsertPage(ContentPage.ContentPage):
 
     def new_vehicle(self) -> None:
         def process_new_vehicle() -> None:
-            connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
-            cursor = connection.cursor()
+            if license_entry.get().strip() == "":
+                tkinter.messagebox.showwarning("Figyelem", "Kérem töltse ki az összes mezőt!")
 
+            else:
+                connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
+                cursor = connection.cursor()
+
+                try:
+                    sql = "INSERT INTO jarmu(rendszam, alacsony_padlos, tipus_nev, vezetoi_szam) VALUES(%s, %s, %s, %s)"
+                    cursor.execute(sql, params = (license_entry.get().strip(), floor_options[floor.get()], type_.get(), driver_id_entries[driver.get()]))
+                    connection.commit()
+
+                    license_entry.delete(0, "end")
+                    floor.set(sorted(floor_options)[0])
+                    type_.set(type_name_entries[0])
+                    driver.set(sorted(driver_id_entries.keys())[0])
+
+                    tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
+
+                except mysql.connector.Error as error:
+                    connection.rollback()
+                    tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a megadott adatokat!\n" + str(error))
+
+                finally:
+                    connection.close()
+
+        def get_foreign_key_entries() -> tuple[dict[str, str], list[str]]:
             try:
-                sql = "INSERT INTO jarmu(rendszam, alacsony_padlos, tipus_nev, vezetoi_szam) VALUES(%s, %s, %s, %s)"
-                cursor.execute(sql, params = (license_entry.get().strip(), floor_options[floor.get()], type_.get(), driver_id_entries[driver.get()]))
-                connection.commit()
+                connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
+                cursor = connection.cursor()
 
-                license_entry.delete(0, "end")
-                floor.set(sorted(floor_options)[0])
-                type_.set(type_name_entries[0])
-                driver.set(sorted(driver_id_entries.keys())[0])
+                sql = "SELECT vezetoi_szam, vezeteknev, keresztnev FROM vezeto"
+                cursor.execute(sql)
+                drivers: dict[str, str] = {str(driver[0]) + " (" + str(driver[1]) + " " + str(driver[2]) + ")": driver[0] for driver in cursor.fetchall()}
+                if not drivers:
+                    tkinter.messagebox.showerror("Hiba", "Nincs vezető az adatbázisban!\nKérem hozzon létre újat, vagy módosítsa meglévő járműveit!")
+                    raise CustomException("Can't find drivers!")
 
-                tkinter.messagebox.showinfo("Siker", "Sikeres adatfelvitel!")
-
-            except mysql.connector.Error as error:
-                connection.rollback()
-                tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a megadott adatokat!\n" + str(error))
+                sql = "SELECT nev FROM jarmutipus"
+                cursor.execute(sql)
+                types: list[str] = [type[0] for type in cursor.fetchall()]
+                if not types:
+                    tkinter.messagebox.showerror("Hiba", "Nincs járműtípus az adatbázisban!\nKérem hozzon létre újat, vagy módosítsa meglévő járműveit!")
+                    raise CustomException("Can't find vehicle types!")
 
             finally:
                 connection.close()
-
-        def get_foreign_key_entries() -> tuple[dict[str, str], list[str]]:
-            connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
-            cursor = connection.cursor()
-
-            sql = "SELECT vezetoi_szam, vezeteknev, keresztnev FROM vezeto"
-            cursor.execute(sql)
-            drivers: dict[str, str] = {str(driver[0]) + " (" + str(driver[1]) + " " + str(driver[2]) + ")": driver[0] for driver in cursor.fetchall()}
-
-            sql = "SELECT nev FROM jarmutipus"
-            cursor.execute(sql)
-            types: list[str] = [type[0] for type in cursor.fetchall()]
-
-            connection.close()
 
             return drivers, types
 
@@ -328,12 +360,16 @@ class DataInsertPage(ContentPage.ContentPage):
                 if starts:
                     sql = "INSERT INTO indul(rendszam, vonal_nev, visszamenet, mikor) VALUES"
                     for start in starts:
+                        if start[0].get().strip() == "":
+                            raise CustomException("Input field is empty!")
                         sql += "(\"{}\", \"{}\", {}, \"{}\"),".format(start[1].get(), line.get(), direction_options[start[2].get()], start[0].get().strip())
                     cursor.execute(sql[:-1])
 
                 if stops:
                     sql2 = "INSERT INTO megall(vonal_nev, visszamenet, megallo_id, mikor) VALUES"
                     for stop in stops:
+                        if stop[0].get().strip() == "":
+                            raise CustomException("Input field is empty!")
                         sql2 += "(\"{}\", {}, {}, \"{}\"),".format(line.get(), direction_options[stop[2].get()], stop_id_entries[stop[1].get()], stop[0].get().strip())
                     cursor.execute(sql2[:-1])
 
@@ -358,27 +394,42 @@ class DataInsertPage(ContentPage.ContentPage):
                 connection.rollback()
                 tkinter.messagebox.showerror("Hiba", "Hiba történt az adatfelvitel során. Kérjük ellenőrizze a megadott adatokat!\n" + str(error))
 
+            except CustomException:
+                connection.rollback()
+                tkinter.messagebox.showwarning("Figyelem", "Kérem töltse ki az összes mezőt, vagy törölje a szükségtelen sort!")
+
             finally:
                 connection.close()
 
 
         def get_foreign_key_entries() -> tuple[list[str], dict[str, str], dict[str, int]]:
-            connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
-            cursor = connection.cursor()
+            try:
+                connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
+                cursor = connection.cursor()
 
-            sql = "SELECT nev FROM vonal WHERE nev NOT IN (SELECT DISTINCT vonal_nev FROM jarat WHERE visszamenet = 0) and nev NOT IN (SELECT DISTINCT vonal_nev FROM jarat WHERE visszamenet = 1)"
-            cursor.execute(sql)
-            lines: list[str] = [line[0] for line in cursor.fetchall()]
+                sql = "SELECT nev FROM vonal WHERE nev NOT IN (SELECT DISTINCT vonal_nev FROM jarat WHERE visszamenet = 0) and nev NOT IN (SELECT DISTINCT vonal_nev FROM jarat WHERE visszamenet = 1)"
+                cursor.execute(sql)
+                lines: list[str] = [line[0] for line in cursor.fetchall()]
+                if not lines:
+                    tkinter.messagebox.showerror("Hiba", "Nincs elérhető vonal, amelyhez járatot készíthetne!\nKérem hozzon létre új vonalat először, vagy módosítsa meglévő járatait!")
+                    raise CustomException("Can't find free line number!")
 
-            sql = "SELECT rendszam, tipus_nev FROM jarmu"
-            cursor.execute(sql)
-            licenses: dict[str, str] = {str(license[0]) + " (" + license[1] + ")": license[0] for license in cursor.fetchall()}
+                sql = "SELECT rendszam, tipus_nev FROM jarmu"
+                cursor.execute(sql)
+                licenses: dict[str, str] = {str(license[0]) + " (" + license[1] + ")": license[0] for license in cursor.fetchall()}
+                if not licenses:
+                    tkinter.messagebox.showerror("Hiba", "Nincs jármű az adatbázisban!\nKérem hozzon létre újat először, vagy módosítsa meglévő járatait!\n")
+                    raise CustomException("Can't find vehicles!")
 
-            sql = "SELECT id, nev FROM megallo"
-            cursor.execute(sql)
-            stop_ids: dict[str, int] = {str(stop_id[0]) + " (" + stop_id[1] + ")": stop_id[0] for stop_id in cursor.fetchall()}
+                sql = "SELECT id, nev FROM megallo"
+                cursor.execute(sql)
+                stop_ids: dict[str, int] = {str(stop_id[0]) + " (" + stop_id[1] + ")": stop_id[0] for stop_id in cursor.fetchall()}
+                if not stop_ids:
+                    tkinter.messagebox.showerror("Hiba", "Nincs megálló az adatbázisban!\nKérem hozzon létre újat először, vagy módosítsa meglévő járatait!\n")
+                    raise CustomException("Can't find stops!")
 
-            connection.close()
+            finally:
+                connection.close()
 
             return lines, licenses, stop_ids
 
