@@ -61,27 +61,31 @@ class RegisterPage(ContentPage.ContentPage):
 
 
     def register(self):
-        connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
-        cursor = connection.cursor()
-
-        cursor.execute("select * from user where username = %s", params = (self.username_entry.get(),))
-
-        if cursor.fetchall():
-            tkinter.messagebox.showerror("Hiba", "A felhasználónév már foglalt!")
-        elif self.password_entry.get() != self.password_confirm_entry.get():
-            tkinter.messagebox.showerror("Hiba", "A megadott jelszavak nem egyeznek!")
-
+        if self.username_entry.get() == "" or self.password_entry.get() == "" or self.password_confirm_entry.get() == "" or self.email_entry.get() == "":
+            tkinter.messagebox.showerror("Hiba", "Kérem töltse ki az összes mezőt!")
+        
         else:
-            cursor.execute("INSERT INTO user(username, password, email) VALUES(%s, %s, %s)", params = (self.username_entry.get(), self.password_entry.get(), self.email_entry.get()))
-            connection.commit()
+            connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
+            cursor = connection.cursor()
 
-            self.master.user = Entity.User(self.username_entry.get(), False)
+            cursor.execute("select * from user where username = %s", params = (self.username_entry.get(),))
 
-            self.username_entry.delete(0, "end")
-            self.password_entry.delete(0, "end")
-            self.password_confirm_entry.delete(0, "end")
-            self.email_entry.delete(0, "end")
+            if cursor.fetchall():
+                tkinter.messagebox.showerror("Hiba", "A felhasználónév már foglalt!")
+            elif self.password_entry.get() != self.password_confirm_entry.get():
+                tkinter.messagebox.showerror("Hiba", "A megadott jelszavak nem egyeznek!")
 
-            tkinter.messagebox.showinfo("Siker", "Sikeres regisztráció!")
+            else:
+                cursor.execute("INSERT INTO user(username, password, email) VALUES(%s, %s, %s)", params = (self.username_entry.get(), self.password_entry.get(), self.email_entry.get()))
+                connection.commit()
 
-        connection.close()
+                self.master.user = Entity.User(self.username_entry.get(), False)
+
+                self.username_entry.delete(0, "end")
+                self.password_entry.delete(0, "end")
+                self.password_confirm_entry.delete(0, "end")
+                self.email_entry.delete(0, "end")
+
+                tkinter.messagebox.showinfo("Siker", "Sikeres regisztráció!")
+
+            connection.close()
