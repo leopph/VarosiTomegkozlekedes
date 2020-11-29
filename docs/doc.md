@@ -87,7 +87,9 @@ Az alkalmazásnak 3 használati esete van. Ebben a részlegben ezeket részletez
 #### Vendég felhasználó
 Vendég felhasználónak minősül az, aki nincs bejelentkezve. Az ilyen felhasználók menetrend keresésre használhatják az alkalmazást.
 Az alkalmazás indítása után a fejlécben található megálló kereső segítségével kereshetnek járatokat, amelyeken utazva eljuthatnak az induló megállóikból a célállomásukig. Az egyes járatokról részletesebb információt is kaphatnak, ha megnyomják a "Részletek" feliratú gombot. Ez az adott járat kiválasztott időpontbeli menetét listázza. Innen leolvashatják a felhasználók a járat végállomásait, és hogy mikor ér az egyes állomásokhoz. Az egyes állomások mellett szereplő "Részletek" gomb megnyomásával pedig további információkat kaphatnak a kiválaszott megállóról (milyen járatok és mikor állnak meg ott).
+A különböző oldalak között a bal felső sarokban található "Előre", illetve "Vissza" gombokkal navigálhatnak a felhasználók. A "Főoldal" gomb mindig a kezdőoldalra visz.
 A vendég felhasználók ingyenesen regisztrálhatják magukat a főoldalon található "Regisztráció" gomb megnyomásával megjelenő űrlap kitöltésével és elküldésével.
+Regisztráció után a bejelentkezésre is itt van lehetőség, a "Bejelentkezés" gomb megnyomásával.
 
 #### Regisztrált felhasználó
 A regisztrált felhasználók további információk szerezhetnek az egyes járatokról. A járatokat részletező oldalon 3 új mező fogadja őket: a vezető neve, a vonal hossza, illetve hogy az adott jármű alacsony padlós-e.
