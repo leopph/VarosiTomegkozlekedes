@@ -18,28 +18,30 @@ class StopDetails(ContentPage.ContentPage):
         title_frame = tkinter.Frame(self, bg = self["bg"])
         title_frame.grid(row = 0, column = 0, sticky = "NESW")
 
-        title_frame.rowconfigure(0, weight = 3)
-        title_frame.rowconfigure(1, weight = 1)
         title_frame.columnconfigure(0, weight = 1)
 
-        tkinter.Label(title_frame, text = data["stop"].name, font = (None, 24), bg = self["bg"]).grid(row = 0, sticky = "NESW")
-        tkinter.Label(title_frame, text = data["stop"].location, font = (None, 20), bg = self["bg"]).grid(row = 1, sticky = "NESW")
+        tkinter.Label(title_frame, text = data["stop"].name, font = ("", 24), bg = self["bg"]).grid(row = 0, sticky = "NESW")
+        tkinter.Label(title_frame, text = data["stop"].location, font = ("", 20), bg = self["bg"]).grid(row = 1, sticky = "NESW")
 
         results_frame = tkinter.Frame(self, bg = self["bg"])
         results_frame.grid(row = 1, sticky = "NESW")
 
-        results_frame.columnconfigure(0, weight = 1)
-        results_frame.columnconfigure(1, weight = 1)
-        results_frame.columnconfigure(2, weight = 1)
+        results_frame.columnconfigure(0, weight = 8)
+        results_frame.columnconfigure(1, weight = 4)
+        results_frame.columnconfigure(2, weight = 4)
         results_frame.columnconfigure(3, weight = 1)
+        results_frame.columnconfigure(4, weight = 8)
 
 
-        grid_row_count = 0
+        tkinter.Label(master=results_frame, text="Járat", font=("", 16)).grid(row=0, column=1)
+        tkinter.Label(master=results_frame, text="Időpont", font=("", 16)).grid(row=0, column=2)
+
+
+        grid_row_count = 1
         for elem in data["routes"]:
-           tkinter.Label(results_frame, text = elem["route"].name + " jelzésű " + elem["route"].type, font = (None, 12)).grid(row = grid_row_count, column = 0, sticky = "NESW")
-           tkinter.Label(results_frame, text = elem["misc"][1].capitalize() + " felé", font = (None, 12)).grid(row = grid_row_count, column = 1, sticky = "NESW")
-           tkinter.Label(results_frame, text = elem["route"].departure + elem["misc"][0], font = (None, 12)).grid(row = grid_row_count, column = 2, sticky = "NESW")
-           tkinter.Button(results_frame, text = "Részletek", font = (None, 12), command = lambda route = elem["route"]: self.route_details(route)).grid(row = grid_row_count, column = 3, sticky = "NESW")
+           tkinter.Label(results_frame, text = elem["route"].name + " jelzésű " + elem["route"].type + " (" + elem["misc"][1].capitalize() + " felé)", font = ("", 12)).grid(row = grid_row_count, column = 1, sticky = "NESW")
+           tkinter.Label(results_frame, text = elem["route"].departure + elem["misc"][0], font = ("", 12)).grid(row = grid_row_count, column = 2, sticky = "NESW")
+           tkinter.Button(results_frame, text = "Részletek", bg = "dark slate blue", fg = "snow", command = lambda route = elem["route"]: self.route_details(route)).grid(row = grid_row_count, column = 3, sticky = "NESW")
 
            grid_row_count += 1
 

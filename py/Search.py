@@ -27,19 +27,22 @@ class SearchResults(ContentPage.ContentPage):
         result_frame = tkinter.Frame(master = self, bg = self["bg"])
         result_frame.grid(row = 1, sticky = "NESW")
 
-        result_frame.columnconfigure(0, weight = 4)
+        result_frame.columnconfigure(0, weight = 8)
         result_frame.columnconfigure(1, weight = 4)
         result_frame.columnconfigure(2, weight = 4)
         result_frame.columnconfigure(3, weight = 1)
+        result_frame.columnconfigure(5, weight = 8)
 
-        grid_row_count = 0
+        tkinter.Label(master=result_frame, text="Járat", font=("", 16)).grid(row=0, column=1)
+        tkinter.Label(master=result_frame, text="Időpont", font=("", 16)).grid(row=0, column=2)
+
+        grid_row_count = 1
         for route_id, datalist in data["results"].items():
             for data in datalist:
                 route = Entity.Route(route_id, data[0], data[3], data[1])
 
-                tkinter.Label(result_frame, text = route.name, font = (None, 12), bg = "LightSkyBlue2").grid(row = grid_row_count, column = 0, sticky = "NESW")
-                tkinter.Label(result_frame, text = route.type, font = (None, 12), bg = "LightSkyBlue2").grid(row = grid_row_count, column = 1, sticky = "NESW")
-                tkinter.Label(result_frame, text = route.departure + data[2], font = (None, 12), bg = "LightSkyBlue2").grid(row = grid_row_count, column = 2, sticky = "NESW")
+                tkinter.Label(result_frame, text = route.name + " jelzésű " + route.type, font = ("", 12)).grid(row = grid_row_count, column = 1, sticky="NESW")
+                tkinter.Label(result_frame, text = route.departure + data[2], font = ("", 12)).grid(row = grid_row_count, column = 2, sticky="NESW")
                 tkinter.Button(result_frame, text = "Részletek", command = lambda route = route: self.route_details(route), bg = "dark slate blue", fg = "snow").grid(row = grid_row_count, column = 3, sticky = "NESW")
 
                 grid_row_count += 1
