@@ -103,6 +103,7 @@ A főoldalon elérhető számukra három új gomb, az előbb említet három új
 - Járműtípus
 - Jármű
 - Járat
+
 Új adat felvitele esetén a választás után egy űrlap jelenik meg, ahol az adminisztrátor megadhatja az új adatokat.
 Adatmódosítás esetén először ki kell választania a módosítandó adatot egy listából, majd ezt követően jelenik meg egy előre kitöltött űrlap (hasonló az új adat űrlaphoz), amelyen keresztül végezhető el a frissítés.
 Törlés esetén csak az azonosítót kell kiválasztani egy listából. Figyelem! Egy adat törlése maga után vonja a tőle függő adatok törlését is!
