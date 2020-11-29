@@ -9,14 +9,14 @@ import Search
 import StopDetails
 import DataUpdate
 import DataDelete
-from ContentPage import ContentPage
 from typing import Union
 
 
 class App(tkinter.Tk):
     def __init__(self, dbhost = "localhost", dbname = "varosi_tomegkozlekedes", dbuser = "root", dbpwd = "", *args, **kwargs):
         tkinter.Tk.__init__(self, *args, **kwargs)
-        self.geometry("640x360")
+        self.geometry("1280x720")
+        self.minsize(960, 540)
         self.title("Városi Tömegközlekedés")
         self["bg"] = "dark slate grey"
 
