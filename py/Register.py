@@ -62,7 +62,7 @@ class RegisterPage(ContentPage.ContentPage):
 
     def register(self):
         if self.username_entry.get() == "" or self.password_entry.get() == "" or self.password_confirm_entry.get() == "" or self.email_entry.get() == "":
-            tkinter.messagebox.showerror("Hiba", "Kérem töltse ki az összes mezőt!")
+            tkinter.messagebox.showwarning("Hiba", "Kérem töltse ki az összes mezőt!")
         
         else:
             connection = mysql.connector.connect(host = self.master.dbhost, database = self.master.dbname, user = self.master.dbuser, password = self.master.dbpwd)
