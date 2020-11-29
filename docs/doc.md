@@ -112,3 +112,14 @@ Az alkalmazás Python nyelven fut, továbbá a tkinter, tkinter.ttk, és mysql.c
 Az EK diagram a Dia nevű programmal készült.
 Az adatbázis az XAMPP szoftvercsomag MariaDB modulját használva készült.
 Az adatfeltöltés eleinte a PHPMyAdmin felületen keresztül történt, majd később a már kész és futó Python alkalmazással fejeződött be.
+
+
+### 8. **További megjegyzések**
+Az adatbázisban található 2 felhasználó a különböző jogosultságok teszteléséhez.
+Adminiszrátori felhasználó:
+- Név: admin
+- Jelszó: admin
+
+Általános felhasználó:
+- Név: user
+- Jelszó: user
