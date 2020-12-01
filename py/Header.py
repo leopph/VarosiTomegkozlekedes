@@ -80,6 +80,15 @@ class Header(tkinter.Frame):
                     and alkerdes1.mikor < alkerdes2.mikor) as alkerdes3 on alkerdes3.vonal = indul.vonal_nev and alkerdes3.visszamenet = indul.visszamenet
                     order by addtime(indul.mikor, alkerdes3.mikor)'''
 
+            # Utólagos okosság, a fentebbi szükségtelenül bonyolult, ez ugyanazt csinálja:
+            '''select indul.vonal_nev, indul.visszamenet, indul.mikor, alkerdes1.mikor, jarmu.tipus_nev from indul
+                inner join jarmu on jarmu.rendszam = indul.rendszam
+                inner join (select menetrend.vonal, menetrend.visszamenet, menetrend.mikor from menetrend
+                inner join (select vonal, visszamenet, mikor from menetrend where megallo_nev = %s) as alkerdes2 on alkerdes2.vonal = menetrend.vonal and menetrend.visszamenet = alkerdes2.visszamenet
+                where menetrend.megallo_nev = %s and menetrend.mikor < alkerdes2.mikor) as alkerdes1 on alkerdes1.vonal = indul.vonal_nev and alkerdes1.visszamenet = indul.visszamenet
+                order by addtime(indul.mikor, alkerdes1.mikor)'''
+            # A különbség a paramétersorrend
+
             cursor.execute(operation = monster_sql, params = (self.stops[self.from_stop.get()], self.stops[self.to_stop.get()], self.stops[self.from_stop.get()], self.stops[self.to_stop.get()]))
             rows = cursor.fetchall()
 
